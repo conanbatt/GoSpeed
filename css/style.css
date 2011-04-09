@@ -1,0 +1,36 @@
+
+	div.gospeed-board {
+		font-family: "courier new";
+		font-size: 20px;
+		/* Copado */
+		/*
+		color: #A60;
+		background-color: #FC0;
+		*/
+
+		/* Balanceado */
+		color: #860;
+		background-color: #C90;
+
+		float: left;
+	}
+
+	span.Node {
+		cursor: pointer;
+	}
+
+	span.Stone {
+		font-weight: bold;
+		color: #000;
+	}
+
+	span.StoneW {
+		font-weight: bold;
+		color: #FFF;
+	}
+
+	span.StoneB {
+		font-weight: bold;
+		color: #000;
+	}
+

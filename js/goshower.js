@@ -37,26 +37,30 @@ GoShower.prototype = {
 
 	get_background_char: function(row, col) {
 		var chr;
-		if (row == 0 || col == 0 || row == this.game.size-1 || col == this.game.size-1) {
-			chr = '·';
+		if (this.game.ko != undefined && this.game.ko.row == row && this.game.ko.col == col) {
+			chr = 'X';
 		} else {
-			if (this.game.size == 9) {
-				if (row % 2 == 0 && col % 2 == 0 && (row + col) % 2 == 0) {
-					chr = '·';
-				} else {
-					chr = '+';
-				}
-			} else if (this.game.size == 13) {
-				if (row % 3 == 0 && col % 3 == 0 && (row + col) % 3 == 0) {
-					chr = '·';
-				} else {
-					chr = '+';
-				}
-			} else if (this.game.size == 19) {
-				if (row % 6 == 3 && col % 6 == 3 && (row + col) % 6 == 0) {
-					chr = '·';
-				} else {
-					chr = '+';
+			if (row == 0 || col == 0 || row == this.game.size-1 || col == this.game.size-1) {
+				chr = '·';
+			} else {
+				if (this.game.size == 9) {
+					if (row % 2 == 0 && col % 2 == 0 && (row + col) % 2 == 0) {
+						chr = '·';
+					} else {
+						chr = '+';
+					}
+				} else if (this.game.size == 13) {
+					if (row % 3 == 0 && col % 3 == 0 && (row + col) % 3 == 0) {
+						chr = '·';
+					} else {
+						chr = '+';
+					}
+				} else if (this.game.size == 19) {
+					if (row % 6 == 3 && col % 6 == 3 && (row + col) % 6 == 0) {
+						chr = '·';
+					} else {
+						chr = '+';
+					}
 				}
 			}
 		}
@@ -65,10 +69,9 @@ GoShower.prototype = {
 
 	toString: function() {
 		var s = "";
-		var rows = this.game.grid.length;
-		var cols;
+		var rows = this.game.size;
+		var cols = this.game.size;
 		for (i = 0 ; i < rows ; i++) {
-			cols = this.game.grid[i].length;
 			for (j = 0 ; j < cols ; j++) {
 				if (this.game.grid[i][j] == undefined) {
 					s += '<span class="Node" r="' + i + '" c="' + j + '">' + this.get_background_char(i, j) + '</span> ';
@@ -88,18 +91,12 @@ GoShower.prototype = {
 	},
 
 	render: function() {
-		var divs = document.getElementsByTagName("div");
-		for (div in divs) {
-			if (divs[div].className == "gospeed-board") {
-				divs[div].innerHTML = this.toString();
-				var nodes = divs[div].getElementsByTagName("span");
-				for (node in nodes) {
-					if (nodes[node].className == "Node") {
-						//var args = [nodes[node], nodes[node].getAttribute("r"), nodes[node].getAttribute("c")];
-						var args = [parseInt(nodes[node].getAttribute("r"), 10), parseInt(nodes[node].getAttribute("c"), 10)];
-						nodes[node].onclick = this.binder(this.game.play, this.game, args);
-					}
-				}
+		this.div.innerHTML = this.toString();
+		var nodes = this.div.getElementsByTagName("span");
+		for (node in nodes) {
+			if (nodes[node].className == "Node") {
+				var args = [parseInt(nodes[node].getAttribute("r"), 10), parseInt(nodes[node].getAttribute("c"), 10)];
+				nodes[node].onclick = this.binder(this.game.play, this.game, args);
 			}
 		}
 	},

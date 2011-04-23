@@ -21,6 +21,8 @@ GoSpeed.prototype = {
 		this.play_summary = [];
 		this.last_play = []
 		this.ko = undefined;
+
+		this.render();
 	},
 
 	put_stone: function(color, row, col) {
@@ -359,6 +361,10 @@ GoSpeed.prototype = {
 				throw new Error("The 'div_id' parameter points to no existing div.");
 			}
 		}
+	},
+
+	render: function() {
+		this.shower.render();
 	},
 
 }

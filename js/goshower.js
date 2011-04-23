@@ -17,8 +17,13 @@ GoShower.prototype = {
 	},
 
 	place_ko: function(ko) {
-		var node = this.div.getElementsByTagName("span")[parseInt(row, 10) * this.game.size + parseInt(col, 10)];
-		node.innerHTML = "#"
+		var node = this.div.getElementsByTagName("span")[parseInt(ko.row, 10) * this.game.size + parseInt(ko.col, 10)];
+		node.innerHTML = "X"
+	},
+
+	clear_ko: function(ko) {
+		var node = this.div.getElementsByTagName("span")[parseInt(ko.row, 10) * this.game.size + parseInt(ko.col, 10)];
+		node.innerHTML = this.get_background_char(ko.row, ko.col);
 	},
 
 	remove_stone: function(row, col) {

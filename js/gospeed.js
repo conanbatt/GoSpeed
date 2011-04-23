@@ -116,7 +116,8 @@ GoSpeed.prototype = {
 
 	check_ko: function() {
 		var play = this.play_summary[this.play_summary.length - 1];
-		var color = (this.next_move == "W" ? "B" : "W");
+		var color = this.next_move;
+		var i = 0;
 		if (play.length == 2) {
 			for (i in play) {
 				if (play[i].fact == "R") {
@@ -126,8 +127,10 @@ GoSpeed.prototype = {
 			this.put_stone(color, play[i].row, play[i].col);
 			this.eat(play[i].row, play[i].col);
 			if (this.is_same_play(this.last_play, this.complementary_play(play))) {
+				this.undo_play();
 				this.ko = {row: play[i].row, col: play[i].col};
 				this.shower.place_ko(this.ko);
+			} else {
 				this.undo_play();
 			}
 		}
@@ -136,12 +139,26 @@ GoSpeed.prototype = {
 	play: function(row, col) {
 		switch(this.mode) {
 			case "play":
+
+				// Can't override a stone
 				if (this.get_pos(row, col) != undefined) {
 					return;
 				}
+				// Can't place a stone on ko.
+				if (this.ko != undefined) {
+					if (this.ko.row == row && this.ko.col == col) {
+						return;
+					} else {
+						// Clear ko when plays elsewhere
+						this.shower.clear_ko(this.ko);
+						this.ko = undefined;
+					}
+				}
+
 				// Place stone
 				this.put_stone(this.next_move, row, col);
 
+				// Eat stones if surrounded
 				this.eat(row, col);
 
 				// Check illegal move
@@ -156,18 +173,14 @@ GoSpeed.prototype = {
 					}
 				}
 
-				// Check and UNDO KO (TEMPORAL: must prevent, not undo)
-				if (this.is_same_play(this.complementary_play(this.last_play), this.play_summary[this.play_summary.length - 1])) {
-					this.undo_play();
-					return;
-				}
-
+				// Commits play
 				this.play_summary.push(this.last_play);
 				this.last_play = [];
+				this.next_move = (this.next_move == "W" ? "B" : "W");
 
+				// Checks ko
 				this.check_ko();
 
-				this.next_move = (this.next_move == "W" ? "B" : "W");
 			break;
 			case "free":
 				switch(this.get_pos(row, col)) {

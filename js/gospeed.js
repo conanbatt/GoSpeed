@@ -17,6 +17,287 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 		this.next_move = "B";
+		this.shower = new GoShower(this, args.div_id);
+		this.play_summary = [];
+		this.last_play = []
+		this.ko = undefined;
+	},
+
+	put_stone: function(color, row, col) {
+		if (typeof color != "string") {
+			throw new Error("Wrong type of color");
+		}
+		if (color != "B" && color != "W") {
+			throw new Error("Wrong color");
+		}
+		if (row >= this.size || col >= this.size) {
+			throw new Error("Stone out of board");
+		}
+		this.grid[row][col] = color;
+		this.last_play.push({fact: "P", row: row, col: col});
+		this.shower.put_stone(color, row, col);
+	},
+
+	remove_stone: function(row, col) {
+		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
+			throw new Error("Position out of board");
+		}
+		this.grid[row][col] = undefined;
+		this.last_play.push({fact: "R", row: row, col: col});
+		this.shower.remove_stone(row, col);
+	},
+
+	get_pos: function(row, col) {
+		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
+			throw new Error("Position out of board");
+		}
+		return this.grid[row][col];
+	},
+
+	safe_get_pos: function(row, col) {
+		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
+			return "";
+		} else {
+			return this.grid[row][col];
+		}
+	},
+
+	undo_play: function() {
+		var color = (this.next_move == "W" ? "B" : "W");
+		var play = this.last_play;
+		for (move in play) {
+			switch(play[move].fact) {
+				case "P":
+					this.remove_stone(play[move].row, play[move].col);
+				break;
+				case "R":
+					this.put_stone(color, play[move].row, play[move].col);
+				break;
+			}
+		}
+		this.last_play = [];
+	},
+
+	is_same_play: function(a, b) {
+		if (a == undefined || b == undefined) {
+			return false;
+		}
+		if (a.length != b.length) {
+			return false;
+		}
+		outerloop:
+		for (move in a) {
+			for (mobe in b) {
+				if (this.is_same_move(a[move], b[mobe])) {
+					continue outerloop;
+				}
+			}
+			return false;
+		}
+		return true;
+	},
+
+	is_same_move: function(a, b) {
+		for (item in a) {
+			if (a[item] != b[item]) {
+				return false;
+			}
+		}
+		return true;
+	},
+
+	complementary_play: function(play) {
+		var comp_play = []
+		for (move in play) {
+			comp_play.push({fact: (play[move].fact == "P" ? "R" : "P"), row: play[move].row, col: play[move].col});
+		}
+		return comp_play;
+	},
+
+	check_ko: function() {
+		var play = this.play_summary[this.play_summary.length - 1];
+		var color = (this.next_move == "W" ? "B" : "W");
+		if (play.length == 2) {
+			for (i in play) {
+				if (play[i].fact == "R") {
+					break;
+				}
+			}
+			this.put_stone(color, play[i].row, play[i].col);
+			this.eat(play[i].row, play[i].col);
+			if (this.is_same_play(this.last_play, this.complementary_play(play))) {
+				this.ko = {row: play[i].row, col: play[i].col};
+				this.shower.place_ko(this.ko);
+				this.undo_play();
+			}
+		}
+	},
+
+	play: function(row, col) {
+		switch(this.mode) {
+			case "play":
+				if (this.get_pos(row, col) != undefined) {
+					return;
+				}
+				// Place stone
+				this.put_stone(this.next_move, row, col);
+
+				this.eat(row, col);
+
+				// Check illegal move
+				var stone = {color: this.next_move, row: row, col: col};
+				var chain;
+				if (this.count_stone_liberties(stone) == 0) {
+					chain = this.get_distinct_chains([stone])[0];
+					if (this.chain_is_restricted(chain)) {
+						this.remove_stone(row, col);
+						this.last_play = [];
+						return;
+					}
+				}
+
+				// Check and UNDO KO (TEMPORAL: must prevent, not undo)
+				if (this.is_same_play(this.complementary_play(this.last_play), this.play_summary[this.play_summary.length - 1])) {
+					this.undo_play();
+					return;
+				}
+
+				this.play_summary.push(this.last_play);
+				this.last_play = [];
+
+				this.check_ko();
+
+				this.next_move = (this.next_move == "W" ? "B" : "W");
+			break;
+			case "free":
+				switch(this.get_pos(row, col)) {
+					case "W":
+						this.put_stone("B", row, col);
+					break;
+					case "B":
+						this.remove_stone(row, col);
+					break;
+					default:
+						this.put_stone("W", row, col);
+					break;
+				}
+			break;
+		}
+	},
+
+	eat: function(row, col) {
+		var adj = this.get_adjacent((this.next_move == "W" ? "B" : "W"), row, col);
+		var chains = this.get_distinct_chains(adj);
+
+		for (chain in chains) {
+			if (this.chain_is_restricted(chains[chain])) {
+				for (stone in chains[chain]) {
+					this.remove_stone(chains[chain][stone].row, chains[chain][stone].col);
+				}
+			}
+		}
+	},
+
+	chain_is_restricted: function(chain) {
+		for (stone in chain) {
+			if (this.count_stone_liberties(chain[stone]) > 0) {
+				return false;
+			}
+		}
+		return true;
+	},
+
+	get_adjacent: function(color, row, col) {
+		var res = [];
+		for (i = row - 1 ; i <= row + 1 ; i++) {
+			for (j = col - 1 ; j <= col + 1 ; j++) {
+				if (this.safe_get_pos(i, j) == color) {
+					res.push({color: color, row: i, col: j});
+				}
+			}
+		}
+		return res;
+	},
+
+	get_touched: function(color, row, col) {
+		var res = [];
+		if (this.safe_get_pos(row - 1, col) == color) {
+			res.push({color: color, row: row - 1, col: col});
+		}
+		if (this.safe_get_pos(row, col - 1) == color) {
+			res.push({color: color, row: row, col: col - 1});
+		}
+		if (this.safe_get_pos(row, col + 1) == color) {
+			res.push({color: color, row: row, col: col + 1});
+		}
+		if (this.safe_get_pos(row + 1, col) == color) {
+			res.push({color: color, row: row + 1, col: col});
+		}
+		return res;
+	},
+
+	count_stone_liberties: function(stone) {
+		var count = 0;
+		if (this.safe_get_pos(stone.row - 1, stone.col) == undefined) {
+			count++;
+		}
+		if (this.safe_get_pos(stone.row, stone.col - 1) == undefined) {
+			count++;
+		}
+		if (this.safe_get_pos(stone.row, stone.col + 1) == undefined) {
+			count++;
+		}
+		if (this.safe_get_pos(stone.row + 1, stone.col) == undefined) {
+			count++;
+		}
+		return count;
+	},
+
+	list_has_stone: function(list, stone) {
+		for (item in list) {
+			if (list[item].color == stone.color && list[item].row == stone.row && list[item].col == stone.col) {
+				return true;
+			}
+		}
+		return false;
+	},
+
+	get_distinct_chains: function(stones) {
+		var chains = [];
+		var chains_pend = [];
+		var stone;
+		var touched;
+		for (stone in stones) {
+			chains.push([stones[stone]]);
+			chains_pend.push([stones[stone]]);
+		}
+
+		granloop:
+		for (chain in chains_pend) {
+			while (chains_pend[chain].length > 0) {
+				touched = [];
+				stone = chains_pend[chain].pop();
+				touched = this.get_touched(stone.color, stone.row, stone.col);
+				for (stone in touched) {
+					if (this.list_has_stone(chains[chain], touched[stone])) {
+						continue;
+					} else {
+						for (ch in chains) {
+							if (this.list_has_stone(chains[ch], touched[stone])) {
+								delete chains[chain];
+								delete chains_pend[chain];
+								continue granloop;
+							}
+						}
+						chains[chain].push(touched[stone]);
+						chains_pend[chain].push(touched[stone]);
+					}
+				}
+			}
+			//chains[chain].sort(this.compair_stones);
+		}
+
+		return chains;
 	},
 
 	validate: function(rgmnts) {
@@ -55,105 +336,17 @@ GoSpeed.prototype = {
 			} else {
 				throw new Error("The 'ruleset' parameter must be a string");
 			}
-		}
-	},
 
-	show_info: function() {
-		alert("Size: " + this.size + "\nMode: " + this.mode + "\nRuleset: " + this.ruleset);
-	},
-
-	put_stone: function(color, row, col) {
-		if (typeof color != "string") {
-			throw new Error("Wrong type of color");
-		}
-		if (color != "B" && color != "W") {
-			throw new Error("Wrong color");
-		}
-		if (row >= this.size || col >= this.size) {
-			throw new Error("Stone out of board");
-		}
-		this.grid[row][col] = color;
-	},
-
-	get_pos: function(row, col) {
-		if (row >= this.size || col >= this.size) {
-			throw new Error("Position out of board");
-		}
-		return this.grid[row][col];
-	},
-
-	toString: function() {
-		var s = "";
-		var rows = this.grid.length;
-		var cols;
-		for (i = 0 ; i < rows ; i++) {
-			cols = this.grid[i].length;
-			for (j = 0 ; j < cols ; j++) {
-				if (this.grid[i][j] == undefined) {
-					if (i == 0 || j == 0 || i == this.size-1 || j == this.size-1) {
-						s += '<span class="Node" r="' + i + '" c="' + j + '">·</span> ';
-					} else {
-						if (this.size == 9) {
-							if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">·</span> ';
-							} else {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">+</span> ';
-							}
-						} else if (this.size == 13) {
-							if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">·</span> ';
-							} else {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">+</span> ';
-							}
-						} else if (this.size == 19) {
-							if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">·</span> ';
-							} else {
-								s += '<span class="Node" r="' + i + '" c="' + j + '">+</span> ';
-							}
-						}
-					}
-				} else {
-					s += '<span class="Stone' + this.grid[i][j] + '">' + (this.grid[i][j] == "B" ? "O" : "O") + '</span>' + " ";
-				}
-				if (j == this.size-1) {
-					s += "<br />";
-				}
-			}
-		}
-		return s;
-	},
-
-	play: function(node, row, col) {
-		this.put_stone(this.next_move, row, col);
-
-		// Render
-			node.className = "Stone" + this.next_move;
-			node.innerHTML = "O";
-			node.onclick = function() {};
-		// --->
-
-		this.next_move = (this.next_move == "W" ? "B" : "W");
-	},
-
-	binder: function (method, object, args) {
-		return function() { method.apply(object, args); };
-	},
-
-	render: function() {
-		var divs = document.getElementsByTagName("div");
-		for (div in divs) {
-			if (divs[div].className == "gospeed-board") {
-				divs[div].innerHTML = this.toString();
-				var nodes = divs[div].getElementsByTagName("span");
-				for (node in nodes) {
-					if (nodes[node].className == "Node") {
-						var args = [nodes[node], nodes[node].getAttribute("r"), nodes[node].getAttribute("c")];
-						nodes[node].onclick = this.binder(this.play, this, args);
-					}
-				}
+			// DivID
+			if (typeof div_id == "undefined") {
+				throw new Error("The 'div_id' parameter must be defined.");
+			} else if (typeof div_id != "string") {
+				throw new Error("The 'div_id' parameter must be a string");
+			} else if (!document.getElementById(div_id)) {
+				throw new Error("The 'div_id' parameter points to no existing div.");
 			}
 		}
 	},
+
 }
 

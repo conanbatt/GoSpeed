@@ -20,16 +20,19 @@
 	}
 
 	span.Stone {
+		cursor: pointer;
 		font-weight: bold;
 		color: #000;
 	}
 
 	span.StoneW {
+		cursor: pointer;
 		font-weight: bold;
 		color: #FFF;
 	}
 
 	span.StoneB {
+		cursor: pointer;
 		font-weight: bold;
 		color: #000;
 	}

@@ -25,6 +25,7 @@ GoSpeed.prototype = {
 		this.render();
 	},
 
+//	Manage Board
 	put_stone: function(color, row, col) {
 		if (typeof color != "string") {
 			throw new Error("Wrong type of color");
@@ -64,6 +65,7 @@ GoSpeed.prototype = {
 		}
 	},
 
+//	Plays and Moves
 	undo_play: function() {
 		var color = (this.next_move == "W" ? "B" : "W");
 		var play = this.last_play;
@@ -116,6 +118,7 @@ GoSpeed.prototype = {
 		return comp_play;
 	},
 
+//	Gameplay
 	check_ko: function() {
 		var play = this.play_summary[this.play_summary.length - 1];
 		var color = this.next_move;
@@ -213,6 +216,7 @@ GoSpeed.prototype = {
 		}
 	},
 
+//	Auxiliar functions
 	chain_is_restricted: function(chain) {
 		for (stone in chain) {
 			if (this.count_stone_liberties(chain[stone]) > 0) {
@@ -309,10 +313,14 @@ GoSpeed.prototype = {
 					}
 				}
 			}
-			//chains[chain].sort(this.compair_stones);
 		}
 
 		return chains;
+	},
+
+//	Game Over
+	territory_count: function() {
+		return;
 	},
 
 	validate: function(rgmnts) {
@@ -367,5 +375,17 @@ GoSpeed.prototype = {
 		this.shower.render();
 	},
 
+	switch_mode: function(mode) {
+		if (typeof mode == "undefined") {
+			args.mode = "free";
+		} else if (typeof mode == "string") {
+			if (mode != "play" && mode != "free" && mode != "count") {
+				throw new Error("The 'mode' parameter must be 'play', 'free' or 'count'.");
+			}
+		} else {
+			throw new Error("The 'mode' parameter must be a string");
+		}
+		this.mode = mode;
+	},
 }
 

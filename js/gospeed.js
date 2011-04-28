@@ -18,7 +18,13 @@ GoSpeed.prototype = {
 		}
 		this.next_move = "B";
 		if (args.div_id != undefined) {
-			this.shower = new GoGraphic(this, args.div_id);
+			if (args.shower != undefined) {
+				if (args.shower == "basic") {
+					this.shower = new GoShower(this, args.div_id);
+				} else if (args.shower == "graphic") {
+					this.shower = new GoGraphic(this, args.div_id);
+				}
+			}
 		}
 		this.play_summary = [];
 		this.last_play = []
@@ -380,6 +386,15 @@ GoSpeed.prototype = {
 					throw new Error("The 'div_id' parameter must be a string");
 				} else if (!document.getElementById(div_id)) {
 					throw new Error("The 'div_id' parameter points to no existing div.");
+				}
+			}
+
+			// Shower
+			if (typeof shower != "undefined") {
+				if (typeof shower != "string") {
+					throw new Error("The 'shower' parameter must be a string");
+				} else if (shower != "graphic" && shower != "basic") {
+					throw new Error("The 'shower' parameter must be 'basic' or 'graphic'.");
 				}
 			}
 		}

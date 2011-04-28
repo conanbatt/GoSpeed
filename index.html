@@ -7,6 +7,7 @@
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
 		<script type="text/javascript" src="js/goshower.js"></script>
+		<script type="text/javascript" src="js/gographic.js"></script>
 	</head>
 	<body>
 		<select onchange="gospeed.switch_mode(this.value);">
@@ -14,35 +15,9 @@
 			<option value="free">free</option>
 			<option value="count">count</option>
 		</select>
-		<table>
-			<tr>
-				<td></td>
-				<td style="font-family: courier new; font-size: 20px;">
-					<!--a b c d e f g h j k l m n o p q r s t-->
-					0 1 2 3 4 5 6 7 8 9 101112131415161718
-				</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td style="font-family: courier new; font-size: 20px; width: 10px;">
-					0<br />1<br />2<br />3<br />4<br />5<br />6<br />7<br />8<br />9<br />10<br />11<br />12<br />13<br />14<br />15<br />16<br />17<br />18<br />
-				</td>
-				<td>
-					<div id="board1" class="gospeed-board"></div>
-				</td>
-				<td style="font-family: courier new; font-size: 20px; width: 10px;">
-					0<br />1<br />2<br />3<br />4<br />5<br />6<br />7<br />8<br />9<br />10<br />11<br />12<br />13<br />14<br />15<br />16<br />17<br />18<br />
-				</td>
-			</tr>
-			<tr>
-				<td></td>
-				<td style="font-family: courier new; font-size: 20px;">
-					<!--a b c d e f g h j k l m n o p q r s t-->
-					0 1 2 3 4 5 6 7 8 9 101112131415161718
-				</td>
-				<td></td>
-			</tr>
-		</table>
+
+		<div id="board1"></div>
+
 		<script type="text/javascript">
 			var args = {
 				size: 19,
@@ -50,7 +25,6 @@
 				div_id: "board1",
 			};
 			var gospeed = new GoSpeed(args);
-			//gospeed.render();
 		</script>
 	</body>
 </html>

@@ -37,3 +37,37 @@
 		color: #000;
 	}
 
+	div.StoneB {
+		position: absolute;
+		background-image: url("../img/black.png");
+		width: 25px;
+		height: 25px;
+		z-index: 2;
+	}
+
+	div.StoneW {
+		position: absolute;
+		background-image: url("../img/white.png");
+		width: 25px;
+		height: 25px;
+		z-index: 2;
+	}
+
+	div.Shadow {
+		position: absolute;
+		background-image: url("../img/shadow.png");
+		width: 25px;
+		height: 25px;
+		z-index: 1;
+	}
+
+	div.Ko {
+		position: absolute;
+		background-image: url("../img/ko.png");
+		width: 25px;
+		height: 25px;
+		z-index: 1;
+		display: none;
+	}
+
+

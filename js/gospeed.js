@@ -17,7 +17,7 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 		this.next_move = "B";
-		this.shower = new GoShower(this, args.div_id);
+		this.shower = new GoGraphic(this, args.div_id);
 		this.play_summary = [];
 		this.last_play = []
 		this.ko = undefined;
@@ -190,6 +190,7 @@ GoSpeed.prototype = {
 			case "free":
 				switch(this.get_pos(row, col)) {
 					case "W":
+						this.remove_stone(row, col);
 						this.put_stone("B", row, col);
 					break;
 					case "B":

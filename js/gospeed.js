@@ -153,10 +153,6 @@ GoSpeed.prototype = {
 				if (this.ko != undefined) {
 					if (this.ko.row == row && this.ko.col == col) {
 						return;
-					} else {
-						// Clear ko when plays elsewhere
-						this.shower.clear_ko(this.ko);
-						this.ko = undefined;
 					}
 				}
 
@@ -182,6 +178,12 @@ GoSpeed.prototype = {
 				this.play_summary.push(this.last_play);
 				this.last_play = [];
 				this.next_move = (this.next_move == "W" ? "B" : "W");
+
+				// Clear ko when plays elsewhere
+				if (this.ko != undefined) {
+					this.shower.clear_ko(this.ko);
+					this.ko = undefined;
+				}
 
 				// Checks ko
 				this.check_ko();

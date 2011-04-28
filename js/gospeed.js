@@ -17,7 +17,9 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 		this.next_move = "B";
-		this.shower = new GoGraphic(this, args.div_id);
+		if (args.div_id != undefined) {
+			this.shower = new GoGraphic(this, args.div_id);
+		}
 		this.play_summary = [];
 		this.last_play = []
 		this.ko = undefined;
@@ -38,7 +40,9 @@ GoSpeed.prototype = {
 		}
 		this.grid[row][col] = color;
 		this.last_play.push({fact: "P", row: row, col: col});
-		this.shower.put_stone(color, row, col);
+		if (this.shower) {
+			this.shower.put_stone(color, row, col);
+		}
 	},
 
 	remove_stone: function(row, col) {
@@ -47,7 +51,9 @@ GoSpeed.prototype = {
 		}
 		this.grid[row][col] = undefined;
 		this.last_play.push({fact: "R", row: row, col: col});
-		this.shower.remove_stone(row, col);
+		if (this.shower) {
+			this.shower.remove_stone(row, col);
+		}
 	},
 
 	get_pos: function(row, col) {
@@ -134,7 +140,9 @@ GoSpeed.prototype = {
 			if (this.is_same_play(this.last_play, this.complementary_play(play))) {
 				this.undo_play();
 				this.ko = {row: play[i].row, col: play[i].col};
-				this.shower.place_ko(this.ko);
+				if (this.shower) {
+					this.shower.place_ko(this.ko);
+				}
 			} else {
 				this.undo_play();
 			}
@@ -181,7 +189,9 @@ GoSpeed.prototype = {
 
 				// Clear ko when plays elsewhere
 				if (this.ko != undefined) {
-					this.shower.clear_ko(this.ko);
+					if (this.shower) {
+						this.shower.clear_ko(this.ko);
+					}
 					this.ko = undefined;
 				}
 
@@ -326,6 +336,7 @@ GoSpeed.prototype = {
 		return;
 	},
 
+//	Validation
 	validate: function(rgmnts) {
 		var args = rgmnts[0] || {};
 
@@ -364,18 +375,20 @@ GoSpeed.prototype = {
 			}
 
 			// DivID
-			if (typeof div_id == "undefined") {
-				throw new Error("The 'div_id' parameter must be defined.");
-			} else if (typeof div_id != "string") {
-				throw new Error("The 'div_id' parameter must be a string");
-			} else if (!document.getElementById(div_id)) {
-				throw new Error("The 'div_id' parameter points to no existing div.");
+			if (typeof div_id != "undefined") {
+				if (typeof div_id != "string") {
+					throw new Error("The 'div_id' parameter must be a string");
+				} else if (!document.getElementById(div_id)) {
+					throw new Error("The 'div_id' parameter points to no existing div.");
+				}
 			}
 		}
 	},
 
 	render: function() {
-		this.shower.render();
+		if (this.shower) {
+			this.shower.render();
+		}
 	},
 
 	switch_mode: function(mode) {

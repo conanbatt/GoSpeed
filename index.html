@@ -1,8 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<title>Tablero de GO</title>
+		<title>GoSpeed</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="icon" type="image/png" href="img/icon16.png" />
 		<link type="text/css" href="css/style.css" rel="stylesheet" />
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
@@ -10,13 +11,14 @@
 		<script type="text/javascript" src="js/gographic.js"></script>
 	</head>
 	<body>
-		<select onchange="gospeed.switch_mode(this.value);">
-			<option value="play">play</option>
-			<option value="free">free</option>
-			<option value="count">count</option>
-		</select>
-
-		<div id="board1"></div>
+		<div style="position: relative; margin: 0px auto; width: 50px;">
+			<select onchange="gospeed.switch_mode(this.value);" style="text-align: center;">
+				<option value="play">play</option>
+				<option value="free">free</option>
+				<option value="count">count</option>
+			</select>
+		</div>
+		<div id="board1" style="margin: 0px auto;"></div>
 
 		<script type="text/javascript">
 			var args = {

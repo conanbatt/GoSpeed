@@ -5,10 +5,11 @@ function GoSpeed(args) {
 
 GoSpeed.prototype = {
 	init: function() {
+		// Validation
 		this.validate(arguments);
-
 		var args = arguments[0];
 
+		// Setup
 		this.size = args.size;
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
@@ -27,9 +28,10 @@ GoSpeed.prototype = {
 			}
 		}
 		this.play_summary = [];
-		this.last_play = []
+		this.last_play = [];
 		this.ko = undefined;
 
+		// Render
 		this.render();
 	},
 

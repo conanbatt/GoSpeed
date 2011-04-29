@@ -53,6 +53,24 @@
 		z-index: 2;
 	}
 
+	div.StoneTB {
+		position: absolute;
+		background-image: url("../img/t_black.png");
+		width: 25px;
+		height: 25px;
+		z-index: 2;
+		display: none;
+	}
+
+	div.StoneTW {
+		position: absolute;
+		background-image: url("../img/t_white.png");
+		width: 25px;
+		height: 25px;
+		z-index: 2;
+		display: none;
+	}
+
 	div.Shadow {
 		position: absolute;
 		background-image: url("../img/shadow.png");

@@ -60,6 +60,43 @@ GoGraphic.prototype = {
 		}
 	},
 
+	mousemove_handler: function(mouse) {
+		var t_stone;
+		if (this.game.next_move == "B") {
+			t_stone = this.t_black;
+		} else {
+			t_stone = this.t_white;
+		}
+
+		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
+		var boundedY = mouse.pageY - this.div.offsetTop + 1;
+		if (boundedX > 10 && boundedX < 485 && boundedY > 10 && boundedY < 485) {
+			var gridX = parseInt((boundedX - 10) / 25, 10);
+			var gridY = parseInt((boundedY - 10) / 25, 10);
+			t_stone.style.left = (gridX * 25 + 10) + "px";
+			t_stone.style.top = (gridY * 25 + 10) + "px";
+			t_stone.style.display = "block";
+		} else {
+			t_stone.style.display = "none";
+		}
+	},
+
+	mouseout_handler: function(mouse) {
+		var hide = false;
+		if (mouse.relatedTarget == null) {
+			this.t_white.style.display = "none";
+			this.t_black.style.display = "none";
+		} else {
+			if (mouse.relatedTarget == this.div) {
+				return;
+			}
+			if (mouse.relatedTarget.parentNode != this.div) {
+				this.t_white.style.display = "none";
+				this.t_black.style.display = "none";
+			}
+		}
+	},
+
 	render: function() {
 		switch(this.game.size) {
 			case 19:
@@ -83,7 +120,19 @@ GoGraphic.prototype = {
 		// Image prefetch (dunno if this is the right place...)
 		(new Image()).src = "img/white.png";
 		(new Image()).src = "img/black.png";
+		(new Image()).src = "img/t_white.png";
+		(new Image()).src = "img/t_black.png";
 		(new Image()).src = "img/shadow.png";
+
+		// Transparent Stones
+		var t_white = document.createElement("div");
+		t_white.className = "StoneTW";
+		this.div.appendChild(t_white);
+		this.t_white = t_white;
+		var t_black = document.createElement("div");
+		t_black.className = "StoneTB";
+		this.div.appendChild(t_black);
+		this.t_black= t_black;
 
 		// Ko
 		var ko = document.createElement("div");
@@ -93,6 +142,8 @@ GoGraphic.prototype = {
 
 		// Bind click handler
 		this.div.onclick = this.binder(this.click_handler, this, null);
+		this.div.onmousemove = this.binder(this.mousemove_handler, this, null);
+		this.div.onmouseout = this.binder(this.mouseout_handler, this, null);
 	},
 
 };

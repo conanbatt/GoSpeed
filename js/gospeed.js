@@ -212,12 +212,14 @@ GoSpeed.prototype = {
 					case "W":
 						this.remove_stone(row, col);
 						this.put_stone("B", row, col);
+						this.eat(row, col);
 					break;
 					case "B":
 						this.remove_stone(row, col);
 					break;
 					default:
 						this.put_stone("W", row, col);
+						this.eat(row, col);
 					break;
 				}
 			break;

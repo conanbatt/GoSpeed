@@ -11,6 +11,7 @@ GoGraphic.prototype = {
 		for (row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
+		this.max_bound = this.game.size * 25 + 10;
 	},
 
 	put_stone: function(color, row, col) {
@@ -53,7 +54,7 @@ GoGraphic.prototype = {
 	click_handler: function(click) {
 		var boundedX = click.pageX - this.div.offsetLeft + 1;
 		var boundedY = click.pageY - this.div.offsetTop + 1;
-		if (boundedX > 10 && boundedX < 485 && boundedY > 10 && boundedY < 485) {
+		if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - 10) / 25, 10);
 			var gridY = parseInt((boundedY - 10) / 25, 10);
 			this.game.play(gridX, gridY);
@@ -62,15 +63,24 @@ GoGraphic.prototype = {
 
 	mousemove_handler: function(mouse) {
 		var t_stone;
-		if (this.game.next_move == "B") {
-			t_stone = this.t_black;
-		} else {
-			t_stone = this.t_white;
+		switch (this.game.mode) {
+			case "free":
+				t_stone = this.t_white;
+			break;
+			case "play":
+				if (this.game.next_move == "B") {
+					t_stone = this.t_black;
+				} else {
+					t_stone = this.t_white;
+				}
+			break;
+			case "count":
+			break;
 		}
 
 		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
 		var boundedY = mouse.pageY - this.div.offsetTop + 1;
-		if (boundedX > 10 && boundedX < 485 && boundedY > 10 && boundedY < 485) {
+		if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - 10) / 25, 10);
 			var gridY = parseInt((boundedY - 10) / 25, 10);
 			t_stone.style.left = (gridX * 25 + 10) + "px";

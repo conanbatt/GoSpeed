@@ -6,6 +6,7 @@
 		<link rel="icon" type="image/png" href="img/icon16.png" />
 		<link type="text/css" href="css/style.css" rel="stylesheet" />
 		<script type="text/javascript" src="js/stone.js"></script>
+		<script type="text/javascript" src="js/utils.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
 		<script type="text/javascript" src="js/goshower.js"></script>
 		<script type="text/javascript" src="js/gographic.js"></script>
@@ -20,6 +21,13 @@
 		</div>
 		<div id="board1" style="margin: 0px auto;"></div>
 
+		<div style="position: relative; margin: 0px auto; width: 65px;">
+			<input type="button" value="&lt;" onclick="gospeed.prev();" /><input type="button" value="&gt;" onclick="gospeed.next();" /><input type="button" value="^" onclick="gospeed.up();" /><input type="button" value="v" onclick="gospeed.down();" />
+		</div>
+		<div style="position: relative; margin: 0px auto; width: 900px;">
+			<div style="font-family: courier new;" id="arbol"></div>
+		</div>
+
 		<script type="text/javascript">
 			var args = {
 				size: 19,
@@ -28,6 +36,32 @@
 				shower: "graphic",
 			};
 			var gospeed = new GoSpeed(args);
+
+			function keyhandler(event) {
+				/*
+				var s = "";
+				for (e in event) {
+					s += e + ": " + event[e] + "\n";
+				}
+				alert(s);
+				*/
+				switch(event.keyCode) {
+					case event["DOM_VK_UP"]:
+						gospeed.up();
+					break;
+					case event["DOM_VK_LEFT"]:
+						gospeed.prev();
+					break;
+					case event["DOM_VK_RIGHT"]:
+						gospeed.next();
+					break;
+					case event["DOM_VK_DOWN"]:
+						gospeed.down();
+					break;
+				}
+			}
+
+			document.addEventListener("keypress", keyhandler, false);
 		</script>
 	</body>
 </html>

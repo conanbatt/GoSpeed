@@ -45,7 +45,9 @@ badd +1 ~/git-root/gospeed/test/index.html
 badd +1 ~/git-root/gospeed/test/board-play.html
 badd +1 ~/git-root/gospeed/index.html
 badd +1 ~/git-root/gospeed/js/goshower.js
-badd +0 ~/git-root/gospeed/js/gographic.js
+badd +1 ~/git-root/gospeed/js/gographic.js
+badd +1 ~/git-root/gospeed/js/utils.js
+badd +1 ~/git-root/gospeed/js/stone.js
 silent! argdel *
 edit ~/git-root/gospeed/index.html
 set splitbelow splitright
@@ -164,7 +166,7 @@ normal! zt
 normal! 0
 wincmd w
 argglobal
-edit ~/git-root/gospeed/js/gographic.js
+edit ~/git-root/gospeed/js/gospeed.js
 setlocal keymap=
 setlocal noarabic
 setlocal noautoindent

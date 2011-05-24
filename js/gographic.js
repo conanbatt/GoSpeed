@@ -47,6 +47,13 @@ GoGraphic.prototype = {
 		this.div.removeChild(this.grid[row][col][1]);
 	},
 
+	draw_play: function(play) {
+		this.put_stone(play.put.color, play.put.row, play.put.col);
+		for (stone in play.remove) {
+			this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+		}
+	},
+
 	binder: function (method, object, args) {
 		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
 	},

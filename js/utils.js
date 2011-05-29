@@ -4,6 +4,66 @@ function Play(color, row, col) {
 	this.remove = [];
 }
 
+function FreePlay() {
+	this.put = [];
+	this.remove = [];
+}
+
+FreePlay.prototype = {
+	toString: function() {
+		var s = "Play:\n\t";
+		s += "Put(" + this.put.length + ") {";
+		for (stone in this.put) {
+			s += "\n\t\t" + this.put[stone] + ",";
+		}
+		s += "\n\t}\n";
+		s += "Remove(" + this.remove.length + ") {";
+		for (stone in this.remove) {
+			s += "\n\t\t" + this.remove[stone] + ",";
+		}
+		s += "\n\t}";
+		return s;
+	},
+
+	get_put_by_pos: function(row, col) {
+		for (stone in this.put) {
+			if (this.put[stone].row == row && this.put[stone].col == col) {
+				return [stone, this.put[stone]];
+			}
+		}
+		return false;
+	},
+
+	get_rem_by_pos: function(row, col) {
+		for (stone in this.remove) {
+			if (this.remove[stone].row == row && this.remove[stone].col == col) {
+				return [stone, this.remove[stone]];
+			}
+		}
+		return false;
+	},
+
+	clean_pos: function(row, col) {
+		var i;
+		i = 0;
+		while (i < this.put.length) {
+			if (this.put[i].row == row && this.put[i].col == col) {
+				this.put.splice(i, 1);
+			} else {
+				i++;
+			}
+		}
+		i = 0;
+		while (i < this.remove.length) {
+			if (this.remove[i].row == row && this.remove[i].col == col) {
+				this.remove.splice(i, 1);
+			} else {
+				i++;
+			}
+		}
+	}
+}
+
 Play.prototype = {
 	toString: function() {
 		var s = "Play:\n\t";
@@ -89,7 +149,7 @@ GameTree.prototype = {
 	recRunTree: function(arbol, cadena, nivel, sel) {
 		var i, s, x;
 		if (arbol.next.length == 0) {
-			return cadena += (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + nivel + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + nivel + ' - </span>');
+			return cadena += (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "F" : nivel) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "F" : nivel) + ' - </span>');
 		} else {
 			s = "";
 			x = "";
@@ -97,7 +157,7 @@ GameTree.prototype = {
 				s += "&nbsp;&nbsp;&nbsp;&nbsp;";
 			}
 			s += "&bull;&nbsp;-&nbsp;";
-			x += this.recRunTree(arbol.next[0], cadena + (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + nivel + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + nivel + ' - </span>'), nivel + 1, sel && (arbol.last_next == arbol.next[0]))
+			x += this.recRunTree(arbol.next[0], cadena + (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "F" : nivel) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "F" : nivel) + ' - </span>'), nivel + 1, sel && (arbol.last_next == arbol.next[0]))
 			for (var i = 1; i < arbol.next.length; i++) {
 				x += "<br />" + s + this.recRunTree(arbol.next[i], "", nivel + 1, sel && (arbol.last_next == arbol.next[i]));
 			}

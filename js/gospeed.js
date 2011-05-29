@@ -72,9 +72,45 @@ GoSpeed.prototype = {
 
 //	Plays and Moves
 	make_play: function(play) {
-		this.put_stone(play.put.color, play.put.row, play.put.col);
-		for (stone in play.remove) {
-			this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+		if (play instanceof FreePlay) {
+			for (stone in play.remove) {
+				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			}
+			for (stone in play.put) {
+				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
+			}
+		} else {
+			this.put_stone(play.put.color, play.put.row, play.put.col);
+			for (stone in play.remove) {
+				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			}
+			if (play.ko) {
+				this.ko = play.ko;
+				if (this.shower) {
+					this.shower.place_ko(this.ko);
+				}
+			} else {
+				this.ko = null;
+				if (this.shower) {
+					this.shower.clear_ko();
+				}
+			}
+		}
+	},
+
+	undo_play: function(play) {
+		if (play instanceof FreePlay) {
+			for (stone in play.put) {
+				this.remove_stone(play.put[stone].row, play.put[stone].col);
+			}
+			for (stone in play.remove) {
+				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			}
+		} else {
+			this.remove_stone(play.put.row, play.put.col);
+			for (stone in play.remove) {
+				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			}
 		}
 	},
 
@@ -105,7 +141,8 @@ GoSpeed.prototype = {
 			this.play_eat(tmp_play);
 			if (tmp_play.remove.length == 1) {
 				if (play.put.equals(tmp_play.remove[0]) && tmp_play.put.equals(play.remove[0])) {
-					this.ko = {row: tmp_play.put.row, col: tmp_play.put.col};
+					play.ko = {row: tmp_play.put.row, col: tmp_play.put.col};
+					this.ko = play.ko;
 					if (this.shower) {
 						this.shower.place_ko(this.ko);
 					}
@@ -118,11 +155,21 @@ GoSpeed.prototype = {
 	prev: function() {
 		var play = this.game_tree.prev();
 		if (play) {
-			this.remove_stone(play.put.row, play.put.col);
-			this.shower.remove_stone(play.put.row, play.put.col);
-			for (stone in play.remove) {
-				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
-				this.shower.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			this.undo_play(play);
+			if (this.shower) {
+				this.shower.undraw_play(play);
+			}
+		}
+		play = this.game_tree.actual_move.play;
+		if (play.ko) {
+			this.ko = play.ko;
+			if (this.shower) {
+				this.shower.place_ko(this.ko);
+			}
+		} else {
+			this.ko = null;
+			if (this.shower) {
+				this.shower.clear_ko();
 			}
 		}
 		document.getElementById("arbol").innerHTML = this.game_tree.toString();
@@ -131,12 +178,10 @@ GoSpeed.prototype = {
 	next: function() {
 		var play = this.game_tree.next();
 		if (play) {
-			for (stone in play.remove) {
-				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
-				this.shower.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			this.make_play(play);
+			if (this.shower) {
+				this.shower.draw_play(play);
 			}
-			this.put_stone(play.put.color, play.put.row, play.put.col);
-			this.shower.put_stone(play.put.color, play.put.row, play.put.col);
 		}
 		document.getElementById("arbol").innerHTML = this.game_tree.toString();
 	},
@@ -205,23 +250,75 @@ GoSpeed.prototype = {
 			break;
 			case "free":
 
+				// Cases in which a free play makes a new node in the tree.
+				if (this.game_tree.actual_move == null) {
+					// Make a new node in case there is no actual move
+					this.game_tree.append(new GameNode(new FreePlay()))
+				} else {
+ 					if (this.game_tree.actual_move.play instanceof FreePlay) {
+						if (this.game_tree.actual_move.next.length > 0) {
+							// Make a new node in case the actual move is free but there is a node next to it
+							this.game_tree.append(new GameNode(new FreePlay()))
+						}
+					} else {
+						// Make a new node in case the actual move is not free
+						this.game_tree.append(new GameNode(new FreePlay()))
+					}
+				}
+
+				var actual_play = this.game_tree.actual_move.play;
+
+				var put = actual_play.get_put_by_pos(row, col);
+				var rem = actual_play.get_rem_by_pos(row, col);
+
 				switch(this.get_pos(row, col)) {
 					case "W":
+						// Tree
+						if (!rem && !put) {
+							actual_play.remove.push(new Stone("W", row, col));
+							actual_play.put.push(new Stone("B", row, col));
+						} else {
+							actual_play.put.splice(put[0], 1);
+							actual_play.put.push(new Stone("B", row, col));
+						}
+						// Grid
 						this.remove_stone(row, col);
 						this.put_stone("B", row, col);
-						this.eat(row, col);
+						// Draw
+						if (this.shower) {
+							this.shower.remove_stone(row, col);
+							this.shower.put_stone("B", row, col);
+						}
 					break;
 					case "B":
+						// Tree
+						if (!rem && !put) {
+							actual_play.remove.push(new Stone("B", row, col));
+						} else {
+							actual_play.put.splice(put[0], 1);
+						}
+						// Grid
 						this.remove_stone(row, col);
+						// Draw
+						if (this.shower) {
+							this.shower.remove_stone(row, col);
+						}
 					break;
 					default:
+						// Tree
+						actual_play.put.push(new Stone("W", row, col));
+						// Grid
 						this.put_stone("W", row, col);
-						this.eat(row, col);
+						// Draw
+						if (this.shower) {
+							this.shower.put_stone("W", row, col);
+						}
 					break;
 				}
 
 			break;
 		}
+		document.getElementById("arbol").innerHTML = this.game_tree.toString();
 	},
 
 //	Auxiliar functions
@@ -397,7 +494,7 @@ GoSpeed.prototype = {
 
 	switch_mode: function(mode) {
 		if (typeof mode == "undefined") {
-			args.mode = "free";
+			mode = "play";
 		} else if (typeof mode == "string") {
 			if (mode != "play" && mode != "free" && mode != "count") {
 				throw new Error("The 'mode' parameter must be 'play', 'free' or 'count'.");

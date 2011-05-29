@@ -43,14 +43,41 @@ GoGraphic.prototype = {
 	},
 
 	remove_stone: function(row, col) {
-		this.div.removeChild(this.grid[row][col][0]);
-		this.div.removeChild(this.grid[row][col][1]);
+		if (this.grid[row][col] != null) {
+			this.div.removeChild(this.grid[row][col][0]);
+			this.div.removeChild(this.grid[row][col][1]);
+		}
 	},
 
 	draw_play: function(play) {
-		this.put_stone(play.put.color, play.put.row, play.put.col);
-		for (stone in play.remove) {
-			this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+		if (play instanceof FreePlay) {
+			for (stone in play.remove) {
+				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			}
+			for (stone in play.put) {
+				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
+			}
+		} else {
+			this.put_stone(play.put.color, play.put.row, play.put.col);
+			for (stone in play.remove) {
+				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			}
+		}
+	},
+
+	undraw_play: function(play) {
+		if (play instanceof FreePlay) {
+			for (stone in play.put) {
+				this.remove_stone(play.put[stone].row, play.put[stone].col);
+			}
+			for (stone in play.remove) {
+				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			}
+		} else {
+			this.remove_stone(play.put.row, play.put.col);
+			for (stone in play.remove) {
+				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			}
 		}
 	},
 

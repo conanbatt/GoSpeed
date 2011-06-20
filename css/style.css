@@ -15,6 +15,18 @@
 		float: left;
 	}
 
+	div.OnlyBoard19 {
+		background-image: url("../img/OnlyBoard19.png");
+	}
+
+	div.OnlyBoard13 {
+		background-image: url("../img/OnlyBoard13.png");
+	}
+
+	div.OnlyBoard9 {
+		background-image: url("../img/OnlyBoard9.png");
+	}
+
 	span.Node {
 		cursor: pointer;
 	}

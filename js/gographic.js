@@ -146,17 +146,20 @@ GoGraphic.prototype = {
 			case 19:
 				this.div.style.width = "495px";
 				this.div.style.height = "495px";
-				this.div.style.backgroundImage = "url(img/OnlyBoard19.png)";
+				this.div.className = "OnlyBoard19";
+				//this.div.style.backgroundImage = "url(img/OnlyBoard19.png)";
 			break;
 			case 13:
 				this.div.style.width = "346px";
 				this.div.style.height = "346px";
-				this.div.style.backgroundImage = "url(img/OnlyBoard13.png)";
+				this.div.className = "OnlyBoard13";
+				//this.div.style.backgroundImage = "url(img/OnlyBoard13.png)";
 			break;
 			case 9:
 				this.div.style.width = "246px";
 				this.div.style.height = "246px";
-				this.div.style.backgroundImage = "url(img/OnlyBoard9.png)";
+				this.div.className = "OnlyBoard9";
+				//this.div.style.backgroundImage = "url(img/OnlyBoard9.png)";
 			break;
 		}
 		this.div.style.position = "relative";

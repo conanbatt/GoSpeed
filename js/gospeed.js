@@ -159,19 +159,25 @@ GoSpeed.prototype = {
 			if (this.shower) {
 				this.shower.undraw_play(play);
 			}
-		}
-		play = this.game_tree.actual_move.play;
-		if (play.ko) {
-			this.ko = play.ko;
-			if (this.shower) {
-				this.shower.place_ko(this.ko);
-			}
-		} else {
-			this.ko = null;
-			if (this.shower) {
-				this.shower.clear_ko();
+			if (play instanceof Play) {
+				this.next_move = (this.next_move == "W" ? "B" : "W");
 			}
 		}
+		if (this.game_tree.actual_move) {
+			play = this.game_tree.actual_move.play;
+			if (play.ko) {
+				this.ko = play.ko;
+				if (this.shower) {
+					this.shower.place_ko(this.ko);
+				}
+			} else {
+				this.ko = null;
+				if (this.shower) {
+					this.shower.clear_ko();
+				}
+			}
+		}
+		this.shower.clean_t_stones();
 		document.getElementById("arbol").innerHTML = this.game_tree.toString();
 	},
 
@@ -183,6 +189,10 @@ GoSpeed.prototype = {
 				this.shower.draw_play(play);
 			}
 		}
+		if (play instanceof Play) {
+			this.next_move = (this.next_move == "W" ? "B" : "W");
+		}
+		this.shower.clean_t_stones();
 		document.getElementById("arbol").innerHTML = this.game_tree.toString();
 	},
 

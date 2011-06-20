@@ -99,7 +99,6 @@ GameTree.prototype = {
 	next: function() {
 		if (this.actual_move == null) {
 			this.actual_move = this.last_first;
-			return this.actual_move.play;
 		} else {
 			if (this.actual_move.next.length == 0) {
 				return false;

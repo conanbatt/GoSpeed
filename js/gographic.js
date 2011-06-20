@@ -190,4 +190,9 @@ GoGraphic.prototype = {
 		this.div.onmouseout = this.binder(this.mouseout_handler, this, null);
 	},
 
+	clean_t_stones: function() {
+		this.t_white.style.display = "none";
+		this.t_black.style.display = "none";
+	},
+
 };

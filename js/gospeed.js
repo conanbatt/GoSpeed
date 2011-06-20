@@ -30,6 +30,10 @@ GoSpeed.prototype = {
 		this.game_tree = new GameTree();
 		this.ko = undefined;
 
+		// Online
+		this.my_colour = args.my_colour;
+		this.my_turn = (this.my_colour == "B");
+
 		// Render
 		this.render();
 	},
@@ -258,6 +262,62 @@ GoSpeed.prototype = {
 				this.play_check_ko();
 
 			break;
+			case "play_online":
+				// Not my turn.
+				if (!this.my_turn) {
+					return;
+				}
+
+				// Can't override a stone
+				if (this.get_pos(row, col) != undefined) {
+					return;
+				}
+				// Can't place a stone on ko.
+				if (this.ko != undefined) {
+					if (this.ko.row == row && this.ko.col == col) {
+						return;
+					}
+				}
+
+				// Place stone
+				var tmp_play = new Play(this.next_move, row, col);
+
+				// Eat stones if surrounded
+				this.play_eat(tmp_play);
+
+				// Check illegal move
+				if (tmp_play.remove.length == 0) {
+					if (this.count_stone_liberties(tmp_play.put) == 0) {
+						var chain = this.get_distinct_chains([tmp_play.put])[0];
+						if (this.chain_is_restricted(chain)) {
+							return;
+						}
+					}
+				}
+
+				// Commits play
+				this.game_tree.append(new GameNode(tmp_play));
+				this.make_play(tmp_play);
+				if (this.shower) {
+					this.shower.draw_play(tmp_play);
+				}
+				this.next_move = (this.next_move == "W" ? "B" : "W");
+
+				// Clear ko when plays elsewhere
+				if (this.ko != undefined) {
+					if (this.shower) {
+						this.shower.clear_ko(this.ko);
+					}
+					this.ko = undefined;
+				}
+
+				// Checks ko
+				this.play_check_ko();
+
+				this.send_play(row, col);
+				this.my_turn = false;
+
+			break;
 			case "free":
 
 				// Cases in which a free play makes a new node in the tree.
@@ -329,6 +389,63 @@ GoSpeed.prototype = {
 			break;
 		}
 		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+	},
+
+	extern_play: function(row, col) {
+		if (this.mode == "play_online") {
+			// My turn...
+			if (this.my_turn) {
+				return;
+			}
+
+			// Can't override a stone
+			if (this.get_pos(row, col) != undefined) {
+				return;
+			}
+			// Can't place a stone on ko.
+			if (this.ko != undefined) {
+				if (this.ko.row == row && this.ko.col == col) {
+					return;
+				}
+			}
+
+			// Place stone
+			var tmp_play = new Play(this.next_move, row, col);
+
+			// Eat stones if surrounded
+			this.play_eat(tmp_play);
+
+			// Check illegal move
+			if (tmp_play.remove.length == 0) {
+				if (this.count_stone_liberties(tmp_play.put) == 0) {
+					var chain = this.get_distinct_chains([tmp_play.put])[0];
+					if (this.chain_is_restricted(chain)) {
+						return;
+					}
+				}
+			}
+
+			// Commits play
+			this.game_tree.append(new GameNode(tmp_play));
+			this.make_play(tmp_play);
+			if (this.shower) {
+				this.shower.draw_play(tmp_play);
+			}
+			this.next_move = (this.next_move == "W" ? "B" : "W");
+
+			// Clear ko when plays elsewhere
+			if (this.ko != undefined) {
+				if (this.shower) {
+					this.shower.clear_ko(this.ko);
+				}
+				this.ko = undefined;
+			}
+
+			// Checks ko
+			this.play_check_ko();
+
+			this.my_turn = true;
+		}
 	},
 
 //	Auxiliar functions
@@ -458,8 +575,8 @@ GoSpeed.prototype = {
 			if (typeof mode == "undefined") {
 				args.mode = "play";
 			} else if (typeof mode == "string") {
-				if (mode != "play" && mode != "free" && mode != "count") {
-					throw new Error("The 'mode' parameter must be 'play', 'free' or 'count'.");
+				if (mode != "play" && mode != "play_online" && mode != "free" && mode != "count") {
+					throw new Error("The 'mode' parameter must be 'play', 'play_online', 'free' or 'count'.");
 				}
 			} else {
 				throw new Error("The 'mode' parameter must be a string");
@@ -493,6 +610,15 @@ GoSpeed.prototype = {
 					throw new Error("The 'shower' parameter must be 'basic' or 'graphic'.");
 				}
 			}
+
+			// Colour
+			if (typeof my_colour != "undefined") {
+				if (typeof my_colour != "string") {
+					throw new Error("The 'my_colour' parameter must be a string");
+				} else if (my_colour != "W" && my_colour != "B") {
+					throw new Error("The 'my_colour' parameter must be 'W' or 'B'.");
+				}
+			}
 		}
 	},
 
@@ -506,13 +632,30 @@ GoSpeed.prototype = {
 		if (typeof mode == "undefined") {
 			mode = "play";
 		} else if (typeof mode == "string") {
-			if (mode != "play" && mode != "free" && mode != "count") {
-				throw new Error("The 'mode' parameter must be 'play', 'free' or 'count'.");
+			if (mode != "play" && mode != "play_online" && mode != "free" && mode != "count") {
+				throw new Error("The 'mode' parameter must be 'play', 'play_online', 'free' or 'count'.");
 			}
 		} else {
 			throw new Error("The 'mode' parameter must be a string");
 		}
 		this.mode = mode;
+	},
+
+	string_to_play: function(data) {
+		var row_patt = /^[A-Z]/;
+		var row = row_patt.exec(data)[0];
+		row = row.charCodeAt(0) - 65;
+		var col_patt = /[0-9]*$/;
+		var col = col_patt.exec(data)[0];
+		return {row: row, col: col};
+	},
+
+	coord_converter: function(row, col) {
+		return String.fromCharCode(65 + row) + "-" + col
+	},
+
+	send_play: function(row, col) {
+		$.post("/game_move", {move: this.coord_converter(row, col)});
 	},
 }
 

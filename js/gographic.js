@@ -108,20 +108,30 @@ GoGraphic.prototype = {
 					t_stone = this.t_white;
 				}
 			break;
+			case "play_online":
+				if (this.game.my_turn) {
+					if (this.game.my_colour == "B") {
+						t_stone = this.t_black;
+					} else {
+						t_stone = this.t_white;
+					}
+				}
 			case "count":
 			break;
 		}
 
-		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
-		var boundedY = mouse.pageY - this.div.offsetTop + 1;
-		if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
-			var gridX = parseInt((boundedX - 10) / 25, 10);
-			var gridY = parseInt((boundedY - 10) / 25, 10);
-			t_stone.style.left = (gridX * 25 + 10) + "px";
-			t_stone.style.top = (gridY * 25 + 10) + "px";
-			t_stone.style.display = "block";
-		} else {
-			t_stone.style.display = "none";
+		if (t_stone) {
+			var boundedX = mouse.pageX - this.div.offsetLeft + 1;
+			var boundedY = mouse.pageY - this.div.offsetTop + 1;
+			if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
+				var gridX = parseInt((boundedX - 10) / 25, 10);
+				var gridY = parseInt((boundedY - 10) / 25, 10);
+				t_stone.style.left = (gridX * 25 + 10) + "px";
+				t_stone.style.top = (gridY * 25 + 10) + "px";
+				t_stone.style.display = "block";
+			} else {
+				t_stone.style.display = "none";
+			}
 		}
 	},
 

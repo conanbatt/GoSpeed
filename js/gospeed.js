@@ -5,19 +5,24 @@ function GoSpeed(args) {
 
 GoSpeed.prototype = {
 	init: function() {
-		// Validation
+	// Validation
 		this.validate(arguments);
 		var args = arguments[0];
 
-		// Setup
+	// Setup
 		this.size = args.size;
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
+		this.next_move = "B";
+		this.ko = undefined;
+
+		// Grid
 		this.grid = Array(this.size);
 		for (row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
-		this.next_move = "B";
+
+		// Shower
 		if (args.div_id != undefined) {
 			if (args.shower != undefined) {
 				if (args.shower == "basic") {
@@ -27,14 +32,18 @@ GoSpeed.prototype = {
 				}
 			}
 		}
+
+		// GameTree
 		this.game_tree = new GameTree();
-		this.ko = undefined;
+		if (args.tree_div_id) {
+			this.tree_div = document.getElementById(args.tree_div_id);
+		}
 
 		// Online
 		this.my_colour = args.my_colour;
 		this.my_turn = (this.my_colour == "B");
 
-		// Render
+	// Render
 		this.render();
 	},
 
@@ -182,7 +191,8 @@ GoSpeed.prototype = {
 			}
 		}
 		this.shower.clean_t_stones();
-		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+
+		this.renderTree();
 	},
 
 	next: function() {
@@ -197,17 +207,20 @@ GoSpeed.prototype = {
 			this.next_move = (this.next_move == "W" ? "B" : "W");
 		}
 		this.shower.clean_t_stones();
-		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+
+		this.renderTree();
 	},
 
 	up: function() {
 		this.game_tree.up();
-		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+
+		this.renderTree();
 	},
 
 	down: function() {
 		this.game_tree.down();
-		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+
+		this.renderTree();
 	},
 
 //	Gameplay
@@ -388,7 +401,8 @@ GoSpeed.prototype = {
 
 			break;
 		}
-		document.getElementById("arbol").innerHTML = this.game_tree.toString();
+
+		this.renderTree();
 	},
 
 	extern_play: function(row, col) {
@@ -550,6 +564,12 @@ GoSpeed.prototype = {
 		return chains;
 	},
 
+	renderTree: function() {
+		if (this.tree_div) {
+			this.tree_div.innerHTML = this.game_tree.toString();
+		}
+	},
+
 //	Game Over
 	territory_count: function() {
 		return;
@@ -599,6 +619,15 @@ GoSpeed.prototype = {
 					throw new Error("The 'div_id' parameter must be a string");
 				} else if (!document.getElementById(div_id)) {
 					throw new Error("The 'div_id' parameter points to no existing div.");
+				}
+			}
+
+			// TreeDivID
+			if (typeof tree_div_id != "undefined") {
+				if (typeof tree_div_id != "string") {
+					throw new Error("The 'tree_div_id' parameter must be a string");
+				} else if (!document.getElementById(tree_div_id)) {
+					throw new Error("The 'tree_div_id' parameter points to no existing div.");
 				}
 			}
 

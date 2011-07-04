@@ -176,8 +176,8 @@ GoSpeed.prototype = {
 				this.next_move = (this.next_move == "W" ? "B" : "W");
 			}
 		}
-		if (this.game_tree.actual_move) {
-			play = this.game_tree.actual_move.play;
+		play = this.game_tree.actual_move.play;
+		if (play) {
 			if (play.ko) {
 				this.ko = play.ko;
 				if (this.shower) {

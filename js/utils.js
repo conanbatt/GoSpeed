@@ -78,40 +78,30 @@ Play.prototype = {
 }
 
 function GameTree() {
-	this.first_move = [];
-	this.actual_move = null;
-	this.last_first = null;
+	this.root = new GameNode(null);
+	this.actual_move = this.root;
 }
 
 GameTree.prototype = {
 	append: function(node) {
-		if (this.actual_move != null) {
-			node.prev = this.actual_move;
-			this.actual_move.next.push(node);
-			this.actual_move.last_next = node;
-		} else {
-			this.first_move.push(node);
-			this.last_first = node;
-		}
+		node.prev = this.actual_move;
+		this.actual_move.next.push(node);
+		this.actual_move.last_next = node;
 		this.actual_move = node;
 	},
 
 	next: function() {
-		if (this.actual_move == null) {
-			this.actual_move = this.last_first;
+		if (this.actual_move.next.length == 0) {
+			return false;
 		} else {
-			if (this.actual_move.next.length == 0) {
-				return false;
-			} else {
-				this.actual_move = this.actual_move.last_next;
-			}
+			this.actual_move = this.actual_move.last_next;
 		}
 		return this.actual_move.play;
 	},
 
 	prev: function() {
 		var tmp_play;
-		if (this.actual_move == null) {
+		if (this.actual_move.play == null) {
 			return false;
 		} else {
 			tmp_play = this.actual_move.play;
@@ -165,12 +155,7 @@ GameTree.prototype = {
 	},
 
 	toString: function() {
-		var n = new GameNode(null);
-		for (node in this.first_move) {
-			n.next.push(this.first_move[node]);
-		}
-		n.last_next = n.next[0];
-		return this.recRunTree(n, "", 0, true);
+		return this.recRunTree(this.root, "", 0, true);
 	},
 }
 

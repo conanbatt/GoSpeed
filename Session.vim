@@ -31,7 +31,7 @@ set window=50
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/git-root/gospeed/js
+cd ~/git-root/gospeed
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -59,8 +59,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 112 + 111) / 223)
-exe 'vert 2resize ' . ((&columns * 110 + 111) / 223)
+exe 'vert 1resize ' . ((&columns * 82 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 140 + 111) / 223)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -158,12 +158,12 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 24) / 49)
+let s:l = 39 - ((38 * winheight(0) + 24) / 49)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+39
+normal! 034l
 wincmd w
 argglobal
 edit ~/git-root/gospeed/js/gospeed.js
@@ -270,9 +270,8 @@ normal! zt
 1
 normal! 0
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 112 + 111) / 223)
-exe 'vert 2resize ' . ((&columns * 110 + 111) / 223)
+exe 'vert 1resize ' . ((&columns * 82 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 140 + 111) / 223)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

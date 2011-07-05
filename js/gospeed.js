@@ -141,7 +141,7 @@ GoSpeed.prototype = {
 		this.put_stone(play.put.color, play.put.row, play.put.col);
 
 		var target_color = (play.put.color == "W" ? "B" : "W");
-		var adj = this.get_adjacent(target_color, play.put.row, play.put.col);
+		var adj = this.get_touched(target_color, play.put.row, play.put.col);
 		var chains = this.get_distinct_chains(adj);
 
 		for (chain in chains) {

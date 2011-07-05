@@ -83,6 +83,16 @@ GoSpeed.prototype = {
 		}
 	},
 
+	pos_is_ko: function(row, col) {
+		var ret = false;
+		if (this.ko != undefined) {
+			if (this.ko.row == row && this.ko.col == col) {
+				ret = true;
+			}
+		}
+		return ret;
+	},
+
 //	Plays and Moves
 	make_play: function(play) {
 		if (play instanceof FreePlay) {

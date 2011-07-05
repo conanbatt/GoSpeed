@@ -190,6 +190,15 @@ GoSpeed.prototype = {
 		return res;
 	},
 
+	commit_play: function(play) {
+		this.game_tree.append(new GameNode(play));
+		this.make_play(play);
+		if (this.shower) {
+			this.shower.draw_play(play);
+		}
+		this.next_move = (this.next_move == "W" ? "B" : "W");
+	},
+
 //	Game Seek
 	prev: function() {
 		var play = this.game_tree.prev();
@@ -276,14 +285,8 @@ GoSpeed.prototype = {
 					return false;
 				}
 
-				// Commits play
-				this.game_tree.append(new GameNode(tmp_play));
-				this.make_play(tmp_play);
-				if (this.shower) {
-					this.shower.draw_play(tmp_play);
-				}
-				this.next_move = (this.next_move == "W" ? "B" : "W");
-
+				// Commits play (changes next_move)
+				this.commit_play(tmp_play);
 
 				// Checks KO: clear or set depending on result
 				this.play_check_ko();
@@ -317,14 +320,8 @@ GoSpeed.prototype = {
 					return false;
 				}
 
-				// Commits play
-				this.game_tree.append(new GameNode(tmp_play));
-				this.make_play(tmp_play);
-				if (this.shower) {
-					this.shower.draw_play(tmp_play);
-				}
-				this.next_move = (this.next_move == "W" ? "B" : "W");
-
+				// Commits play (changes next_move)
+				this.commit_play(tmp_play);
 
 				// Checks KO: clear or set depending on result
 				this.play_check_ko();
@@ -436,14 +433,8 @@ GoSpeed.prototype = {
 				return false;
 			}
 
-			// Commits play
-			this.game_tree.append(new GameNode(tmp_play));
-			this.make_play(tmp_play);
-			if (this.shower) {
-				this.shower.draw_play(tmp_play);
-			}
-			this.next_move = (this.next_move == "W" ? "B" : "W");
-
+			// Commits play (changes next_move)
+			this.commit_play(tmp_play);
 
 			// Checks KO: clear or set depending on result
 			this.play_check_ko();

@@ -148,17 +148,33 @@ GoSpeed.prototype = {
 	play_check_ko: function() {
 		var play = this.game_tree.actual_move.play;
 		var color = this.next_move;
+		var is_ko = false;
 		var i = 0;
 		if (play.remove.length == 1) {
 			var tmp_play = new Play(play.remove[0].color, play.remove[0].row, play.remove[0].col);
 			this.play_eat(tmp_play);
 			if (tmp_play.remove.length == 1) {
 				if (play.put.equals(tmp_play.remove[0]) && tmp_play.put.equals(play.remove[0])) {
-					play.ko = {row: tmp_play.put.row, col: tmp_play.put.col};
-					this.ko = play.ko;
-					if (this.shower) {
-						this.shower.place_ko(this.ko);
-					}
+					is_ko = true;
+				}
+			}
+		}
+		if (is_ko) {
+			play.ko = {row: tmp_play.put.row, col: tmp_play.put.col};
+			this.ko = play.ko;
+			if (this.shower) {
+				this.shower.place_ko(this.ko);
+			}
+		} else {
+			if (this.ko != undefined) {
+				if (this.shower) {
+					this.shower.clear_ko(this.ko);
+				}
+				this.ko = undefined;
+			}
+		}
+	},
+
 				}
 			}
 		}
@@ -263,15 +279,8 @@ GoSpeed.prototype = {
 				}
 				this.next_move = (this.next_move == "W" ? "B" : "W");
 
-				// Clear ko when plays elsewhere
-				if (this.ko != undefined) {
-					if (this.shower) {
-						this.shower.clear_ko(this.ko);
-					}
-					this.ko = undefined;
-				}
 
-				// Checks ko
+				// Checks KO: clear or set depending on result
 				this.play_check_ko();
 
 			break;
@@ -316,15 +325,8 @@ GoSpeed.prototype = {
 				}
 				this.next_move = (this.next_move == "W" ? "B" : "W");
 
-				// Clear ko when plays elsewhere
-				if (this.ko != undefined) {
-					if (this.shower) {
-						this.shower.clear_ko(this.ko);
-					}
-					this.ko = undefined;
-				}
 
-				// Checks ko
+				// Checks KO: clear or set depending on result
 				this.play_check_ko();
 
 				this.send_play(row, col);
@@ -447,15 +449,8 @@ GoSpeed.prototype = {
 			}
 			this.next_move = (this.next_move == "W" ? "B" : "W");
 
-			// Clear ko when plays elsewhere
-			if (this.ko != undefined) {
-				if (this.shower) {
-					this.shower.clear_ko(this.ko);
-				}
-				this.ko = undefined;
-			}
 
-			// Checks ko
+			// Checks KO: clear or set depending on result
 			this.play_check_ko();
 
 			this.my_turn = true;

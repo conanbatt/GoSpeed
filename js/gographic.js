@@ -29,6 +29,7 @@ GoGraphic.prototype = {
 		shadow.style.top = (stoneTop + 2) + "px";
 		this.div.appendChild(shadow);
 
+		this.clean_t_stones();
 		this.grid[row][col] = [stone, shadow];
 	},
 
@@ -162,15 +163,13 @@ GoGraphic.prototype = {
 	mouseout_handler: function(mouse) {
 		var hide = false;
 		if (mouse.relatedTarget == null) {
-			this.t_white.style.display = "none";
-			this.t_black.style.display = "none";
+			this.clean_t_stones();
 		} else {
 			if (mouse.relatedTarget == this.div) {
 				return;
 			}
 			if (mouse.relatedTarget.parentNode != this.div) {
-				this.t_white.style.display = "none";
-				this.t_black.style.display = "none";
+				this.clean_t_stones();
 			}
 		}
 	},

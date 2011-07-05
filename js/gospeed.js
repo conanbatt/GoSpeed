@@ -175,9 +175,19 @@ GoSpeed.prototype = {
 		}
 	},
 
+	check_illegal_move: function(play) {
+		var res = false;
+		if (play.remove.length == 0) {
+			if (this.count_stone_liberties(play.put) == 0) {
+				this.put_stone(play.put.color, play.put.row, play.put.col);
+				var chain = this.get_distinct_chains([play.put])[0];
+				if (this.chain_is_restricted(chain)) {
+					res = true;
 				}
+				this.remove_stone(play.put.row, play.put.col);
 			}
 		}
+		return res;
 	},
 
 //	Game Seek
@@ -262,13 +272,8 @@ GoSpeed.prototype = {
 				this.play_eat(tmp_play);
 
 				// Check illegal move
-				if (tmp_play.remove.length == 0) {
-					if (this.count_stone_liberties(tmp_play.put) == 0) {
-						var chain = this.get_distinct_chains([tmp_play.put])[0];
-						if (this.chain_is_restricted(chain)) {
-							return;
-						}
-					}
+				if (this.check_illegal_move(tmp_play)) {
+					return false;
 				}
 
 				// Commits play
@@ -308,13 +313,8 @@ GoSpeed.prototype = {
 				this.play_eat(tmp_play);
 
 				// Check illegal move
-				if (tmp_play.remove.length == 0) {
-					if (this.count_stone_liberties(tmp_play.put) == 0) {
-						var chain = this.get_distinct_chains([tmp_play.put])[0];
-						if (this.chain_is_restricted(chain)) {
-							return;
-						}
-					}
+				if (this.check_illegal_move(tmp_play)) {
+					return false;
 				}
 
 				// Commits play
@@ -432,13 +432,8 @@ GoSpeed.prototype = {
 			this.play_eat(tmp_play);
 
 			// Check illegal move
-			if (tmp_play.remove.length == 0) {
-				if (this.count_stone_liberties(tmp_play.put) == 0) {
-					var chain = this.get_distinct_chains([tmp_play.put])[0];
-					if (this.chain_is_restricted(chain)) {
-						return;
-					}
-				}
+			if (this.check_illegal_move(tmp_play)) {
+				return false;
 			}
 
 			// Commits play

@@ -278,10 +278,8 @@ GoSpeed.prototype = {
 					return;
 				}
 				// Can't place a stone on ko.
-				if (this.ko != undefined) {
-					if (this.ko.row == row && this.ko.col == col) {
-						return;
-					}
+				if (this.pos_is_ko(row, col)) {
+					return false;
 				}
 
 				// Place stone
@@ -313,10 +311,8 @@ GoSpeed.prototype = {
 					return;
 				}
 				// Can't place a stone on ko.
-				if (this.ko != undefined) {
-					if (this.ko.row == row && this.ko.col == col) {
-						return;
-					}
+				if (this.pos_is_ko(row, col)) {
+					return false;
 				}
 
 				// Place stone
@@ -426,10 +422,8 @@ GoSpeed.prototype = {
 				return;
 			}
 			// Can't place a stone on ko.
-			if (this.ko != undefined) {
-				if (this.ko.row == row && this.ko.col == col) {
-					return;
-				}
+			if (this.pos_is_ko(row, col)) {
+				return false;
 			}
 
 			// Place stone

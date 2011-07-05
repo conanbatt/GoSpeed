@@ -275,7 +275,7 @@ GoSpeed.prototype = {
 
 				// Can't override a stone
 				if (this.get_pos(row, col) != undefined) {
-					return;
+					return false;
 				}
 				// Can't place a stone on ko.
 				if (this.pos_is_ko(row, col)) {
@@ -303,12 +303,12 @@ GoSpeed.prototype = {
 			case "play_online":
 				// Not my turn.
 				if (!this.my_turn) {
-					return;
+					return false;
 				}
 
 				// Can't override a stone
 				if (this.get_pos(row, col) != undefined) {
-					return;
+					return false;
 				}
 				// Can't place a stone on ko.
 				if (this.pos_is_ko(row, col)) {
@@ -414,12 +414,12 @@ GoSpeed.prototype = {
 		if (this.mode == "play_online") {
 			// My turn...
 			if (this.my_turn) {
-				return;
+				return false;
 			}
 
 			// Can't override a stone
 			if (this.get_pos(row, col) != undefined) {
-				return;
+				return false;
 			}
 			// Can't place a stone on ko.
 			if (this.pos_is_ko(row, col)) {

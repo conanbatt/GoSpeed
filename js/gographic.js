@@ -120,19 +120,43 @@ GoGraphic.prototype = {
 			break;
 		}
 
-		if (t_stone) {
-			var boundedX = mouse.pageX - this.div.offsetLeft + 1;
-			var boundedY = mouse.pageY - this.div.offsetTop + 1;
-			if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
-				var gridX = parseInt((boundedX - 10) / 25, 10);
-				var gridY = parseInt((boundedY - 10) / 25, 10);
-				t_stone.style.left = (gridX * 25 + 10) + "px";
-				t_stone.style.top = (gridY * 25 + 10) + "px";
-				t_stone.style.display = "block";
-			} else {
-				t_stone.style.display = "none";
-			}
+
+		if (!t_stone) {
+			t_stone.style.display = "none";
+			return false;
 		}
+
+		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
+		var boundedY = mouse.pageY - this.div.offsetTop + 1;
+		if (boundedX <= 10 || boundedX >= this.max_bound || boundedY <= 10 || boundedY >= this.max_bound) {
+			t_stone.style.display = "none";
+			return false;
+		}
+
+		var gridX = parseInt((boundedX - 10) / 25, 10);
+		var gridY = parseInt((boundedY - 10) / 25, 10);
+
+		if (this.game.get_pos(gridX, gridY) != undefined) {
+			t_stone.style.display = "none";
+			return false;
+		}
+
+		if (this.game.pos_is_ko(gridX, gridY)) {
+			t_stone.style.display = "none";
+			return false;
+		}
+
+		var tmp_play = new Play(this.game.next_move, gridX, gridY);
+		this.game.play_eat(tmp_play);
+		if (this.game.check_illegal_move(tmp_play)) {
+			t_stone.style.display = "none";
+			return false;
+		}
+
+		t_stone.style.left = (gridX * 25 + 10) + "px";
+		t_stone.style.top = (gridY * 25 + 10) + "px";
+		t_stone.style.display = "block";
+
 	},
 
 	mouseout_handler: function(mouse) {
@@ -197,7 +221,7 @@ GoGraphic.prototype = {
 		this.div.appendChild(ko);
 		this.ko = ko;
 
-		// Bind click handler
+		// Bind mouse handlers
 		this.div.onclick = this.binder(this.click_handler, this, null);
 		this.div.onmousemove = this.binder(this.mousemove_handler, this, null);
 		this.div.onmouseout = this.binder(this.mouseout_handler, this, null);

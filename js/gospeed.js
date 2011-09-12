@@ -42,6 +42,7 @@ GoSpeed.prototype = {
 		// Online
 		this.my_colour = args.my_colour;
 		this.my_turn = (this.my_colour == "B");
+		this.turn_count = 0;
 
 	// Render
 		this.render();
@@ -334,6 +335,7 @@ GoSpeed.prototype = {
 
 				this.send_play(row, col);
 				this.my_turn = false;
+				this.turn_count++;
 
 			break;
 			case "free":
@@ -443,6 +445,56 @@ GoSpeed.prototype = {
 			// Checks KO: clear or set depending on result
 			this.play_check_ko();
 
+			this.my_turn = true;
+			this.turn_count++;
+		}
+	},
+
+	play_ad_hoc: function(row, col) {
+		if (this.mode == "play_online") {
+			// Can't override a stone
+			if (this.get_pos(row, col) != undefined) {
+				return false;
+			}
+			// Can't place a stone on ko.
+			if (this.pos_is_ko(row, col)) {
+				return false;
+			}
+
+			// Place stone
+			var tmp_play = new Play(this.next_move, row, col);
+
+			// Eat stones if surrounded
+			this.play_eat(tmp_play);
+
+			// Check illegal move
+			if (this.check_illegal_move(tmp_play)) {
+				return false;
+			}
+
+			// Commits play (changes next_move)
+			this.commit_play(tmp_play);
+
+			// Checks KO: clear or set depending on result
+			this.play_check_ko();
+
+			this.turn_count++;
+			return true;
+		}
+	},
+
+	update_game: function(data) {
+		var ext_game = data.split(",");
+		var ext_play;
+		//alert("ext_game.length = " + ext_game.length + "\nthis.turn_count = " + this.turn_count + "\nthis.next_move = " + this.next_move);
+		while(this.turn_count < ext_game.length) {
+			ext_play = this.string_to_play(ext_game[this.turn_count]);
+			if (!this.play_ad_hoc(ext_play.row, ext_play.col)) {
+				alert("Choque");
+				break;
+			}
+		}
+		if (this.next_move == this.my_colour) {
 			this.my_turn = true;
 		}
 	},
@@ -660,7 +712,7 @@ GoSpeed.prototype = {
 		var row = row_patt.exec(data)[0];
 		row = row.charCodeAt(0) - 65;
 		var col_patt = /[0-9]*$/;
-		var col = col_patt.exec(data)[0];
+		var col = parseInt(col_patt.exec(data)[0], 10);
 		return {row: row, col: col};
 	},
 
@@ -669,7 +721,7 @@ GoSpeed.prototype = {
 	},
 
 	send_play: function(row, col) {
-		$.post("/game_move", {move: this.coord_converter(row, col)});
+		$.post("/game/game_move", {move: this.coord_converter(row, col)});
 	},
 }
 

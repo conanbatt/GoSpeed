@@ -116,14 +116,17 @@ GoGraphic.prototype = {
 					} else {
 						t_stone = this.t_white;
 					}
+				} else {
+					t_stone = null;
 				}
 			case "count":
 			break;
 		}
 
 
-		if (!t_stone) {
-			t_stone.style.display = "none";
+		if (t_stone == null) {
+			this.t_black.style.display = "none";
+			this.t_white.style.display = "none";
 			return false;
 		}
 

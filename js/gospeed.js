@@ -637,6 +637,21 @@ GoSpeed.prototype = {
 		this.ruleset = ruleset;
 	},
 
+	change_size: function(size) {
+		var sizes = [19, 13, 9,];
+		if (typeof size == "number") {
+			if (!inArray(size, sizes)) {
+				throw new Error("The 'size' parameter must be in (" + sizes + ").");
+			}
+		} else {
+			throw new Error("The 'size' parameter must be a number");
+		}
+		this.size = size;
+		this.clear();
+		this.render();
+		this.renderTree();
+	},
+
 	clear: function() {
 		this.next_move = "B";
 		this.ko = undefined;

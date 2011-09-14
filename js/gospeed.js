@@ -13,7 +13,6 @@ GoSpeed.prototype = {
 		this.div = document.getElementById(args.div_id);
 		if (this.div && this.div.innerHTML != "") {
 			this.sgf = this.div.innerHTML;
-			this.div.innerHTML = "";
 		}
 
 	// Setup
@@ -638,6 +637,32 @@ GoSpeed.prototype = {
 		this.ruleset = ruleset;
 	},
 
+	clear: function() {
+		this.next_move = "B";
+		this.ko = undefined;
+
+		// Grid
+		this.grid = Array(this.size);
+		for (row = 0 ; row < this.size ; row++) {
+			this.grid[row] = Array(this.size);
+		}
+
+		// GameTree
+		this.game_tree = new GameTree();
+
+		// Clear shower
+		this.shower.clear();
+
+		// Online
+		this.turn_count = 0;
+	},
+
+	render: function() {
+		if (this.shower) {
+			this.shower.render();
+		}
+	},
+
 //	Game Over
 	territory_count: function() {
 		return;
@@ -716,12 +741,6 @@ GoSpeed.prototype = {
 					throw new Error("The 'my_colour' parameter must be 'B', 'W' or 'O'.");
 				}
 			}
-		}
-	},
-
-	render: function() {
-		if (this.shower) {
-			this.shower.render();
 		}
 	},
 

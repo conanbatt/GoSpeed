@@ -12,6 +12,7 @@ GoGraphic.prototype = {
 			this.grid[row] = Array(this.game.size);
 		}
 		this.max_bound = this.game.size * 25 + 10;
+		this.div.innerHTML = "";
 	},
 
 	put_stone: function(color, row, col) {
@@ -232,6 +233,15 @@ GoGraphic.prototype = {
 	clean_t_stones: function() {
 		this.t_white.style.display = "none";
 		this.t_black.style.display = "none";
+	},
+
+	clear: function() {
+		this.grid = Array(this.game.size);
+		for (row = 0 ; row < this.game.size ; row++) {
+			this.grid[row] = Array(this.game.size);
+		}
+		this.max_bound = this.game.size * 25 + 10;
+		this.div.innerHTML = "";
 	},
 
 };

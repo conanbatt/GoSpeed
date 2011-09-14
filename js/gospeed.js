@@ -720,6 +720,20 @@ GoSpeed.prototype = {
 		this.mode = mode;
 	},
 
+	change_ruleset: function(ruleset) {
+		var rules = ["Japanese", "Chinese",];
+		if (typeof ruleset == "undefined") {
+			ruleset = "Japanese";
+		} else if (typeof ruleset == "string") {
+			if (!inArray(ruleset, rules)) {
+				throw new Error("The ruleset parameter must be in (" + rules + ").");
+			}
+		} else {
+			throw new Error("The ruleset parameter must be a string");
+		}
+		this.ruleset = ruleset;
+	},
+
 	string_to_play: function(data) {
 		var row_patt = /^[A-Z]/;
 		var row = row_patt.exec(data)[0];

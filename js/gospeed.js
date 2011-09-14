@@ -9,6 +9,13 @@ GoSpeed.prototype = {
 		this.validate(arguments);
 		var args = arguments[0];
 
+	// Read Div Contents
+		this.div = document.getElementById(args.div_id);
+		if (this.div && this.div.innerHTML != "") {
+			this.sgf = this.div.innerHTML;
+			this.div.innerHTML = "";
+		}
+
 	// Setup
 		this.size = args.size;
 		this.mode = args.mode;

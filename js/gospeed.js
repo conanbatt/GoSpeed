@@ -637,6 +637,18 @@ GoSpeed.prototype = {
 		this.ruleset = ruleset;
 	},
 
+	change_my_colour: function(colour) {
+		var colours = ["B", "W", "O",];
+		if (typeof colour == "string") {
+			if (!inArray(colour, colours)) {
+				throw new Error("The 'colour' parameter must be in (" + colours + ").");
+			}
+		} else {
+			throw new Error("The 'colour' parameter must be a string");
+		}
+		this.my_colour = colour;
+	},
+
 	change_size: function(size) {
 		var sizes = [19, 13, 9,];
 		if (typeof size == "number") {

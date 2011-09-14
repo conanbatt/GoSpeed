@@ -611,6 +611,35 @@ GoSpeed.prototype = {
 		}
 	},
 
+//	Config commands
+	switch_mode: function(mode) {
+		var modes = ["play", "play_online", "free", "count",];
+		if (typeof mode == "undefined") {
+			mode = "play";
+		} else if (typeof mode == "string") {
+			if (!inArray(mode, modes)) {
+				throw new Error("The 'mode' parameter must be in (" + modes + ").");
+			}
+		} else {
+			throw new Error("The 'mode' parameter must be a string");
+		}
+		this.mode = mode;
+	},
+
+	change_ruleset: function(ruleset) {
+		var rules = ["Japanese", "Chinese",];
+		if (typeof ruleset == "undefined") {
+			ruleset = "Japanese";
+		} else if (typeof ruleset == "string") {
+			if (!inArray(ruleset, rules)) {
+				throw new Error("The ruleset parameter must be in (" + rules + ").");
+			}
+		} else {
+			throw new Error("The ruleset parameter must be a string");
+		}
+		this.ruleset = ruleset;
+	},
+
 //	Game Over
 	territory_count: function() {
 		return;
@@ -698,33 +727,7 @@ GoSpeed.prototype = {
 		}
 	},
 
-	switch_mode: function(mode) {
-		if (typeof mode == "undefined") {
-			mode = "play";
-		} else if (typeof mode == "string") {
-			if (mode != "play" && mode != "play_online" && mode != "free" && mode != "count") {
-				throw new Error("The 'mode' parameter must be 'play', 'play_online', 'free' or 'count'.");
-			}
-		} else {
-			throw new Error("The 'mode' parameter must be a string");
-		}
-		this.mode = mode;
-	},
-
-	change_ruleset: function(ruleset) {
-		var rules = ["Japanese", "Chinese",];
-		if (typeof ruleset == "undefined") {
-			ruleset = "Japanese";
-		} else if (typeof ruleset == "string") {
-			if (!inArray(ruleset, rules)) {
-				throw new Error("The ruleset parameter must be in (" + rules + ").");
-			}
-		} else {
-			throw new Error("The ruleset parameter must be a string");
-		}
-		this.ruleset = ruleset;
-	},
-
+// Online helpers
 	string_to_play: function(data) {
 		var row_patt = /^[A-Z]/;
 		var row = row_patt.exec(data)[0];

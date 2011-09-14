@@ -694,8 +694,8 @@ GoSpeed.prototype = {
 			if (typeof my_colour != "undefined") {
 				if (typeof my_colour != "string") {
 					throw new Error("The 'my_colour' parameter must be a string");
-				} else if (my_colour != "W" && my_colour != "B") {
-					throw new Error("The 'my_colour' parameter must be 'W' or 'B'.");
+				} else if (my_colour != "W" && my_colour != "B" && my_colour != "O") {
+					throw new Error("The 'my_colour' parameter must be 'B', 'W' or 'O'.");
 				}
 			}
 		}

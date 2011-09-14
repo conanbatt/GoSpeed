@@ -48,7 +48,6 @@ GoSpeed.prototype = {
 
 		// Online
 		this.my_colour = args.my_colour;
-		//this.my_turn = (this.my_colour == "B");
 		this.turn_count = 0;
 
 	// Render
@@ -341,7 +340,6 @@ GoSpeed.prototype = {
 				this.play_check_ko();
 
 				this.send_play(row, col);
-				//this.my_turn = false;
 				this.turn_count++;
 
 			break;
@@ -452,7 +450,6 @@ GoSpeed.prototype = {
 			// Checks KO: clear or set depending on result
 			this.play_check_ko();
 
-			//this.my_turn = true;
 			this.turn_count++;
 		}
 	},
@@ -493,7 +490,6 @@ GoSpeed.prototype = {
 	update_game: function(data) {
 		var ext_game = data.split(",");
 		var ext_play;
-		//alert("ext_game.length = " + ext_game.length + "\nthis.turn_count = " + this.turn_count + "\nthis.next_move = " + this.next_move);
 		while(this.turn_count < ext_game.length) {
 			ext_play = this.string_to_play(ext_game[this.turn_count]);
 			if (!this.play_ad_hoc(ext_play.row, ext_play.col)) {
@@ -501,11 +497,6 @@ GoSpeed.prototype = {
 				break;
 			}
 		}
-		/*
-		if (this.next_move == this.my_colour) {
-			this.my_turn = true;
-		}
-		*/
 	},
 
 	is_my_turn: function() {

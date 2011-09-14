@@ -490,7 +490,9 @@ GoSpeed.prototype = {
 		var ext_game = data.split(",");
 		var ext_play;
 		while(this.turn_count < ext_game.length) {
-			if (ext_game[this.turn_count] != "") {
+			if (ext_game[this.turn_count] == "") {
+				break;
+			} else {
 				ext_play = this.string_to_play(ext_game[this.turn_count]);
 				if (!this.play_ad_hoc(ext_play.row, ext_play.col)) {
 					alert("Choque");

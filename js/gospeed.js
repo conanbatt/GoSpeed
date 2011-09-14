@@ -48,7 +48,7 @@ GoSpeed.prototype = {
 
 		// Online
 		this.my_colour = args.my_colour;
-		this.my_turn = (this.my_colour == "B");
+		//this.my_turn = (this.my_colour == "B");
 		this.turn_count = 0;
 
 	// Render
@@ -310,7 +310,7 @@ GoSpeed.prototype = {
 			break;
 			case "play_online":
 				// Not my turn.
-				if (!this.my_turn) {
+				if (!this.is_my_turn()) {
 					return false;
 				}
 
@@ -341,7 +341,7 @@ GoSpeed.prototype = {
 				this.play_check_ko();
 
 				this.send_play(row, col);
-				this.my_turn = false;
+				//this.my_turn = false;
 				this.turn_count++;
 
 			break;
@@ -422,7 +422,7 @@ GoSpeed.prototype = {
 	extern_play: function(row, col) {
 		if (this.mode == "play_online") {
 			// My turn...
-			if (this.my_turn) {
+			if (this.is_my_turn()) {
 				return false;
 			}
 
@@ -452,7 +452,7 @@ GoSpeed.prototype = {
 			// Checks KO: clear or set depending on result
 			this.play_check_ko();
 
-			this.my_turn = true;
+			//this.my_turn = true;
 			this.turn_count++;
 		}
 	},
@@ -501,9 +501,15 @@ GoSpeed.prototype = {
 				break;
 			}
 		}
+		/*
 		if (this.next_move == this.my_colour) {
 			this.my_turn = true;
 		}
+		*/
+	},
+
+	is_my_turn: function() {
+		return this.my_colour == this.next_move;
 	},
 
 //	Auxiliar functions

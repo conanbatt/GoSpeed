@@ -110,7 +110,7 @@ GoGraphic.prototype = {
 				}
 			break;
 			case "play_online":
-				if (this.game.my_turn) {
+				if (this.game.is_my_turn()) {
 					if (this.game.my_colour == "B") {
 						t_stone = this.t_black;
 					} else {

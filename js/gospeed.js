@@ -612,7 +612,7 @@ GoSpeed.prototype = {
 	},
 
 //	Config commands
-	switch_mode: function(mode) {
+	change_mode: function(mode) {
 		var modes = ["play", "play_online", "free", "count",];
 		if (typeof mode == "undefined") {
 			mode = "play";

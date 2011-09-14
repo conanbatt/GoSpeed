@@ -614,9 +614,7 @@ GoSpeed.prototype = {
 //	Config commands
 	change_mode: function(mode) {
 		var modes = ["play", "play_online", "free", "count",];
-		if (typeof mode == "undefined") {
-			mode = "play";
-		} else if (typeof mode == "string") {
+		if (typeof mode == "string") {
 			if (!inArray(mode, modes)) {
 				throw new Error("The 'mode' parameter must be in (" + modes + ").");
 			}
@@ -628,9 +626,7 @@ GoSpeed.prototype = {
 
 	change_ruleset: function(ruleset) {
 		var rules = ["Japanese", "Chinese",];
-		if (typeof ruleset == "undefined") {
-			ruleset = "Japanese";
-		} else if (typeof ruleset == "string") {
+		if (typeof ruleset == "string") {
 			if (!inArray(ruleset, rules)) {
 				throw new Error("The ruleset parameter must be in (" + rules + ").");
 			}

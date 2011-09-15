@@ -202,11 +202,11 @@ GoGraphic.prototype = {
 		this.div.style.position = "relative";
 
 		// Image prefetch (dunno if this is the right place...)
-		(new Image()).src = "img/white.png";
-		(new Image()).src = "img/black.png";
-		(new Image()).src = "img/t_white.png";
-		(new Image()).src = "img/t_black.png";
-		(new Image()).src = "img/shadow.png";
+		(new Image()).src = "/resources/gospeed/img/white.png";
+		(new Image()).src = "/resources/gospeed/img/black.png";
+		(new Image()).src = "/resources/gospeed/img/t_white.png";
+		(new Image()).src = "/resources/gospeed/img/t_black.png";
+		(new Image()).src = "/resources/gospeed/img/shadow.png";
 
 		// Transparent Stones
 		var t_white = document.createElement("div");

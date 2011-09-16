@@ -8,7 +8,7 @@ GoGraphic.prototype = {
 		this.game = game;
 		this.div = document.getElementById(div_id);
 		this.grid = Array(this.game.size);
-		for (row = 0 ; row < this.game.size ; row++) {
+		for (var row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
 		this.max_bound = this.game.size * 25 + 10;
@@ -237,7 +237,7 @@ GoGraphic.prototype = {
 
 	clear: function() {
 		this.grid = Array(this.game.size);
-		for (row = 0 ; row < this.game.size ; row++) {
+		for (var row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
 		this.max_bound = this.game.size * 25 + 10;

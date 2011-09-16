@@ -16,13 +16,13 @@ GoSpeed.prototype = {
 		this.next_move = "B";
 		this.ko = undefined;
 
-		// Grid
+	// Grid
 		this.grid = Array(this.size);
-		for (row = 0 ; row < this.size ; row++) {
+		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
 
-		// Shower
+	// Shower
 		if (args.div_id != undefined) {
 			// Read Div Contents
 			this.div = document.getElementById(args.div_id);
@@ -698,6 +698,7 @@ GoSpeed.prototype = {
 
 //	Validation
 	validate: function(rgmnts) {
+		var args;
 		if (rgmnts[0]) {
 			args = rgmnts[0];
 		} else {
@@ -708,7 +709,7 @@ GoSpeed.prototype = {
 		var options;
 
 		with (args) {
-			// Size
+		// Size
 			if (typeof size == "undefined") {
 				args.size = 19;
 			} else if (typeof size == "number") {
@@ -720,7 +721,7 @@ GoSpeed.prototype = {
 				throw new Error("The 'size' parameter must be a number");
 			}
 
-			// Mode
+		// Mode
 			if (typeof mode == "undefined") {
 				args.mode = "play";
 			} else if (typeof mode == "string") {
@@ -732,7 +733,7 @@ GoSpeed.prototype = {
 				throw new Error("The 'mode' parameter must be a string");
 			}
 
-			// Ruleset
+		// Ruleset
 			if (typeof ruleset == "undefined") {
 				args.ruleset = "Japanese";
 			} else if (typeof ruleset == "string") {
@@ -744,7 +745,7 @@ GoSpeed.prototype = {
 				throw new Error("The 'ruleset' parameter must be a string");
 			}
 
-			// DivID
+		// DivID
 			if (typeof div_id != "undefined") {
 				if (typeof div_id != "string") {
 					throw new Error("The 'div_id' parameter must be a string");
@@ -753,7 +754,7 @@ GoSpeed.prototype = {
 				}
 			}
 
-			// TreeDivID
+		// TreeDivID
 			if (typeof tree_div_id != "undefined") {
 				if (typeof tree_div_id != "string") {
 					throw new Error("The 'tree_div_id' parameter must be a string");
@@ -762,7 +763,7 @@ GoSpeed.prototype = {
 				}
 			}
 
-			// Shower
+		// Shower
 			if (typeof shower != "undefined") {
 				if (typeof shower != "string") {
 					throw new Error("The 'shower' parameter must be a string");
@@ -774,7 +775,7 @@ GoSpeed.prototype = {
 				}
 			}
 
-			// Colour
+		// Colour
 			if (typeof my_colour != "undefined") {
 				if (typeof my_colour != "string") {
 					throw new Error("The 'my_colour' parameter must be a string");

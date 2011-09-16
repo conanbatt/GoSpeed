@@ -705,13 +705,16 @@ GoSpeed.prototype = {
 			args = rgmnts[0];
 		}
 
+		var options;
+
 		with (args) {
 			// Size
 			if (typeof size == "undefined") {
 				args.size = 19;
 			} else if (typeof size == "number") {
-				if (size != 9 && size != 13 && size != 19) {
-					throw new Error("The 'size' parameter must be 9, 13 or 19.");
+				options = [9, 13, 19,];
+				if (!inArray(size, options)) {
+					throw new Error("The 'size' parameter must be in (" + options + ").");
 				}
 			} else {
 				throw new Error("The 'size' parameter must be a number");
@@ -721,8 +724,9 @@ GoSpeed.prototype = {
 			if (typeof mode == "undefined") {
 				args.mode = "play";
 			} else if (typeof mode == "string") {
-				if (mode != "play" && mode != "play_online" && mode != "free" && mode != "count") {
-					throw new Error("The 'mode' parameter must be 'play', 'play_online', 'free' or 'count'.");
+				options = ["play", "play_online", "free", "count",];
+				if (!inArray(mode, options)) {
+					throw new Error("The 'mode' parameter must be in (" + options + ").");
 				}
 			} else {
 				throw new Error("The 'mode' parameter must be a string");
@@ -732,8 +736,9 @@ GoSpeed.prototype = {
 			if (typeof ruleset == "undefined") {
 				args.ruleset = "Japanese";
 			} else if (typeof ruleset == "string") {
-				if (ruleset != "Japanese") {
-					throw new Error("The 'ruleset' parameter must be 'Japanese'.");
+				options = ["Japanese", "Chinese",];
+				if (!inArray(ruleset, options)) {
+					throw new Error("The 'ruleset' parameter must be in (" + options + ").");
 				}
 			} else {
 				throw new Error("The 'ruleset' parameter must be a string");
@@ -761,8 +766,11 @@ GoSpeed.prototype = {
 			if (typeof shower != "undefined") {
 				if (typeof shower != "string") {
 					throw new Error("The 'shower' parameter must be a string");
-				} else if (shower != "graphic" && shower != "basic") {
-					throw new Error("The 'shower' parameter must be 'basic' or 'graphic'.");
+				} else {
+					options = ["shower", "graphic",];
+					if (!inArray(shower, options)) {
+						throw new Error("The 'shower' parameter must be in (" + options + ").");
+					}
 				}
 			}
 
@@ -770,8 +778,11 @@ GoSpeed.prototype = {
 			if (typeof my_colour != "undefined") {
 				if (typeof my_colour != "string") {
 					throw new Error("The 'my_colour' parameter must be a string");
-				} else if (my_colour != "W" && my_colour != "B" && my_colour != "O") {
-					throw new Error("The 'my_colour' parameter must be 'B', 'W' or 'O'.");
+				} else {
+					options = ["B", "W", "O",];
+					if (!inArray(my_colour, options)) {
+						throw new Error("The 'my_colour' parameter must be in (" + options + ").");
+					}
 				}
 			}
 		}

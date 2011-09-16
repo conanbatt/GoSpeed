@@ -39,14 +39,16 @@ GoSpeed.prototype = {
 			}
 		}
 
-		// GameTree
+	// GameTree
 		this.game_tree = new GameTree();
-		if (args.tree_div_id) {
+		if (args.tree_div_id != undefined) {
 			this.tree_div = document.getElementById(args.tree_div_id);
 		}
 
-		// Online
-		this.my_colour = args.my_colour;
+	// Online
+		if (args.my_colour != undefined) {
+			this.my_colour = args.my_colour;
+		}
 		this.turn_count = 0;
 
 	// Render

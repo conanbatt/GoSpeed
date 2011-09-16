@@ -9,12 +9,6 @@ GoSpeed.prototype = {
 		this.validate(arguments);
 		var args = arguments[0];
 
-	// Read Div Contents
-		this.div = document.getElementById(args.div_id);
-		if (this.div && this.div.innerHTML != "") {
-			this.sgf = this.div.innerHTML;
-		}
-
 	// Setup
 		this.size = args.size;
 		this.mode = args.mode;
@@ -30,6 +24,11 @@ GoSpeed.prototype = {
 
 		// Shower
 		if (args.div_id != undefined) {
+			// Read Div Contents
+			this.div = document.getElementById(args.div_id);
+			if (this.div && this.div.innerHTML != "") {
+				this.sgf = this.div.innerHTML;
+			}
 			if (args.shower != undefined) {
 				if (args.shower == "basic") {
 					this.shower = new GoShower(this, args.div_id);
@@ -699,7 +698,12 @@ GoSpeed.prototype = {
 
 //	Validation
 	validate: function(rgmnts) {
-		var args = rgmnts[0] || {};
+		if (rgmnts[0]) {
+			args = rgmnts[0];
+		} else {
+			rgmnts[0] = {};
+			args = rgmnts[0];
+		}
 
 		with (args) {
 			// Size

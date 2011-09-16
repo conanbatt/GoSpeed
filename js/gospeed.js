@@ -24,11 +24,12 @@ GoSpeed.prototype = {
 
 	// Shower
 		if (args.div_id != undefined) {
-			// Read Div Contents
-			this.div = document.getElementById(args.div_id);
-			if (this.div && this.div.innerHTML != "") {
-				this.sgf = this.div.innerHTML;
+			// Read div contents
+			var tmp_div = document.getElementById(args.div_id);
+			if (tmp_div && tmp_div.innerHTML != "") {
+				this.sgf = tmp_div.innerHTML;
 			}
+			// Define the showing engine
 			if (args.shower != undefined) {
 				if (args.shower == "basic") {
 					this.shower = new GoShower(this, args.div_id);

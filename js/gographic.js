@@ -202,11 +202,15 @@ GoGraphic.prototype = {
 		this.div.style.position = "relative";
 
 		// Image prefetch (dunno if this is the right place...)
-		(new Image()).src = "/resources/gospeed/img/white.png";
-		(new Image()).src = "/resources/gospeed/img/black.png";
-		(new Image()).src = "/resources/gospeed/img/t_white.png";
-		(new Image()).src = "/resources/gospeed/img/t_black.png";
-		(new Image()).src = "/resources/gospeed/img/shadow.png";
+		var tmp_path = "";
+		if (this.game.server_path_gospeed_root != undefined) {
+			tmp_path = this.game.server_path_gospeed_root;
+		}
+		(new Image()).src = tmp_path + "img/white.png";
+		(new Image()).src = tmp_path + "img/black.png";
+		(new Image()).src = tmp_path + "img/t_white.png";
+		(new Image()).src = tmp_path + "img/t_black.png";
+		(new Image()).src = tmp_path + "img/shadow.png";
 
 		// Transparent Stones
 		var t_white = document.createElement("div");

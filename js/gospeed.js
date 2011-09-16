@@ -51,6 +51,14 @@ GoSpeed.prototype = {
 		}
 		this.turn_count = 0;
 
+	// Paths
+		if (args.server_path_game_move != undefined) {
+			this.server_path_game_move = args.server_path_game_move;
+		}
+		if (args.server_path_gospeed_root != undefined) {
+			this.server_path_gospeed_root = args.server_path_gospeed_root;
+		}
+
 	// Render
 		this.render();
 	},
@@ -789,6 +797,32 @@ GoSpeed.prototype = {
 					}
 				}
 			}
+
+		// Server Move Path
+			if (typeof server_path_game_move != "undefined") {
+				if (typeof server_path_game_move != "string") {
+					throw new Error("The 'server_path_game_move' parameter must be a string");
+				} else {
+					if (server_path_game_move == "") {
+						throw new Error("The 'server_path_game_move' parameter must not be empty");
+					}
+				}
+			}
+
+		// Server Resources Path
+			if (typeof server_path_gospeed_root != "undefined") {
+				if (typeof server_path_gospeed_root != "string") {
+					throw new Error("The 'server_path_gospeed_root' parameter must be a string");
+				} else {
+					if (server_path_gospeed_root == "") {
+						throw new Error("The 'server_path_gospeed_root' parameter must not be empty");
+					} else {
+						if (server_path_gospeed_root.charAt(server_path_gospeed_root.length - 1) != '/') {
+							args.server_path_gospeed_root += '/';
+						}
+					}
+				}
+			}
 		}
 	},
 
@@ -807,7 +841,9 @@ GoSpeed.prototype = {
 	},
 
 	send_play: function(row, col) {
-		$.post("/game/game_move", {move: this.coord_converter(row, col)});
+		if (this.server_path_game_move != undefined) {
+			$.post(this.server_path_game_move, {move: this.coord_converter(row, col)});
+		}
 	},
 }
 

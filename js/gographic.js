@@ -64,6 +64,11 @@ GoGraphic.prototype = {
 			for (stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
+			if (play.ko) {
+				this.place_ko(play.ko);
+			} else {
+				this.clear_ko();
+			}
 		}
 	},
 

@@ -123,17 +123,7 @@ GoSpeed.prototype = {
 			for (stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			if (play.ko) {
-				this.ko = play.ko;
-				if (this.shower) {
-					this.shower.place_ko(this.ko);
-				}
-			} else {
-				this.ko = null;
-				if (this.shower) {
-					this.shower.clear_ko();
-				}
-			}
+			this.ko = play.ko;
 		}
 	},
 

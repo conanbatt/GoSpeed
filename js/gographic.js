@@ -40,8 +40,16 @@ GoGraphic.prototype = {
 		this.ko.style.display = "block";
 	},
 
-	clear_ko: function(ko) {
+	clear_ko: function() {
 		this.ko.style.display = "none";
+	},
+
+	refresh_ko: function(play) {
+		if (play.ko) {
+			this.place_ko(play.ko);
+		} else {
+			this.clear_ko();
+		}
 	},
 
 	remove_stone: function(row, col) {
@@ -64,11 +72,7 @@ GoGraphic.prototype = {
 			for (stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			if (play.ko) {
-				this.place_ko(play.ko);
-			} else {
-				this.clear_ko();
-			}
+			this.refresh_ko(play);
 		}
 	},
 
@@ -158,7 +162,7 @@ GoGraphic.prototype = {
 
 		var tmp_play = new Play(this.game.next_move, gridX, gridY);
 		this.game.play_eat(tmp_play);
-		if (this.game.check_illegal_move(tmp_play)) {
+		if (this.game.play_check_suicide(tmp_play)) {
 			t_stone.style.display = "none";
 			return false;
 		}

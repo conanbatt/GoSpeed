@@ -110,6 +110,7 @@ GoSpeed.prototype = {
 	},
 
 //	Plays and Moves
+	// Takes a play and spreads it's content to the grid (updates gospeed.ko)
 	make_play: function(play) {
 		if (play instanceof FreePlay) {
 			for (stone in play.remove) {
@@ -127,6 +128,7 @@ GoSpeed.prototype = {
 		}
 	},
 
+	// Takes a play and undoes it's content to the grid (updates gospeed.ko)
 	undo_play: function(play) {
 		if (play instanceof FreePlay) {
 			for (stone in play.put) {
@@ -140,9 +142,11 @@ GoSpeed.prototype = {
 			for (stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
+			this.ko = undefined;
 		}
 	},
 
+	// Takes a play and completes it's 'remove' property with the stones that would eat from the board.
 	play_eat: function(play) {
 		this.put_stone(play.put.color, play.put.row, play.put.col);
 
@@ -161,13 +165,13 @@ GoSpeed.prototype = {
 		this.remove_stone(play.put.row, play.put.col);
 	},
 
-	play_check_ko: function() {
-		var play = this.game_tree.actual_move.play;
-		var color = this.next_move;
+	// Checks if the play triggers ko. Updates it's ko property.
+	play_check_ko: function(play) {
 		var is_ko = false;
-		var i = 0;
+		var tmp_play;
+		this.make_play(play);
 		if (play.remove.length == 1) {
-			var tmp_play = new Play(play.remove[0].color, play.remove[0].row, play.remove[0].col);
+			tmp_play = new Play(play.remove[0].color, play.remove[0].row, play.remove[0].col);
 			this.play_eat(tmp_play);
 			if (tmp_play.remove.length == 1) {
 				if (play.put.equals(tmp_play.remove[0]) && tmp_play.put.equals(play.remove[0])) {
@@ -175,23 +179,25 @@ GoSpeed.prototype = {
 				}
 			}
 		}
+		this.undo_play(play);
 		if (is_ko) {
-			play.ko = {row: tmp_play.put.row, col: tmp_play.put.col};
-			this.ko = play.ko;
-			if (this.shower) {
-				this.shower.place_ko(this.ko);
-			}
+			play.ko = {
+				row: tmp_play.put.row,
+				col: tmp_play.put.col,
+			};
 		} else {
-			if (this.ko != undefined) {
-				if (this.shower) {
-					this.shower.clear_ko(this.ko);
-				}
-				this.ko = undefined;
-			}
+			play.ko = undefined;
 		}
 	},
 
-	check_illegal_move: function(play) {
+	// Takes a play and spreads it's ko property value to the game.
+	refresh_ko: function(play) {
+		this.ko = play.ko;
+	},
+
+	// Takes a play and checks if it's suicide.
+	// WARNING: use this after play_eat, otherwise you might be using an incomplete play, and fake truth might occur.
+	play_check_suicide: function(play) {
 		var res = false;
 		if (play.remove.length == 0) {
 			if (this.count_stone_liberties(play.put) == 0) {
@@ -206,6 +212,7 @@ GoSpeed.prototype = {
 		return res;
 	},
 
+	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
 	commit_play: function(play) {
 		this.game_tree.append(new GameNode(play));
 		this.make_play(play);
@@ -227,21 +234,18 @@ GoSpeed.prototype = {
 				this.next_move = (this.next_move == "W" ? "B" : "W");
 			}
 		}
+
 		play = this.game_tree.actual_move.play;
 		if (play) {
-			if (play.ko) {
-				this.ko = play.ko;
-				if (this.shower) {
-					this.shower.place_ko(this.ko);
-				}
-			} else {
-				this.ko = null;
-				if (this.shower) {
-					this.shower.clear_ko();
-				}
+			this.refresh_ko(play);
+			if (this.shower) {
+				this.shower.refresh_ko(play);
 			}
 		}
-		this.shower.clean_t_stones();
+
+		if (this.shower) {
+			this.shower.clean_t_stones();
+		}
 
 		this.renderTree();
 	},
@@ -254,10 +258,14 @@ GoSpeed.prototype = {
 				this.shower.draw_play(play);
 			}
 		}
+
 		if (play instanceof Play) {
 			this.next_move = (this.next_move == "W" ? "B" : "W");
 		}
-		this.shower.clean_t_stones();
+
+		if (this.shower) {
+			this.shower.clean_t_stones();
+		}
 
 		this.renderTree();
 	},
@@ -276,34 +284,18 @@ GoSpeed.prototype = {
 
 //	Gameplay
 	play: function(row, col) {
+		var bRes = false;
+		var tmp_play;
 		switch(this.mode) {
 			case "play":
+				// Setup
+				tmp_play = this.setup_play(row, col);
 
-				// Can't override a stone
-				if (this.get_pos(row, col) != undefined) {
-					return false;
+				if (tmp_play) {
+					// Commit
+					this.commit_play(tmp_play);
+					bRes = true;
 				}
-				// Can't place a stone on ko.
-				if (this.pos_is_ko(row, col)) {
-					return false;
-				}
-
-				// Place stone
-				var tmp_play = new Play(this.next_move, row, col);
-
-				// Eat stones if surrounded
-				this.play_eat(tmp_play);
-
-				// Check illegal move
-				if (this.check_illegal_move(tmp_play)) {
-					return false;
-				}
-
-				// Commits play (changes next_move)
-				this.commit_play(tmp_play);
-
-				// Checks KO: clear or set depending on result
-				this.play_check_ko();
 
 			break;
 			case "play_online":
@@ -312,34 +304,16 @@ GoSpeed.prototype = {
 					return false;
 				}
 
-				// Can't override a stone
-				if (this.get_pos(row, col) != undefined) {
-					return false;
+				// Setup
+				tmp_play = this.setup_play(row, col);
+
+				if (tmp_play) {
+					// Commit
+					this.commit_play(tmp_play);
+					this.send_play(tmp_play);
+					this.turn_count++;
+					bRes = true;
 				}
-				// Can't place a stone on ko.
-				if (this.pos_is_ko(row, col)) {
-					return false;
-				}
-
-				// Place stone
-				var tmp_play = new Play(this.next_move, row, col);
-
-				// Eat stones if surrounded
-				this.play_eat(tmp_play);
-
-				// Check illegal move
-				if (this.check_illegal_move(tmp_play)) {
-					return false;
-				}
-
-				// Commits play (changes next_move)
-				this.commit_play(tmp_play);
-
-				// Checks KO: clear or set depending on result
-				this.play_check_ko();
-
-				this.send_play(row, col);
-				this.turn_count++;
 
 			break;
 			case "free":
@@ -410,80 +384,61 @@ GoSpeed.prototype = {
 					break;
 				}
 
+				bRes = true;
+
 			break;
 		}
 
-		this.renderTree();
-	},
-
-	extern_play: function(row, col) {
-		if (this.mode == "play_online") {
-			// My turn...
-			if (this.is_my_turn()) {
-				return false;
-			}
-
-			// Can't override a stone
-			if (this.get_pos(row, col) != undefined) {
-				return false;
-			}
-			// Can't place a stone on ko.
-			if (this.pos_is_ko(row, col)) {
-				return false;
-			}
-
-			// Place stone
-			var tmp_play = new Play(this.next_move, row, col);
-
-			// Eat stones if surrounded
-			this.play_eat(tmp_play);
-
-			// Check illegal move
-			if (this.check_illegal_move(tmp_play)) {
-				return false;
-			}
-
-			// Commits play (changes next_move)
-			this.commit_play(tmp_play);
-
-			// Checks KO: clear or set depending on result
-			this.play_check_ko();
-
-			this.turn_count++;
+		if (bRes) {
+			this.renderTree();
 		}
+
+		return bRes;
 	},
 
 	play_ad_hoc: function(row, col) {
-		if (this.mode == "play_online") {
-			// Can't override a stone
-			if (this.get_pos(row, col) != undefined) {
-				return false;
-			}
-			// Can't place a stone on ko.
-			if (this.pos_is_ko(row, col)) {
-				return false;
-			}
+		if (this.mode == "play_online" || this.mode == "play") {
+			var bRes = false;
 
-			// Place stone
-			var tmp_play = new Play(this.next_move, row, col);
+			// Setup
+			var play = this.setup_play(row, col);
 
-			// Eat stones if surrounded
-			this.play_eat(tmp_play);
-
-			// Check illegal move
-			if (this.check_illegal_move(tmp_play)) {
-				return false;
+			if (play) {
+				// Commit
+				this.commit_play(tmp_play);
+				this.turn_count++;
+				bRes = true;
 			}
 
-			// Commits play (changes next_move)
-			this.commit_play(tmp_play);
-
-			// Checks KO: clear or set depending on result
-			this.play_check_ko();
-
-			this.turn_count++;
-			return true;
+			return bRes;
 		}
+	},
+
+	setup_play: function(row, col) {
+		// Can't override a stone
+		if (this.get_pos(row, col) != undefined) {
+			return false;
+		}
+		// Can't place a stone on ko.
+		if (this.pos_is_ko(row, col)) {
+			return false;
+		}
+
+		// Place stone
+		var tmp_play = new Play(this.next_move, row, col);
+
+		// Eat stones if surrounded
+		this.play_eat(tmp_play);
+
+		// Check suicide
+		if (this.play_check_suicide(tmp_play)) {
+			return false;
+		}
+
+		// Update play's ko.
+		this.play_check_ko(tmp_play);
+
+		return tmp_play;
 	},
 
 	update_game: function(data) {

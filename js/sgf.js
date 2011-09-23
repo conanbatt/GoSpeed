@@ -1,6 +1,5 @@
 
 function SGFNode() {
-	this.properties = [];
 	this.prev = null;
 	this.next = [];
 	this.last_next = null;
@@ -85,6 +84,7 @@ SGFParser.prototype = {
 		var rex_prop = /^[A-Z]$/
 		var prop_ident = "";
 		var prop_val = "";
+		var prop_arr = [];
 		var cur_char = '';
 		var esc_next = false;
 
@@ -107,7 +107,13 @@ SGFParser.prototype = {
 					prop_val += cur_char;
 					esc_next = true;
 				} else if (!esc_next && cur_char == ']') {
-					prop_end = true;
+					prop_arr.push(prop_val);
+					prop_val = "";
+					if (this.sgf[buf_end + 1] != '[') {
+						prop_end = true;
+					} else {
+						buf_end++;
+					}
 				} else {
 					prop_val += cur_char;
 					esc_next = false;
@@ -115,13 +121,12 @@ SGFParser.prototype = {
 				buf_end++;
 			}
 
-			this.pointer.properties.push({
-				"prop": prop_ident,
-				"val": prop_val,
-				toString: function() {
-					return this.prop + "[" + this.val + "]";
-				}
-			});
+			if (prop_arr.length == 1) {
+				prop_arr = prop_arr[0];
+			}
+
+			this.pointer[prop_ident] = prop_arr;
+			prop_arr = [];
 			prop_ident = "";
 			prop_val = "";
 			buf_end += this.sgfEatBlank(buf_end);

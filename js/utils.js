@@ -141,6 +141,8 @@
 		recRunTree: function(arbol, cadena, nivel, sel) {
 			function completarAncho(nivel) {
 				if (nivel < 10) {
+					return "&nbsp;&nbsp;" + nivel;
+				} else if (nivel < 100) {
 					return "&nbsp;" + nivel;
 				} else {
 					return nivel;
@@ -153,9 +155,9 @@
 				s = "";
 				x = "";
 				for (var i = 0; i < nivel; i++) {
-					s += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					s += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 				}
-				s += "&nbsp;&bull;&nbsp;-&nbsp;";
+				s += "&nbsp;&bull;&nbsp;-&nbsp;&nbsp;";
 				x += this.recRunTree(arbol.next[0], cadena + (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + ' - </span>'), nivel + 1, sel && (arbol.last_next == arbol.next[0]))
 				for (var i = 1; i < arbol.next.length; i++) {
 					x += "<br />" + s + this.recRunTree(arbol.next[i], "", nivel + 1, sel && (arbol.last_next == arbol.next[i]));

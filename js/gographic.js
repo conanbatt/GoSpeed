@@ -17,8 +17,8 @@ GoGraphic.prototype = {
 
 	put_stone: function(color, row, col) {
 		var stone = document.createElement("div");
-		var stoneLeft = row * 25 + 10;
-		var stoneTop = col * 25 + 10;
+		var stoneLeft = col * 25 + 10;
+		var stoneTop = row * 25 + 10;
 		stone.className = "Stone" + color;
 		stone.style.left = stoneLeft + "px";
 		stone.style.top = stoneTop + "px";
@@ -35,8 +35,8 @@ GoGraphic.prototype = {
 	},
 
 	place_ko: function(ko) {
-		this.ko.style.left = (ko.row * 25 + 10) + "px";
-		this.ko.style.top = (ko.col * 25 + 10) + "px";
+		this.ko.style.left = (ko.col * 25 + 10) + "px";
+		this.ko.style.top = (ko.row * 25 + 10) + "px";
 		this.ko.style.display = "block";
 	},
 
@@ -102,7 +102,7 @@ GoGraphic.prototype = {
 		if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - 10) / 25, 10);
 			var gridY = parseInt((boundedY - 10) / 25, 10);
-			this.game.play(gridX, gridY);
+			this.game.play(gridY, gridX);
 		}
 	},
 

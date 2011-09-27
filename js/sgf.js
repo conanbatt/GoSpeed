@@ -73,6 +73,11 @@ SGFParser.prototype = {
 						i += this.sgfHandleNode(i + 1);
 					}
 				break;
+				default:
+					if (!/\s/.test(chr)) {
+						throw new Error("SGF Parser: Unexpected character.");
+					}
+				break;
 			}
 			i++;
 		}
@@ -134,7 +139,7 @@ SGFParser.prototype = {
 				prop_end = false;
 			}
 		}
-		return buf_end - buf_start - 1;
+		return buf_end - buf_start;
 	},
 
 	sgfEatBlank: function(buf_start) {

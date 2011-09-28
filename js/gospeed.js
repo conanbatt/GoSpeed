@@ -794,9 +794,9 @@ GoSpeed.prototype = {
 		return String.fromCharCode(65 + row) + "-" + col
 	},
 
-	send_play: function(row, col) {
+	send_play: function(play) {
 		if (this.server_path_game_move != undefined) {
-			$.post(this.server_path_game_move, {move: this.coord_converter(row, col)});
+			$.post(this.server_path_game_move, {move: this.coord_converter(play)});
 		}
 	},
 }

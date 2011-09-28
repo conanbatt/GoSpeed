@@ -18,7 +18,7 @@ Stone.prototype = {
 	},
 
 	equals: function(that) {
-		for (item in this) {
+		for (var item in this) {
 			if (this[item] != that[item]) {
 				return false;
 			}

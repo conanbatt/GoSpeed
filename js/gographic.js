@@ -1,3 +1,6 @@
+var STONE_SIZE = 25;
+var BOARD_BOUND = 10;
+var SHADOW_DISTANCE = 2;
 
 function GoGraphic(game, div_id) {
 	this.init.call(this, game, div_id);
@@ -11,14 +14,14 @@ GoGraphic.prototype = {
 		for (var row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
-		this.max_bound = this.game.size * 25 + 10;
+		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
 		this.div.innerHTML = "";
 	},
 
 	put_stone: function(color, row, col) {
 		var stone = document.createElement("div");
-		var stoneLeft = col * 25 + 10;
-		var stoneTop = row * 25 + 10;
+		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
+		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
 		stone.className = "Stone" + color;
 		stone.style.left = stoneLeft + "px";
 		stone.style.top = stoneTop + "px";
@@ -26,8 +29,8 @@ GoGraphic.prototype = {
 
 		var shadow = document.createElement("div");
 		shadow.className = "Shadow";
-		shadow.style.left = (stoneLeft + 2) + "px";
-		shadow.style.top = (stoneTop + 2) + "px";
+		shadow.style.left = (stoneLeft + SHADOW_DISTANCE) + "px";
+		shadow.style.top = (stoneTop + SHADOW_DISTANCE) + "px";
 		this.div.appendChild(shadow);
 
 		this.clean_t_stones();
@@ -35,8 +38,8 @@ GoGraphic.prototype = {
 	},
 
 	place_ko: function(ko) {
-		this.ko.style.left = (ko.col * 25 + 10) + "px";
-		this.ko.style.top = (ko.row * 25 + 10) + "px";
+		this.ko.style.left = (ko.col * STONE_SIZE + BOARD_BOUND) + "px";
+		this.ko.style.top = (ko.row * STONE_SIZE + BOARD_BOUND) + "px";
 		this.ko.style.display = "block";
 	},
 
@@ -61,15 +64,15 @@ GoGraphic.prototype = {
 
 	draw_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			for (stone in play.put) {
+			for (var stone in play.put) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
 		} else {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
 			this.refresh_ko(play);
@@ -78,15 +81,15 @@ GoGraphic.prototype = {
 
 	undraw_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (stone in play.put) {
+			for (var stone in play.put) {
 				this.remove_stone(play.put[stone].row, play.put[stone].col);
 			}
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		} else {
 			this.remove_stone(play.put.row, play.put.col);
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		}
@@ -99,9 +102,9 @@ GoGraphic.prototype = {
 	click_handler: function(click) {
 		var boundedX = click.pageX - this.div.offsetLeft + 1;
 		var boundedY = click.pageY - this.div.offsetTop + 1;
-		if (boundedX > 10 && boundedX < this.max_bound && boundedY > 10 && boundedY < this.max_bound) {
-			var gridX = parseInt((boundedX - 10) / 25, 10);
-			var gridY = parseInt((boundedY - 10) / 25, 10);
+		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
+			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
+			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
 			this.game.play(gridY, gridX);
 		}
 	},
@@ -142,33 +145,33 @@ GoGraphic.prototype = {
 
 		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
 		var boundedY = mouse.pageY - this.div.offsetTop + 1;
-		if (boundedX <= 10 || boundedX >= this.max_bound || boundedY <= 10 || boundedY >= this.max_bound) {
+		if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
 			t_stone.style.display = "none";
 			return false;
 		}
 
-		var gridX = parseInt((boundedX - 10) / 25, 10);
-		var gridY = parseInt((boundedY - 10) / 25, 10);
+		var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
+		var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
 
-		if (this.game.get_pos(gridX, gridY) != undefined) {
+		if (this.game.get_pos(row, col) != undefined) {
 			t_stone.style.display = "none";
 			return false;
 		}
 
-		if (this.game.pos_is_ko(gridX, gridY)) {
+		if (this.game.pos_is_ko(row, col)) {
 			t_stone.style.display = "none";
 			return false;
 		}
 
-		var tmp_play = new Play(this.game.next_move, gridX, gridY);
+		var tmp_play = new Play(this.game.next_move, row, col);
 		this.game.play_eat(tmp_play);
 		if (this.game.play_check_suicide(tmp_play)) {
 			t_stone.style.display = "none";
 			return false;
 		}
 
-		t_stone.style.left = (gridX * 25 + 10) + "px";
-		t_stone.style.top = (gridY * 25 + 10) + "px";
+		t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
+		t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
 		t_stone.style.display = "block";
 
 	},
@@ -225,10 +228,12 @@ GoGraphic.prototype = {
 		var t_white = document.createElement("div");
 		t_white.className = "StoneTW";
 		this.div.appendChild(t_white);
+		t_white.style.display = "none";
 		this.t_white = t_white;
 		var t_black = document.createElement("div");
 		t_black.className = "StoneTB";
 		this.div.appendChild(t_black);
+		t_black.style.display = "none";
 		this.t_black= t_black;
 
 		// Ko
@@ -253,7 +258,12 @@ GoGraphic.prototype = {
 		for (var row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
-		this.max_bound = this.game.size * 25 + 10;
+		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
+		/*
+		this.t_white = undefined;
+		this.t_black = undefined;
+		this.ko = undefined;
+		*/
 		this.div.innerHTML = "";
 	},
 

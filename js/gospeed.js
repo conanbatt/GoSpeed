@@ -27,7 +27,7 @@ GoSpeed.prototype = {
 			// Read div contents
 			var tmp_div = document.getElementById(args.div_id);
 			if (tmp_div && tmp_div.innerHTML != "") {
-				this.sgf = tmp_div.innerHTML;
+				this.sgf = new SGFParser(tmp_div.innerHTML);
 			}
 			// Define the showing engine
 			if (args.shower != undefined) {
@@ -320,7 +320,6 @@ GoSpeed.prototype = {
 					// Commit
 					this.commit_play(tmp_play);
 					this.send_play(tmp_play);
-					this.turn_count++;
 					bRes = true;
 				}
 
@@ -650,6 +649,97 @@ GoSpeed.prototype = {
 		this.turn_count = 0;
 	},
 
+	load_sgf: function() {
+		if (this.sgf != undefined) {
+			var pend_sgf_node = [];
+			var pend_game_tree_node = [];
+
+			if (!this.sgf.root) {
+				return;
+			}
+			// Setup based on root node properties.
+			var sgf_node = this.sgf.root;
+			if (sgf_node.RU != undefined) {
+				this.change_ruleset(sgf_node.RU);
+			}
+			if (sgf_node.SZ != undefined) {
+				this.change_size(Number(sgf_node.SZ));
+			}
+			if (sgf_node.HA != undefined) {
+				this.next_move = "W";
+			} else {
+				this.next_move = "B";
+			}
+
+			// Push roots to start "recursive-like" iteration.
+			pend_sgf_node.push(this.sgf.root);
+			pend_game_tree_node.push(this.game_tree.root)
+
+			var move;
+			var tmp;
+			var tree_node;
+			while(sgf_node = pend_sgf_node.pop()) {
+				tree_node = pend_game_tree_node.pop();
+				tree_node.last_next = tree_node.next[0];
+			// do: rewind game until reaches this tree_node.
+				while (this.game_tree.actual_move != tree_node) {
+					tmp = this.game_tree.prev();
+					this.undo_play(tmp);
+					if (tmp instanceof Play) {
+						this.next_move = (this.next_move == "W" ? "B" : "W");
+					}
+				}
+			// do: play sgf_node contents at this point in game.
+				// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
+				if (sgf_node.B || sgf_node.W) {
+					if (this.next_move == "B" && sgf_node.B) {
+						move = sgf_node.B;
+					} else if (sgf_node.W) {
+						move = sgf_node.W;
+					} else {
+						throw new Error("Turn and Play mismatch");
+						return false;
+					}
+					if (move == "" || move == "tt") {
+						//this.pass();
+						this.turn_count++;
+						throw new Error("Pass not implemented");
+						return false;
+					} else {
+						tmp = this.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
+						if (!tmp) {
+							throw new Error("Illegal move or such...");
+							return false;
+						}
+						this.game_tree.append(new GameNode(tmp));
+						this.make_play(tmp);
+						if (tmp instanceof Play) {
+							this.next_move = (this.next_move == "W" ? "B" : "W");
+						}
+						this.turn_count++;
+					}
+				}
+			// do: push actual_node to pend_game_tree_node
+			// do: push sgf_node.next nodes to pend_sgf_node
+				for (var key in sgf_node.next) {
+					pend_sgf_node.push(sgf_node.next[key]);
+					pend_game_tree_node.push(this.game_tree.actual_move);
+				}
+			}
+
+			while (this.game_tree.actual_move != this.game_tree.root) {
+				tmp = this.game_tree.prev();
+				this.undo_play(tmp);
+				if (tmp instanceof Play) {
+					this.next_move = (this.next_move == "W" ? "B" : "W");
+				}
+			}
+
+		} else {
+			throw new Error("Empty / Wrong SGF");
+		}
+	},
+
 	render: function() {
 		if (this.shower) {
 			this.shower.render();
@@ -790,8 +880,8 @@ GoSpeed.prototype = {
 		return {row: row, col: col};
 	},
 
-	coord_converter: function(row, col) {
-		return String.fromCharCode(65 + row) + "-" + col
+	coord_converter: function(play) {
+		return ";" + play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
 	},
 
 	send_play: function(play) {

@@ -113,15 +113,15 @@ GoSpeed.prototype = {
 	// Takes a play and spreads it's content to the grid (updates gospeed.ko)
 	make_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			for (stone in play.put) {
+			for (var stone in play.put) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
 		} else {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
 			this.ko = play.ko;
@@ -131,15 +131,15 @@ GoSpeed.prototype = {
 	// Takes a play and undoes it's content to the grid (updates gospeed.ko)
 	undo_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (stone in play.put) {
+			for (var stone in play.put) {
 				this.remove_stone(play.put[stone].row, play.put[stone].col);
 			}
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		} else {
 			this.remove_stone(play.put.row, play.put.col);
-			for (stone in play.remove) {
+			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 			this.ko = undefined;
@@ -154,9 +154,9 @@ GoSpeed.prototype = {
 		var adj = this.get_touched(target_color, play.put.row, play.put.col);
 		var chains = this.get_distinct_chains(adj);
 
-		for (chain in chains) {
+		for (var chain in chains) {
 			if (this.chain_is_restricted(chains[chain])) {
-				for (stone in chains[chain]) {
+				for (var stone in chains[chain]) {
 					play.remove.push(new Stone(target_color, chains[chain][stone].row, chains[chain][stone].col));
 				}
 			}
@@ -463,7 +463,7 @@ GoSpeed.prototype = {
 
 //	Auxiliar functions
 	chain_is_restricted: function(chain) {
-		for (stone in chain) {
+		for (var stone in chain) {
 			if (this.count_stone_liberties(chain[stone]) > 0) {
 				return false;
 			}
@@ -518,7 +518,7 @@ GoSpeed.prototype = {
 	},
 
 	list_has_stone: function(list, stone) {
-		for (item in list) {
+		for (var item in list) {
 			if (list[item].color == stone.color && list[item].row == stone.row && list[item].col == stone.col) {
 				return true;
 			}
@@ -537,7 +537,7 @@ GoSpeed.prototype = {
 		}
 
 		granloop:
-		for (chain in chains_pend) {
+		for (var chain in chains_pend) {
 			while (chains_pend[chain].length > 0) {
 				touched = [];
 				stone = chains_pend[chain].pop();
@@ -546,7 +546,7 @@ GoSpeed.prototype = {
 					if (this.list_has_stone(chains[chain], touched[stone])) {
 						continue;
 					} else {
-						for (ch in chains) {
+						for (var ch in chains) {
 							if (this.list_has_stone(chains[ch], touched[stone])) {
 								delete chains[chain];
 								delete chains_pend[chain];
@@ -627,7 +627,7 @@ GoSpeed.prototype = {
 
 		// Grid
 		this.grid = Array(this.size);
-		for (row = 0 ; row < this.size ; row++) {
+		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
 

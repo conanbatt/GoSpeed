@@ -409,24 +409,6 @@ GoSpeed.prototype = {
 		return bRes;
 	},
 
-	play_ad_hoc: function(row, col) {
-		if (this.mode == "play_online" || this.mode == "play") {
-			var bRes = false;
-
-			// Setup
-			var play = this.setup_play(row, col);
-
-			if (play) {
-				// Commit
-				this.commit_play(tmp_play);
-				this.turn_count++;
-				bRes = true;
-			}
-
-			return bRes;
-		}
-	},
-
 	setup_play: function(row, col) {
 		// Can't override a stone
 		if (this.get_pos(row, col) != undefined) {
@@ -452,22 +434,6 @@ GoSpeed.prototype = {
 		this.play_check_ko(tmp_play);
 
 		return tmp_play;
-	},
-
-	update_game: function(data) {
-		var ext_game = data.split(",");
-		var ext_play;
-		while(this.turn_count < ext_game.length) {
-			if (ext_game[this.turn_count] == "") {
-				break;
-			} else {
-				ext_play = this.string_to_play(ext_game[this.turn_count]);
-				if (!this.play_ad_hoc(ext_play.row, ext_play.col)) {
-					alert("Choque");
-					break;
-				}
-			}
-		}
 	},
 
 	is_my_turn: function() {

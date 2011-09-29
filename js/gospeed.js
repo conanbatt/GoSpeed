@@ -877,5 +877,13 @@ GoSpeed.prototype = {
 			$.post(this.server_path_game_move, {move: this.coord_converter(play)});
 		}
 	},
+
+	update_game: function(data) {
+		this.clear();
+		this.sgf = new SGFParser("(" + data + ")");
+		this.load_sgf();
+		this.render();
+		this.goto_end();
+	}
 }
 

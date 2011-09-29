@@ -26,16 +26,11 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
 		this.gospeed.my_colour = this.server.connect(binder(function(move_list) {
-			this.clear();
-			this.sgf = new SGFParser("(" + move_list + ")");
-			this.load_sgf();
-			this.render();
-			this.goto_end();
+			this.update_game(move_list);
 		}, this.gospeed));
-		var f1 = function(play) {
+		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
-		};
-		this.gospeed.send_play = binder(f1, this.server);
+		}, this.server);
 
 		// Board 2
 		var conf2 = {
@@ -48,16 +43,11 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
 		this.gospeed2.my_colour = this.server.connect(binder(function(move_list) {
-			this.clear();
-			this.sgf = new SGFParser("(" + move_list + ")");
-			this.load_sgf();
-			this.render();
-			this.goto_end();
+			this.update_game(move_list);
 		}, this.gospeed2));
-		var f1 = function(play) {
+		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
-		};
-		this.gospeed2.send_play = binder(f1, this.server);
+		}, this.server);
 
 	},
 	teardown: function() {

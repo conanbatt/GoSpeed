@@ -628,10 +628,12 @@ GoSpeed.prototype = {
 		} else {
 			throw new Error("The 'size' parameter must be a number");
 		}
-		this.size = size;
-		this.clear();
-		this.render();
-		this.render_tree();
+		if (this.size != size) {
+			this.size = size;
+			this.clear();
+			this.render();
+			this.render_tree();
+		}
 	},
 
 	clear: function() {

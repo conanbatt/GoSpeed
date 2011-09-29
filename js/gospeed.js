@@ -673,6 +673,18 @@ GoSpeed.prototype = {
 			}
 			if (sgf_node.HA != undefined) {
 				this.next_move = "W";
+				if (sgf_node.AB != undefined) {
+					sgf_node.AB = [].concat(sgf_node.AB);
+					var handicap = new FreePlay();
+					this.game_tree.root.play = handicap;
+					for (var key in sgf_node.AB) {
+						handicap.put.push(new Stone("B", sgf_node.AB[key].charCodeAt(1) - 97, sgf_node.AB[key].charCodeAt(0) - 97));
+					}
+					this.make_play(handicap);
+					if (this.shower != undefined) {
+						this.shower.draw_play(handicap);
+					}
+				}
 			} else {
 				this.next_move = "B";
 			}

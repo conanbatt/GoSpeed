@@ -104,7 +104,7 @@
 
 		prev: function() {
 			var tmp_play;
-			if (this.actual_move.play == null) {
+			if (this.actual_move.play == null || this.actual_move.prev == null) {
 				return false;
 			} else {
 				tmp_play = this.actual_move.play;

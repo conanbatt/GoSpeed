@@ -127,7 +127,10 @@ test("Grid", function() {
 });
 
 test("DivContent", function() {
-	ok(this.gospeed.sgf == undefined || this.gospeed.sgf == BOARD_DIV_ORIGINAL_CONTENT, "OK, we have a div. If the div was not empty at startup, the board should have saved it's content into de sgf property.");
+	ok(this.gospeed.sgf == undefined || this.gospeed.sgf instanceof SGFParser, "OK, we have a div. If the div was not empty at startup, the board should have parsed it's content into de sgf property.");
+	if (this.gospeed.sgf != undefined) {
+		equal(this.gospeed.sgf.sgf, BOARD_DIV_ORIGINAL_CONTENT, "SGF text was saved into sgf parser sgf property.");
+	}
 });
 
 if (BOARD_SHOWER == "graphic") {

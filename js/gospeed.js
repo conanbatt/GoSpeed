@@ -753,6 +753,8 @@ GoSpeed.prototype = {
 				}
 			}
 
+			this.renderTree();
+
 		} else {
 			throw new Error("Empty / Wrong SGF");
 		}

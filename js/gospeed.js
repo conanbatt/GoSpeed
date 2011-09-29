@@ -252,7 +252,7 @@ GoSpeed.prototype = {
 			this.shower.clean_t_stones();
 		}
 
-		this.renderTree();
+		this.render_tree();
 	},
 
 	next: function() {
@@ -274,20 +274,20 @@ GoSpeed.prototype = {
 			this.shower.clean_t_stones();
 		}
 
-		this.renderTree();
+		this.render_tree();
 		return true;
 	},
 
 	up: function() {
 		this.game_tree.up();
 
-		this.renderTree();
+		this.render_tree();
 	},
 
 	down: function() {
 		this.game_tree.down();
 
-		this.renderTree();
+		this.render_tree();
 	},
 
 	goto_end: function() {
@@ -403,7 +403,7 @@ GoSpeed.prototype = {
 		}
 
 		if (bRes) {
-			this.renderTree();
+			this.render_tree();
 		}
 
 		return bRes;
@@ -576,7 +576,7 @@ GoSpeed.prototype = {
 		return chains;
 	},
 
-	renderTree: function() {
+	render_tree: function() {
 		if (this.tree_div) {
 			this.tree_div.innerHTML = this.game_tree.toString();
 		}
@@ -631,7 +631,7 @@ GoSpeed.prototype = {
 		this.size = size;
 		this.clear();
 		this.render();
-		this.renderTree();
+		this.render_tree();
 	},
 
 	clear: function() {
@@ -753,7 +753,7 @@ GoSpeed.prototype = {
 				}
 			}
 
-			this.renderTree();
+			this.render_tree();
 
 		} else {
 			throw new Error("Empty / Wrong SGF");

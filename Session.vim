@@ -15,13 +15,13 @@ set backspace=indent,eol,start
 set completeopt=longest,menuone
 set fileencodings=ucs-bom,utf-8,default,latin1
 set guifont=Monospace\ 9
-set helplang=es
+set helplang=en
 set history=50
 set nomodeline
 set mouse=a
 set printoptions=paper:letter
 set ruler
-set runtimepath=~/.vim,~/.vim-addons/taglist,~/.vim-addons/pythoncomplete,/var/lib/vim/addons,/usr/share/vim/vimfiles,/usr/share/vim/vim72,/usr/share/vim/vimfiles/after,/var/lib/vim/addons/after,~/.vim/after,~/.vim-addons/vim-addon-manager
+set runtimepath=~/.vim,~/.vim-addons/taglist,~/.vim-addons/pythoncomplete,/var/lib/vim/addons,/usr/share/vim/vimfiles,/usr/share/vim/vim73,/usr/share/vim/vimfiles/after,/var/lib/vim/addons/after,~/.vim/after,~/.vim-addons/vim-addon-manager
 set shiftwidth=4
 set smartindent
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
@@ -37,18 +37,26 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
 endif
 set shortmess=aoO
 badd +1 ~/git-root/gospeed/css/style.css
-badd +1 ~/git-root/gospeed/js/gospeed.js
+badd +618 ~/git-root/gospeed/js/gospeed.js
 badd +1 ~/git-root/gospeed/test/js/board-init.js
 badd +1 ~/git-root/gospeed/test/js/board-play.js
 badd +1 ~/git-root/gospeed/test/board-init.html
 badd +1 ~/git-root/gospeed/test/index.html
 badd +1 ~/git-root/gospeed/test/board-play.html
 badd +1 ~/git-root/gospeed/index.html
-badd +1 ~/git-root/gospeed/js/goshower.js
 badd +1 ~/git-root/gospeed/js/gographic.js
 badd +1 ~/git-root/gospeed/js/utils.js
 badd +1 ~/git-root/gospeed/js/stone.js
-silent! argdel *
+badd +1 ~/git-root/gospeed/js/sgf.js
+badd +1 ~/git-root/gospeed/test/js/board-online.js
+badd +1 ~/git-root/gospeed/test/js/board-sgf.js
+badd +1 ~/git-root/gospeed/test/board-sgf.html
+badd +1 ~/git-root/gospeed/test/js/board-online-gographic.js
+badd +1 ~/git-root/gospeed/test/board-online-gographic.html
+badd +1 ~/git-root/gospeed/test/board-online.html
+badd +1 ~/git-root/gospeed/test/js/helpers.js
+badd +1 ~/git-root/gospeed/test/js/server_emulator.js
+args js/gospeed.js
 edit ~/git-root/gospeed/index.html
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -59,8 +67,8 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 82 + 111) / 223)
-exe 'vert 2resize ' . ((&columns * 140 + 111) / 223)
+exe 'vert 1resize ' . ((&columns * 111 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 111 + 111) / 223)
 argglobal
 setlocal keymap=
 setlocal noarabic
@@ -74,11 +82,16 @@ setlocal nocindent
 setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
 setlocal cinoptions=
 setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
 setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
 setlocal commentstring=/*%s*/
 setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
 setlocal completefunc=
 setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
 setlocal nocursorcolumn
 setlocal nocursorline
 setlocal define=
@@ -130,6 +143,7 @@ setlocal nopreserveindent
 setlocal nopreviewwindow
 setlocal quoteescape=\\
 setlocal noreadonly
+setlocal norelativenumber
 setlocal norightleft
 setlocal rightleftcmd=search
 setlocal noscrollbind
@@ -152,18 +166,19 @@ setlocal tabstop=4
 setlocal tags=
 setlocal textwidth=0
 setlocal thesaurus=
+setlocal noundofile
 setlocal nowinfixheight
 setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 39 - ((38 * winheight(0) + 24) / 49)
+let s:l = 1 - ((0 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-39
-normal! 034l
+1
+normal! 0
 wincmd w
 argglobal
 edit ~/git-root/gospeed/js/gospeed.js
@@ -179,11 +194,16 @@ setlocal nocindent
 setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
 setlocal cinoptions=
 setlocal cinwords=if,else,while,do,for,switch
+setlocal colorcolumn=
 setlocal comments=s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-
 setlocal commentstring=/*%s*/
 setlocal complete=.,w,b,u,t,i
+setlocal concealcursor=
+setlocal conceallevel=0
 setlocal completefunc=
 setlocal nocopyindent
+setlocal cryptmethod=
+setlocal nocursorbind
 setlocal nocursorcolumn
 setlocal nocursorline
 setlocal define=
@@ -209,8 +229,8 @@ setlocal formatexpr=
 setlocal formatoptions=tcq
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal grepprg=
-setlocal iminsert=2
-setlocal imsearch=2
+setlocal iminsert=0
+setlocal imsearch=0
 setlocal include=
 setlocal includeexpr=
 setlocal indentexpr=
@@ -235,6 +255,7 @@ setlocal nopreserveindent
 setlocal nopreviewwindow
 setlocal quoteescape=\\
 setlocal noreadonly
+setlocal norelativenumber
 setlocal norightleft
 setlocal rightleftcmd=search
 setlocal noscrollbind
@@ -257,21 +278,22 @@ setlocal tabstop=4
 setlocal tags=
 setlocal textwidth=0
 setlocal thesaurus=
+setlocal noundofile
 setlocal nowinfixheight
 setlocal nowinfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 24) / 49)
+let s:l = 618 - ((0 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+618
+normal! 02l
 wincmd w
-exe 'vert 1resize ' . ((&columns * 82 + 111) / 223)
-exe 'vert 2resize ' . ((&columns * 140 + 111) / 223)
+exe 'vert 1resize ' . ((&columns * 111 + 111) / 223)
+exe 'vert 2resize ' . ((&columns * 111 + 111) / 223)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf

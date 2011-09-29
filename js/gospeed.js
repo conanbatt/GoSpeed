@@ -49,7 +49,10 @@ GoSpeed.prototype = {
 		if (args.my_colour != undefined) {
 			this.my_colour = args.my_colour;
 		}
+
+	// Game
 		this.turn_count = 0;
+		this.captured = {B: 0, W: 0};
 
 	// Paths
 		if (args.server_path_game_move != undefined) {
@@ -123,6 +126,7 @@ GoSpeed.prototype = {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+				this.captured[play.remove[stone].color]++;
 			}
 			this.ko = play.ko;
 		}
@@ -141,6 +145,7 @@ GoSpeed.prototype = {
 			this.remove_stone(play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+				this.captured[play.remove[stone].color]--;
 			}
 			this.ko = undefined;
 		}
@@ -645,8 +650,9 @@ GoSpeed.prototype = {
 		// Clear shower
 		this.shower.clear();
 
-		// Online
+		// Game
 		this.turn_count = 0;
+		this.captured = {B: 0, W: 0};
 	},
 
 	load_sgf: function() {

@@ -129,8 +129,9 @@ test("GameTree", function() {
 	equal(this.gospeed.tree_div, document.getElementById(BOARD_TREE_DIV_ID), "The div which holds the graphic representation of the game tree should be the result of document.getElementById() with the tree_div_id argument.");
 });
 
-test("Online", function() {
+test("Game", function() {
 	equal(this.gospeed.turn_count, 0, "No moves played, so turn_count is 0.");
+	deepEqual(this.gospeed.captured, {B: 0, W: 0}, "At startup, no captures at all.");
 });
 
 test("Paths", function() {
@@ -302,5 +303,51 @@ test("GamePlay", function() {
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 0, 0), "Board 2: actual move is a 'B' stone on (0, 0).");
 			equal(this.gospeed2.turn_count, 5, "Board 2: we have had 5 turns.");
+
+
+	deepEqual(this.gospeed.captured, {B: 0, W: 1}, "Only one white stone captured.");
+	this.gospeed.play(6, 6);
+	this.gospeed2.play(3, 9);
+	this.gospeed.play(2, 9);
+	this.gospeed2.play(6, 7);
+	this.gospeed.play(3, 8);
+	this.gospeed2.play(5, 6);
+	this.gospeed.play(4, 9);
+	this.gospeed2.play(6, 5);
+	this.gospeed.play(3, 10);
+	deepEqual(this.gospeed.captured, {B: 1, W: 1}, "Now we have also a black stone captured.");
+	this.gospeed2.play(7, 6);
+	deepEqual(this.gospeed.captured, {B: 1, W: 2}, "And another white stone captured.");
+	this.gospeed.play(0, 1);
+	deepEqual(this.gospeed.captured, {B: 2, W: 2}, "And the last black stone captured, ending in ko.");
+
+		// Board 1
+			// Things that must remain untouched
+			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
+			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
+			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
+			// Test new game state after play
+			equal(this.gospeed.get_pos(0, 0), undefined, "Board 1: get_pos(0, 0) returns undefined.");
+			equal(this.gospeed.grid[0][0], undefined, "Board 1: grid position [0][0] has undefined.");
+			deepEqual(this.gospeed.ko, {row: 0, col: 0}, "Board 1: position (0, 0) is ko.");
+			equal(this.gospeed.next_move, "B", "Board 1: next_move is now 'B'.");
+			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
+			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 1: actual move is a 'W' stone on (0, 1).");
+			equal(this.gospeed.turn_count, 16, "Board 1: we have had 16 turns.");
+		// Board 2
+			// Things that must remain untouched
+			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
+			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
+			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
+			// Test new game state after play
+			equal(this.gospeed2.get_pos(0, 0), undefined, "Board 2: get_pos(0, 0) returns undefined.");
+			equal(this.gospeed2.grid[0][0], undefined, "Board 2: grid position [0][0] has undefined.");
+			deepEqual(this.gospeed2.ko, {row: 0, col: 0}, "Board 2: position (0, 0) is ko.");
+			equal(this.gospeed2.next_move, "B", "Board 2: next_move is now 'B'.");
+			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
+			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 2: actual move is a 'W' stone on (0, 1).");
+			equal(this.gospeed2.turn_count, 16, "Board 2: we have had 16 turns.");
 });
 

@@ -22,27 +22,30 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 
-	// Shower
-		if (args.div_id != undefined) {
+	// Divs
+		if (args.div_id_board != undefined) {
+			this.div_id_board = args.div_id_board;
 			// Read div contents
-			var tmp_div = document.getElementById(args.div_id);
+			var tmp_div = document.getElementById(args.div_id_board);
 			if (tmp_div && tmp_div.innerHTML != "") {
 				this.sgf = new SGFParser(tmp_div.innerHTML);
 			}
-			// Define the showing engine
-			if (args.shower != undefined) {
-				if (args.shower == "basic") {
-					this.shower = new GoShower(this, args.div_id);
-				} else if (args.shower == "graphic") {
-					this.shower = new GoGraphic(this, args.div_id);
-				}
+		}
+
+	// Shower
+		// Define the showing engine
+		if (args.shower != undefined) {
+			if (args.shower == "basic") {
+				this.shower = new GoShower(this);
+			} else if (args.shower == "graphic") {
+				this.shower = new GoGraphic(this);
 			}
 		}
 
 	// GameTree
 		this.game_tree = new GameTree();
-		if (args.tree_div_id != undefined) {
-			this.tree_div = document.getElementById(args.tree_div_id);
+		if (args.div_id_tree != undefined) {
+			this.tree_div = document.getElementById(args.div_id_tree);
 		}
 
 	// Online
@@ -789,20 +792,20 @@ GoSpeed.prototype = {
 			}
 
 		// DivID
-			if (typeof div_id != "undefined") {
-				if (typeof div_id != "string") {
-					throw new Error("The 'div_id' parameter must be a string");
-				} else if (!document.getElementById(div_id)) {
-					throw new Error("The 'div_id' parameter points to no existing div.");
+			if (typeof div_id_board != "undefined") {
+				if (typeof div_id_board != "string") {
+					throw new Error("The 'div_id_board' parameter must be a string");
+				} else if (!document.getElementById(div_id_board)) {
+					throw new Error("The 'div_id_board' parameter points to no existing div.");
 				}
 			}
 
 		// TreeDivID
-			if (typeof tree_div_id != "undefined") {
-				if (typeof tree_div_id != "string") {
-					throw new Error("The 'tree_div_id' parameter must be a string");
-				} else if (!document.getElementById(tree_div_id)) {
-					throw new Error("The 'tree_div_id' parameter points to no existing div.");
+			if (typeof div_id_tree != "undefined") {
+				if (typeof div_id_tree != "string") {
+					throw new Error("The 'div_id_tree' parameter must be a string");
+				} else if (!document.getElementById(div_id_tree)) {
+					throw new Error("The 'div_id_tree' parameter points to no existing div.");
 				}
 			}
 

@@ -2,20 +2,19 @@ var STONE_SIZE = 25;
 var BOARD_BOUND = 10;
 var SHADOW_DISTANCE = 2;
 
-function GoGraphic(game, div_id) {
-	this.init.call(this, game, div_id);
+function GoGraphic(game) {
+	this.init.call(this, game);
 }
 
 GoGraphic.prototype = {
-	init: function(game, div_id) {
+	init: function(game) {
 		this.game = game;
-		this.div = document.getElementById(div_id);
+		this.validate_and_load_divs();
 		this.grid = Array(this.game.size);
 		for (var row = 0 ; row < this.game.size ; row++) {
 			this.grid[row] = Array(this.game.size);
 		}
 		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
-		this.div.innerHTML = "";
 	},
 
 	put_stone: function(color, row, col) {
@@ -25,13 +24,13 @@ GoGraphic.prototype = {
 		stone.className = "Stone" + color;
 		stone.style.left = stoneLeft + "px";
 		stone.style.top = stoneTop + "px";
-		this.div.appendChild(stone);
+		this.div_board.appendChild(stone);
 
 		var shadow = document.createElement("div");
 		shadow.className = "Shadow";
 		shadow.style.left = (stoneLeft + SHADOW_DISTANCE) + "px";
 		shadow.style.top = (stoneTop + SHADOW_DISTANCE) + "px";
-		this.div.appendChild(shadow);
+		this.div_board.appendChild(shadow);
 
 		this.clean_t_stones();
 		this.grid[row][col] = [stone, shadow];
@@ -57,8 +56,8 @@ GoGraphic.prototype = {
 
 	remove_stone: function(row, col) {
 		if (this.grid[row][col] != null) {
-			this.div.removeChild(this.grid[row][col][0]);
-			this.div.removeChild(this.grid[row][col][1]);
+			this.div_board.removeChild(this.grid[row][col][0]);
+			this.div_board.removeChild(this.grid[row][col][1]);
 		}
 	},
 
@@ -100,8 +99,8 @@ GoGraphic.prototype = {
 	},
 
 	click_handler: function(click) {
-		var boundedX = click.pageX - this.div.offsetLeft + 1;
-		var boundedY = click.pageY - this.div.offsetTop + 1;
+		var boundedX = click.pageX - this.div_board.offsetLeft + 1;
+		var boundedY = click.pageY - this.div_board.offsetTop + 1;
 		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
@@ -143,8 +142,8 @@ GoGraphic.prototype = {
 			return false;
 		}
 
-		var boundedX = mouse.pageX - this.div.offsetLeft + 1;
-		var boundedY = mouse.pageY - this.div.offsetTop + 1;
+		var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
+		var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
 		if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
 			t_stone.style.display = "none";
 			return false;
@@ -181,10 +180,10 @@ GoGraphic.prototype = {
 		if (mouse.relatedTarget == null) {
 			this.clean_t_stones();
 		} else {
-			if (mouse.relatedTarget == this.div) {
+			if (mouse.relatedTarget == this.div_board) {
 				return;
 			}
-			if (mouse.relatedTarget.parentNode != this.div) {
+			if (mouse.relatedTarget.parentNode != this.div_board) {
 				this.clean_t_stones();
 			}
 		}
@@ -193,25 +192,25 @@ GoGraphic.prototype = {
 	render: function() {
 		switch(this.game.size) {
 			case 19:
-				this.div.style.width = "495px";
-				this.div.style.height = "495px";
-				this.div.className = "OnlyBoard19";
-				//this.div.style.backgroundImage = "url(img/OnlyBoard19.png)";
+				this.div_board.style.width = "495px";
+				this.div_board.style.height = "495px";
+				this.div_board.className = "OnlyBoard19";
+				//this.div_board.style.backgroundImage = "url(img/OnlyBoard19.png)";
 			break;
 			case 13:
-				this.div.style.width = "346px";
-				this.div.style.height = "346px";
-				this.div.className = "OnlyBoard13";
-				//this.div.style.backgroundImage = "url(img/OnlyBoard13.png)";
+				this.div_board.style.width = "346px";
+				this.div_board.style.height = "346px";
+				this.div_board.className = "OnlyBoard13";
+				//this.div_board.style.backgroundImage = "url(img/OnlyBoard13.png)";
 			break;
 			case 9:
-				this.div.style.width = "246px";
-				this.div.style.height = "246px";
-				this.div.className = "OnlyBoard9";
-				//this.div.style.backgroundImage = "url(img/OnlyBoard9.png)";
+				this.div_board.style.width = "246px";
+				this.div_board.style.height = "246px";
+				this.div_board.className = "OnlyBoard9";
+				//this.div_board.style.backgroundImage = "url(img/OnlyBoard9.png)";
 			break;
 		}
-		this.div.style.position = "relative";
+		this.div_board.style.position = "relative";
 
 		// Image prefetch (dunno if this is the right place...)
 		var tmp_path = "";
@@ -227,25 +226,25 @@ GoGraphic.prototype = {
 		// Transparent Stones
 		var t_white = document.createElement("div");
 		t_white.className = "StoneTW";
-		this.div.appendChild(t_white);
+		this.div_board.appendChild(t_white);
 		t_white.style.display = "none";
 		this.t_white = t_white;
 		var t_black = document.createElement("div");
 		t_black.className = "StoneTB";
-		this.div.appendChild(t_black);
+		this.div_board.appendChild(t_black);
 		t_black.style.display = "none";
 		this.t_black= t_black;
 
 		// Ko
 		var ko = document.createElement("div");
 		ko.className = "Ko";
-		this.div.appendChild(ko);
+		this.div_board.appendChild(ko);
 		this.ko = ko;
 
 		// Bind mouse handlers
-		this.div.onclick = this.binder(this.click_handler, this, null);
-		this.div.onmousemove = this.binder(this.mousemove_handler, this, null);
-		this.div.onmouseout = this.binder(this.mouseout_handler, this, null);
+		this.div_board.onclick = this.binder(this.click_handler, this, null);
+		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
+		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
 	},
 
 	clean_t_stones: function() {
@@ -264,7 +263,18 @@ GoGraphic.prototype = {
 		this.t_black = undefined;
 		this.ko = undefined;
 		*/
-		this.div.innerHTML = "";
+		this.div_board.innerHTML = "";
+	},
+
+	validate_and_load_divs: function() {
+		if (this.game.div_id_board != undefined) {
+			this.div_board = document.getElementById(this.game.div_id_board);
+			if (this.div_board) {
+				this.div_board.innerHTML = "";
+			} else {
+				throw new Error("GoGraphic: error finding board div.");
+			}
+		}
 	},
 
 };

@@ -20,7 +20,7 @@ module("OnlineSuite", {
 			size: BOARD_SIZE,
 			ruleset: BOARD_RULESET,
 			mode: "play_online",
-			div_id: BOARD_DIV_ID,
+			div_id_board: BOARD_DIV_ID,
 			shower: BOARD_SHOWER,
 		};
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
@@ -37,7 +37,7 @@ module("OnlineSuite", {
 			size: BOARD_SIZE,
 			ruleset: BOARD_RULESET,
 			mode: "play_online",
-			div_id: BOARD_DIV_ID_2,
+			div_id_board: BOARD_DIV_ID_2,
 			shower: BOARD_SHOWER,
 		};
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
@@ -73,12 +73,12 @@ test("Initialization", function() {
 	}
 
 	// Mouse move Board 1
-	triggerMouseMove(this.gospeed.shower.div, 1, 1);
+	triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 	equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: as it's not my turn, black transparent stone must not be displayed.");
 	equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: as it's not my turn, white transparent stone must not be displayed.");
 
 	// Mouse move Board 1
-	triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+	triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 	equal(this.gospeed2.shower.t_black.style.display, "block", "Board 2: it's my turn, black transparent stone must be displayed.");
 	equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: it's my turn, but my colour is black, so white transparent stone must not be displayed.");
 });
@@ -104,10 +104,10 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_black.className, "StoneTB", "Board 1: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed.shower.div_board, 2, 0);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not black. Black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
@@ -128,10 +128,10 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.t_black.className, "StoneTB", "Board 2: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 2: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed2.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed2.shower.div_board, 2, 0);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty but it's not my turn. Black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not white. White transparent stone must not be displayed.");
 
@@ -155,10 +155,10 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_black.className, "StoneTB", "Board 1: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed.shower.div_board, 2, 0);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not black. Black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but it's not my turn. White transparent stone must not be displayed.");
 		// Board 2
@@ -179,10 +179,10 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.t_black.className, "StoneTB", "Board 2: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 2: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed2.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed2.shower.div_board, 2, 0);
 			equal(this.gospeed2.shower.t_black.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. Black transparent stone must be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not white. White transparent stone must not be displayed.");
 
@@ -206,10 +206,10 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_black.className, "StoneTB", "Board 1: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed.shower.div_board, 2, 0);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not black. Black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
@@ -230,10 +230,10 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.t_black.className, "StoneTB", "Board 2: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 2: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed2.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed2.shower.div_board, 2, 0);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty but it's not my turn. Black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not white. White transparent stone must not be displayed.");
 
@@ -257,10 +257,10 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_black.className, "StoneTB", "Board 1: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed.shower.div_board, 2, 0);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not black. Black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but it's not my turn. White transparent stone must not be displayed.");
 		// Board 2
@@ -281,10 +281,10 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.t_black.className, "StoneTB", "Board 2: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 2: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed2.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed2.shower.div_board, 2, 0);
 			equal(this.gospeed2.shower.t_black.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. Black transparent stone must be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not white. White transparent stone must not be displayed.");
 
@@ -310,10 +310,10 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_black.className, "StoneTB", "Board 1: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed.shower.div_board, 1, 1);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed.shower.div_board, 2, 0);
 			equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not black. Black transparent stone must not be displayed.");
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
@@ -336,10 +336,10 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.t_black.className, "StoneTB", "Board 2: shower transparent black stone's class name is 'StoneTB'.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: shower transparent white strone is not being displayed.");
 			// Mouse move
-			triggerMouseMove(this.gospeed2.shower.div, 1, 1);
+			triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 2: position (1, 1) has a stone, black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: position (1, 1) has a stone, white transparent stone must not be displayed.");
-			triggerMouseMove(this.gospeed2.shower.div, 2, 0);
+			triggerMouseMove(this.gospeed2.shower.div_board, 2, 0);
 			equal(this.gospeed2.shower.t_black.style.display, "none", "Board 1: position (2, 0) is empty but it's not my turn. Black transparent stone must not be displayed.");
 			equal(this.gospeed2.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but my colour is not white. White transparent stone must not be displayed.");
 

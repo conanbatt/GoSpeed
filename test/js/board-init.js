@@ -83,8 +83,8 @@ module("Board Init Full", {
 			size: BOARD_SIZE,
 			ruleset: BOARD_RULESET,
 			mode: BOARD_MODE,
-			div_id: BOARD_DIV_ID,
-			tree_div_id: BOARD_TREE_DIV_ID,
+			div_id_board: BOARD_DIV_ID,
+			div_id_tree: BOARD_TREE_DIV_ID,
 			shower: BOARD_SHOWER,
 			my_colour: BOARD_MY_COLOUR,
 			server_path_game_move: BOARD_SERVER_PATH_GAME_MOVE,
@@ -137,7 +137,7 @@ if (BOARD_SHOWER == "graphic") {
 	test("GoGraphic", function() {
 		ok(this.gospeed.shower instanceof GoGraphic, "As configured, the showing engine should be GoGraphic.");
 		ok(this.gospeed.shower.game === this.gospeed, "Game reference in GoGraphic is correct.");
-		equal(this.gospeed.shower.div, document.getElementById(BOARD_DIV_ID), "The shower div property must hold the result of document.getElementById(BOARD_DIV_ID).");
+		equal(this.gospeed.shower.div_board, document.getElementById(BOARD_DIV_ID), "The shower div_board property must hold the result of document.getElementById(BOARD_DIV_ID).");
 		// TODO: complete gograhpic tests.
 	});
 }

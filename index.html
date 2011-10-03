@@ -5,38 +5,92 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="icon" type="image/png" href="img/icon16.png" />
 		<link type="text/css" href="css/style.css" rel="stylesheet" />
+		<script type="text/javascript" src="js/sgf.js"></script>
+		<script type="text/javascript" src="js/timer_absolute.js"></script>
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/utils.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
 		<script type="text/javascript" src="js/goshower.js"></script>
 		<script type="text/javascript" src="js/gographic.js"></script>
+		<style type="text/css">
+			table.Main {
+				/*border: 1px solid #666;*/
+				text-align: center;
+				margin: 0px auto;
+			}
+
+			table.Main td {
+				border: 1px solid #666;
+			}
+		</style>
 	</head>
 	<body>
-		<div style="position: relative; margin: 0px auto; width: 50px;">
-			<select onchange="gospeed.change_mode(this.value);" style="text-align: center;">
-				<option value="play">play</option>
-				<option value="free">free</option>
-				<option value="count">count</option>
-			</select>
-		</div>
-		<div id="board1" style="margin: 0px auto;"></div>
+		<table class="Main">
+			<tr>
+				<td style="width: 50px;">
+					<div id="board1" style="margin: 0px auto;"></div>
+				</td>
+				<td>
+					<div style="margin: 0px auto;">
+						<strong>Mode:</strong>
+						<select onchange="gospeed.change_mode(this.value);" style="text-align: center;">
+							<option value="play">play</option>
+							<option value="free">free</option>
+							<option value="count">count</option>
+						</select>
+					</div>
+					<br />
+					<table style="margin: 0px auto; border-spacing: 5px;">
+						<tr>
+							<th>
+								Black
+							</th>
+							<th>
+								White
+							</th>
+						</tr>
+						<tr>
+							<td>
+								<div id="div_id_clock_b"></div>
+							</td>
+							<td>
+								<div id="div_id_clock_w"></div>
+							</td>
+						</tr>
+					</table>
+					<br />
+					<div style="position: relative; margin: 0px auto; width: 65px;">
+						<input type="button" value="&lt;" onclick="gospeed.prev();" /><input type="button" value="&gt;" onclick="gospeed.next();" /><input type="button" value="^" onclick="gospeed.up();" /><input type="button" value="v" onclick="gospeed.down();" />
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div style="position: relative; margin: 0px auto; width: 900px; min-height: 200px; white-space: nowrap; overflow: scroll; background-color: #FFA; text-align: left;">
+						<div style="font-family: courier new; font-size: 9px;" id="arbol"></div>
+					</div>
+				</td>
+			</tr>
+		</table>
 
-		<div style="position: relative; margin: 0px auto; width: 65px;">
-			<input type="button" value="&lt;" onclick="gospeed.prev();" /><input type="button" value="&gt;" onclick="gospeed.next();" /><input type="button" value="^" onclick="gospeed.up();" /><input type="button" value="v" onclick="gospeed.down();" />
-		</div>
-		<div style="position: relative; margin: 0px auto; width: 900px; white-space: nowrap; overflow: scroll; background-color: #FFA;">
-			<div style="font-family: courier new;" id="arbol"></div>
-		</div>
 
 		<script type="text/javascript">
 			var args = {
 				size: 19,
 				mode: "play",
-				div_id: "board1",
-				tree_div_id: "arbol",
+				div_id_board: "board1",
+				div_id_tree: "arbol",
 				shower: "graphic",
+				time_config: {
+					time_system: "Absolute",
+					starting_time: 60,
+					div_id_clock_w: "div_id_clock_w",
+					div_id_clock_b: "div_id_clock_b",
+				}
 			};
 			var gospeed = new GoSpeed(args);
+			//gospeed.load_sgf();
+			gospeed.timer.resume("B");
 
 			function keyhandler(event) {
 				/*

@@ -189,6 +189,30 @@ GoGraphic.prototype = {
 		}
 	},
 
+	update_clocks: function(remain) {
+		function formatTime(seconds) {
+			var tmp_min;
+			var tmp_sec;
+			if (seconds > 0) {
+				tmp_min = Math.floor(seconds / 60);
+				tmp_sec = Math.floor(seconds - tmp_min * 60);
+				if (tmp_min < 10) {
+					tmp_min = "0" + tmp_min;
+				}
+				if (tmp_sec < 10) {
+					tmp_sec = "0" + tmp_sec;
+				}
+			} else {
+				tmp_min = "00";
+				tmp_sec = "00";
+			}
+			return tmp_min + ":" + tmp_sec;
+		}
+
+		this.div_clock_w.innerHTML = formatTime(remain["W"]);
+		this.div_clock_b.innerHTML = formatTime(remain["B"]);
+	},
+
 	render: function() {
 		switch(this.game.size) {
 			case 19:
@@ -273,6 +297,22 @@ GoGraphic.prototype = {
 				this.div_board.innerHTML = "";
 			} else {
 				throw new Error("GoGraphic: error finding board div.");
+			}
+		}
+		if (this.game.div_id_clock_w != undefined) {
+			this.div_clock_w = document.getElementById(this.game.div_id_clock_w);
+			if (this.div_clock_w) {
+				this.div_clock_w.innerHTML = "";
+			} else {
+				throw new Error("GoGraphic: error finding white clock div.");
+			}
+		}
+		if (this.game.div_id_clock_b != undefined) {
+			this.div_clock_b = document.getElementById(this.game.div_id_clock_b);
+			if (this.div_clock_b) {
+				this.div_clock_b.innerHTML = "";
+			} else {
+				throw new Error("GoGraphic: error finding black clock div.");
 			}
 		}
 	},

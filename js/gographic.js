@@ -278,6 +278,9 @@ GoGraphic.prototype = {
 		this.div_board.onclick = this.binder(this.click_handler, this, null);
 		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
 		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
+
+		// Captures
+		this.update_captures();
 	},
 
 	clean_t_stones: function() {

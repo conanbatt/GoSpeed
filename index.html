@@ -74,6 +74,30 @@
 						</tr>
 					</table>
 					<br />
+					<table class="Main">
+						<tr>
+							<th colspan="2">
+								Captures
+							</th>
+						</tr>
+						<tr>
+							<th>
+								Black
+							</th>
+							<th>
+								White
+							</th>
+						</tr>
+						<tr>
+							<td>
+								<div id="div_id_captured_b"></div>
+							</td>
+							<td>
+								<div id="div_id_captured_w"></div>
+							</td>
+						</tr>
+					</table>
+					<br />
 					<div style="position: relative; margin: 0px auto; width: 65px;">
 						<input type="button" value="&lt;" onclick="gospeed.prev();" /><input type="button" value="&gt;" onclick="gospeed.next();" /><input type="button" value="^" onclick="gospeed.up();" /><input type="button" value="v" onclick="gospeed.down();" />
 					</div>
@@ -98,10 +122,12 @@
 				shower: "graphic",
 				time_config: {
 					time_system: "Absolute",
-					starting_time: 60,
+					starting_time: 120,
 					div_id_clock_w: "div_id_clock_w",
 					div_id_clock_b: "div_id_clock_b",
-				}
+				},
+				div_id_captured_w: "div_id_captured_w",
+				div_id_captured_b: "div_id_captured_b",
 			};
 			var gospeed = new GoSpeed(args);
 			//gospeed.load_sgf();

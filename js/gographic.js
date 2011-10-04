@@ -94,6 +94,15 @@ GoGraphic.prototype = {
 		}
 	},
 
+	update_captures: function() {
+		if (this.div_captured_w != undefined) {
+			this.div_captured_w.innerHTML = this.game.captured["W"];
+		}
+		if (this.div_captured_b != undefined) {
+			this.div_captured_b.innerHTML = this.game.captured["B"];
+		}
+	},
+
 	binder: function (method, object, args) {
 		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
 	},
@@ -313,6 +322,22 @@ GoGraphic.prototype = {
 				this.div_clock_b.innerHTML = "";
 			} else {
 				throw new Error("GoGraphic: error finding black clock div.");
+			}
+		}
+		if (this.game.div_id_captured_w != undefined) {
+			this.div_captured_w = document.getElementById(this.game.div_id_captured_w);
+			if (this.div_captured_w) {
+				this.div_captured_w.innerHTML = "";
+			} else {
+				throw new Error("GoGraphic: error finding white captured div.");
+			}
+		}
+		if (this.game.div_id_captured_b != undefined) {
+			this.div_captured_b = document.getElementById(this.game.div_id_captured_b);
+			if (this.div_captured_b) {
+				this.div_captured_b.innerHTML = "";
+			} else {
+				throw new Error("GoGraphic: error finding black captured div.");
 			}
 		}
 	},

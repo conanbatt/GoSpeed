@@ -39,6 +39,12 @@ GoSpeed.prototype = {
 				this.div_id_clock_b = args.time_config.div_id_clock_b;
 			}
 		}
+		if (args.div_id_captured_w != undefined) {
+			this.div_id_captured_w = args.div_id_captured_w;
+		}
+		if (args.div_id_captured_b != undefined) {
+			this.div_id_captured_b = args.div_id_captured_b;
+		}
 
 	// Shower
 		// Define the showing engine
@@ -243,6 +249,7 @@ GoSpeed.prototype = {
 		this.make_play(play);
 		if (this.shower) {
 			this.shower.draw_play(play);
+			this.shower.update_captures();
 		}
 		this.next_move = (this.next_move == "W" ? "B" : "W");
 	},
@@ -254,6 +261,7 @@ GoSpeed.prototype = {
 			this.undo_play(play);
 			if (this.shower) {
 				this.shower.undraw_play(play);
+				this.shower.update_captures();
 			}
 			if (play instanceof Play) {
 				this.next_move = (this.next_move == "W" ? "B" : "W");
@@ -281,6 +289,7 @@ GoSpeed.prototype = {
 			this.make_play(play);
 			if (this.shower) {
 				this.shower.draw_play(play);
+				this.shower.update_captures();
 			}
 		} else {
 			return false;
@@ -888,6 +897,23 @@ GoSpeed.prototype = {
 					}
 				}
 			}
+
+		// Capture Divs
+			if (typeof div_id_captured_w != "undefined") {
+				if (typeof div_id_captured_w != "string") {
+					throw new Error("The 'div_id_captured_w' parameter must be a string");
+				} else if (!document.getElementById(div_id_captured_w)) {
+					throw new Error("The 'div_id_captured_w' parameter points to no existing div.");
+				}
+			}
+			if (typeof div_id_captured_b != "undefined") {
+				if (typeof div_id_captured_b != "string") {
+					throw new Error("The 'div_id_captured_b' parameter must be a string");
+				} else if (!document.getElementById(div_id_captured_b)) {
+					throw new Error("The 'div_id_captured_b' parameter points to no existing div.");
+				}
+			}
+
 
 		// Shower
 			if (typeof shower != "undefined") {

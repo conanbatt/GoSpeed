@@ -32,15 +32,30 @@
 				</td>
 				<td>
 					<div style="margin: 0px auto;">
-						<strong>Mode:</strong>
-						<select onchange="gospeed.change_mode(this.value);" style="text-align: center;">
-							<option value="play">play</option>
-							<option value="free">free</option>
-							<option value="count">count</option>
-						</select>
+						<table class="Main">
+							<tr>
+								<th>
+									<strong>Mode</strong>
+								</th>
+							</tr>
+							<tr>
+								<td>
+									<select onchange="gospeed.change_mode(this.value);" style="text-align: center;">
+										<option value="play">play</option>
+										<option value="free">free</option>
+										<option value="count">count</option>
+									</select>
+								</td>
+							</tr>
+						</table>
 					</div>
 					<br />
-					<table style="margin: 0px auto; border-spacing: 5px;">
+					<table class="Main">
+						<tr>
+							<th colspan="2">
+								Clocks
+							</th>
+						</tr>
 						<tr>
 							<th>
 								Black

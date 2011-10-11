@@ -36,6 +36,18 @@ GoGraphic.prototype = {
 		this.grid[row][col] = [stone, shadow];
 	},
 
+	place_last_stone_marker: function(put) {
+		this.clear_last_stone_markers();
+		this.last_stone[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
+		this.last_stone[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
+		this.last_stone[put.color].style.display = "block";
+	},
+
+	clear_last_stone_markers: function() {
+		this.last_stone["W"].style.display = "none";
+		this.last_stone["B"].style.display = "none";
+	},
+
 	place_ko: function(ko) {
 		this.ko.style.left = (ko.col * STONE_SIZE + BOARD_BOUND) + "px";
 		this.ko.style.top = (ko.row * STONE_SIZE + BOARD_BOUND) + "px";
@@ -69,8 +81,10 @@ GoGraphic.prototype = {
 			for (var stone in play.put) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
+			this.clear_last_stone_markers();
 		} else {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
+			this.place_last_stone_marker(play.put);
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
@@ -92,6 +106,7 @@ GoGraphic.prototype = {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		}
+		this.clear_last_stone_markers();
 	},
 
 	update_captures: function() {
@@ -255,6 +270,8 @@ GoGraphic.prototype = {
 		(new Image()).src = tmp_path + "img/t_white.png";
 		(new Image()).src = tmp_path + "img/t_black.png";
 		(new Image()).src = tmp_path + "img/shadow.png";
+		(new Image()).src = tmp_path + "img/last_stone_w.png";
+		(new Image()).src = tmp_path + "img/last_stone_b.png";
 
 		// Transparent Stones
 		var t_white = document.createElement("div");
@@ -267,6 +284,19 @@ GoGraphic.prototype = {
 		this.div_board.appendChild(t_black);
 		t_black.style.display = "none";
 		this.t_black= t_black;
+
+		// Last stone markers
+		this.last_stone = [];
+		var last_stone = document.createElement("div");
+		last_stone.className = "LastStoneW";
+		this.div_board.appendChild(last_stone);
+		last_stone.style.display = "none";
+		this.last_stone["W"] = last_stone;
+		last_stone = document.createElement("div");
+		last_stone.className = "LastStoneB";
+		this.div_board.appendChild(last_stone);
+		last_stone.style.display = "none";
+		this.last_stone["B"] = last_stone;
 
 		// Ko
 		var ko = document.createElement("div");

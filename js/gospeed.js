@@ -261,6 +261,10 @@ GoSpeed.prototype = {
 			this.undo_play(play);
 			if (this.shower) {
 				this.shower.undraw_play(play);
+				// Place last stone marker
+				if (this.game_tree.actual_move.play instanceof Play) {
+					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				}
 				this.shower.update_captures();
 			}
 			if (play instanceof Play) {

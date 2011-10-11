@@ -75,6 +75,9 @@ GoSpeed.prototype = {
 		if (args.my_colour != undefined) {
 			this.my_colour = args.my_colour;
 		}
+		if (args.my_nick != undefined) {
+			this.my_nick = args.my_nick;
+		}
 
 	// Game
 		this.turn_count = 0;
@@ -485,7 +488,7 @@ GoSpeed.prototype = {
 	},
 
 	is_my_turn: function() {
-		return this.my_colour == this.next_move;
+		return (this.my_colour == "A" || this.my_colour == this.next_move);
 	},
 
 //	Auxiliar functions
@@ -633,7 +636,7 @@ GoSpeed.prototype = {
 	},
 
 	change_my_colour: function(colour) {
-		var colours = ["B", "W", "O",];
+		var colours = ["B", "W", "A", "O",];
 		if (typeof colour == "string") {
 			if (!inArray(colour, colours)) {
 				throw new Error("The 'colour' parameter must be in (" + colours + ").");
@@ -953,9 +956,20 @@ GoSpeed.prototype = {
 				if (typeof my_colour != "string") {
 					throw new Error("The 'my_colour' parameter must be a string");
 				} else {
-					options = ["B", "W", "O",];
+					options = ["B", "W", "A", "O",];
 					if (!inArray(my_colour, options)) {
 						throw new Error("The 'my_colour' parameter must be in (" + options + ").");
+					}
+				}
+			}
+
+		// Nickname
+			if (typeof my_nick != "undefined") {
+				if (typeof my_nick != "string") {
+					throw new Error("The 'my_nick' parameter must be a string");
+				} else {
+					if (my_nick == "") {
+						throw new Error("The 'my_nick' parameter must not be empty");
 					}
 				}
 			}
@@ -1020,6 +1034,16 @@ GoSpeed.prototype = {
 
 	update_game: function(data) {
 		this.clear();
+
+		if (data.black_player == this.my_nick && data.white_player == this.my_nick) {
+			this.change_my_colour("A");
+		} else if (data.black_player == this.my_nick) {
+			this.change_my_colour("B");
+		} else if (data.white_player == this.my_nick) {
+			this.change_my_colour("W");
+		} else {
+			this.change_my_colour("O");
+		}
 
 		var sSgf = "(;FF[4]";
 		if (data.size) {

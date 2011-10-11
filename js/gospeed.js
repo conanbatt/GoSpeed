@@ -451,6 +451,27 @@ GoSpeed.prototype = {
 				bRes = true;
 
 			break;
+			case "count":
+				var target = this.get_pos(row, col);
+				if (target == undefined) {
+					return false;
+				}
+				/*
+				this.shower.clear_dead_groups(this.score.dead_groups);
+				this.score.kill_stone(target, row, col);
+				this.shower.draw_dead_groups(this.score.dead_groups);
+				this.shower.clear_score();
+				var score = this.score.calculate_score();
+				this.shower.draw_score(score);
+				*/
+				var group = this.get_distinct_chains([new Stone(target, row, col)])[0];
+				this.shower.clear_dead_groups(this.score.dead_groups);
+				this.score.dead_groups.push(group);
+				this.shower.clear_score();
+				this.shower.draw_dead_groups(this.score.dead_groups);
+				var score = this.score.calculate_score();
+				this.shower.draw_score(score);
+			break;
 		}
 
 		if (bRes) {
@@ -620,7 +641,25 @@ GoSpeed.prototype = {
 		} else {
 			throw new Error("The 'mode' parameter must be a string");
 		}
+		if (this.mode == "count" && mode != "count") {
+			if (this.shower != undefined) {
+				this.shower.clear_dead_groups(this.score.dead_groups);
+				this.shower.clear_score();
+				if (this.game_tree.actual_move.play instanceof Play) {
+					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				}
+			}
+			this.score = undefined;
+
+		}
 		this.mode = mode;
+		if (this.mode == "count") {
+			this.score = new Score(this.ruleset, this.grid);
+			if (this.shower != undefined) {
+				this.shower.clear_last_stone_markers();
+				this.shower.draw_score(this.score.calculate_score());
+			}
+		}
 	},
 
 	change_ruleset: function(ruleset) {

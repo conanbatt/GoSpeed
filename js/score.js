@@ -1,0 +1,245 @@
+var BLACK = "B";
+var WHITE = "W";
+var EMPTY = "*";
+var BLACK_DEAD = "N";
+var WHITE_DEAD = "E";
+var NO_OWNER = "X";
+var READY = "R";
+
+
+function Score(ruleset, board_original) {
+	this.init.apply(this, [ruleset, board_original]);
+}
+
+Score.prototype = {
+	init: function(ruleset, board_original) {
+		if (ruleset == "Japanese") {
+			this._deadStonesMultiplier = 2
+		}
+		if (ruleset == "Chinese") {
+			this._deadStonesMultiplier = 1
+		}
+		this.grid = this.clone_board(board_original);
+		this.ruleset = ruleset;
+		this.dead_groups = [];
+	},
+
+	string_grid: function() {
+		var size = this.grid.length;
+		var s = "[\n";
+		for (var row in this.grid) {
+			s += "["
+			for (var col in this.grid[row]) {
+				s += '"' + this.grid[row][col] + '", ';
+			}
+			s += "],\n";
+		}
+		return s + "]";
+	},
+
+	clone_board: function(board) {
+		var dup = [];
+		var tmp = [];
+		for (var row in board) {
+			for (var col in board) {
+				tmp[col] = (board[row][col] == undefined ? EMPTY : board[row][col]);
+			}
+			dup.push(tmp);
+			tmp = [];
+		}
+		return dup;
+	},
+
+	set_dead_group: function(dead_group) {
+		var size = dead_group.length;
+		if (size <= 0) {
+			return false;
+		}
+		var color = (dead_group[0].color == BLACK ? BLACK_DEAD : WHITE_DEAD);
+		for (var i = 0; i < size; i++) {
+			this.grid[dead_group[i].row][dead_group[i].col] = color;
+		}
+	},
+
+	kill_stone: function(color, row, col) {
+		if (color == BLACK) {
+			this.grid[row][col] = BLACK_DEAD;
+		} else {
+			this.grid[row][col] = WHITE_DEAD;
+		}
+		this.clear_visited();
+		var group = this.connected_component(row, col).deads[color];
+		this.dead_groups.push(group);
+	},
+
+	clear_visited: function() {
+		// Visited grid (to avoid changes in Score.grid)
+		var size = this.grid.length;
+		this.visited = Array(size);
+		for (var row = 0 ; row < size ; row++) {
+			this.visited[row] = Array(size);
+		}
+	},
+
+	calculate_score: function() {
+		var board = this.grid;
+		var size = board.length; // Localize length for better performance
+		var cur_type;
+		var result = {
+			white_points: 0,
+			black_points: 0,
+			groups: []
+		};
+
+		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
+			this.set_dead_group(this.dead_groups[i]);
+		}
+
+		this.clear_visited();
+
+		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
+			var elem = this.dead_groups[i][0];
+			result.groups = result.groups.concat(this.connected_component(elem.row, elem.col));
+		}
+
+		for (var row = 0; row < size; ++row) {
+			for (var col = 0; col < size; ++col) {
+				cur_type = board[row][col];
+				if (cur_type == EMPTY) {
+					result.groups = result.groups.concat(this.connected_component(row, col));
+				} else if (this.ruleset == 'Chinese') {
+					if (cur_type == WHITE) {
+						result.white_points++;
+					} else if (cur_type == BLACK) {
+						result.black_points++;
+					}
+				}
+			}
+		}
+
+		// Post process
+		for (var index in result.groups) {
+			item = result.groups[index];
+			if (item.owner == BLACK) {
+				result.black_points += item.score + (item.deads * this._deadStonesMultiplier);
+			} else if (item.owner == WHITE) {
+				result.white_points += item.score + (item.deads * this._deadStonesMultiplier);
+			}
+		}
+
+		return result;
+	},
+
+	connected_component: function(x, y) {
+		var board = this.grid;
+		var size = board.length; // Localize length for better performance
+		var stack_coord = [[x,y]];
+
+		var conexa = {
+			owner: null,
+			score: 0,
+			deads: 0,
+			coords: [],
+		};
+		/*
+		var conexa = {
+			owner: null,
+			score: 0,
+			deads: {
+				B: [],
+				W: [],
+			},
+			coords: [],
+		};
+		*/
+
+
+		while (current_coord = stack_coord.shift()) {
+			x = current_coord[0]; y = current_coord[1];
+
+			// Out of bounds
+			if ( x < 0 || x >= size || y < 0 || y >= size) {
+				continue;
+			}
+			if (this.visited[x][y] != undefined) {
+				continue;
+			}
+
+			switch (board[x][y]) {
+				case (EMPTY): {
+					conexa.score++;
+					conexa.coords.push({row: x, col: y});
+					this.visited[x][y] = READY;
+
+					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+					break;
+				}
+				case (BLACK_DEAD): {
+					//conexa.deads.B.push({color: BLACK, row: x, col: y});
+					conexa.deads++;
+					conexa.coords.push({row: x, col: y});
+					this.visited[x][y] = READY;
+
+					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+
+					conexa.owner = (conexa.owner != BLACK)? WHITE : NO_OWNER;
+					break;
+				}
+				case (WHITE_DEAD): {
+					//conexa.deads.W.push({color: WHITE, row: x, col: y});
+					conexa.deads++;
+					conexa.coords.push({row: x, col: y});
+					this.visited[x][y] = READY;
+
+					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+
+					conexa.owner = (conexa.owner != WHITE)? BLACK : NO_OWNER;
+					break;
+				}
+				case(BLACK): {
+					/*
+					if (conexa.deads.B.length > 0) {
+						conexa.deads.B.push({color: BLACK, row: x, col: y});
+						conexa.coords.push({row: x, col: y});
+						this.visited[x][y] = READY;
+
+						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+					} else {
+						*/
+						if (!conexa.owner) {
+							conexa.owner = BLACK;
+						} else {
+							if (conexa.owner == WHITE) {
+								conexa.owner = NO_OWNER;
+							}
+						}
+					//}
+					break;
+				}
+				case(WHITE): {
+					/*
+					if (conexa.deads.W.length > 0) {
+						conexa.deads.W.push({color: WHITE, row: x, col: y});
+						conexa.coords.push({row: x, col: y});
+						this.visited[x][y] = READY;
+
+						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+					} else {
+						*/
+						if (!conexa.owner) {
+							conexa.owner = WHITE;
+						} else {
+							if (conexa.owner == BLACK) {
+								conexa.owner = NO_OWNER;
+							}
+						}
+					//}
+					break;
+				}
+			}
+		}
+
+		return conexa;
+	}
+
+};

@@ -105,7 +105,7 @@
 		background-image: url("../img/last_stone_w.png");
 		width: 25px;
 		height: 25px;
-		z-index: 10;
+		z-index: 3;
 	}
 
 	div.LastStoneB {
@@ -113,7 +113,41 @@
 		background-image: url("../img/last_stone_b.png");
 		width: 25px;
 		height: 25px;
-		z-index: 10;
+		z-index: 3;
 	}
+
+	div.LittleStoneW {
+		position: absolute;
+		background-image: url("../img/little_white.png");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
+	div.LittleStoneB {
+		position: absolute;
+		background-image: url("../img/little_black.png");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
+	div.LittleStoneTB {
+		position: absolute;
+		background-image: url("../img/t_little_black.png");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
+	div.LittleStoneTW {
+		position: absolute;
+		background-image: url("../img/t_little_white.png");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
+
 
 

@@ -11,8 +11,8 @@ GoGraphic.prototype = {
 		this.game = game;
 		this.validate_and_load_divs();
 		this.grid = Array(this.game.size);
-		for (var row = 0 ; row < this.game.size ; row++) {
-			this.grid[row] = Array(this.game.size);
+		for (var row = 0, size = this.game.size; row < size ; row++) {
+			this.grid[row] = Array(size);
 		}
 		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
 	},
@@ -33,7 +33,28 @@ GoGraphic.prototype = {
 		this.div_board.appendChild(shadow);
 
 		this.clean_t_stones();
-		this.grid[row][col] = [stone, shadow];
+		this.grid[row][col] = {
+			stone: stone,
+			shadow: shadow,
+		};
+	},
+
+	put_little_stone: function(color, row, col) {
+		var stone = document.createElement("div");
+		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
+		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
+		stone.className = "LittleStone" + color;
+		stone.style.left = stoneLeft + "px";
+		stone.style.top = stoneTop + "px";
+		this.div_board.appendChild(stone);
+
+		if (this.grid[row][col] == undefined) {
+			this.grid[row][col] = {
+				little_stone: stone,
+			}
+		} else {
+			this.grid[row][col].little_stone = stone;
+		}
 	},
 
 	place_last_stone_marker: function(put) {
@@ -67,9 +88,28 @@ GoGraphic.prototype = {
 	},
 
 	remove_stone: function(row, col) {
-		if (this.grid[row][col] != null) {
-			this.div_board.removeChild(this.grid[row][col][0]);
-			this.div_board.removeChild(this.grid[row][col][1]);
+		var target = this.grid[row][col];
+		if (target != undefined && target.stone != undefined && target.shadow != undefined) {
+			this.div_board.removeChild(target.stone);
+			this.div_board.removeChild(target.shadow);
+			if (target.little_stone == undefined) {
+				this.grid[row][col] = undefined;
+			} else {
+				target.stone = undefined;
+				target.shadow = undefined;
+			}
+		}
+	},
+
+	remove_little_stone: function(row, col) {
+		var target = this.grid[row][col];
+		if (target != undefined && target.little_stone != undefined) {
+			this.div_board.removeChild(target.little_stone);
+			if (target.stone == undefined && target.shadow == undefined) {
+				this.grid[row][col] = undefined;
+			} else {
+				target.little_stone = undefined;
+			}
 		}
 	},
 
@@ -118,6 +158,68 @@ GoGraphic.prototype = {
 		}
 	},
 
+	draw_score: function(score) {
+		for (var i = 0, li = score.groups.length; i < li; ++i) {
+			var group = score.groups[i];
+			var owner = group.owner;
+			var coords = group.coords;
+			if (owner == BLACK || owner == WHITE) {
+				for (var j = 0, lj = coords.length; j < lj; ++j) {
+					this.put_little_stone(owner, coords[j].row, coords[j].col);
+				}
+			}
+		}
+	},
+
+	stone_dead: function(color, row, col) {
+		this.grid[row][col].stone.style.display = "none";
+		this.grid[row][col].shadow.style.display = "none";
+
+		var stone = document.createElement("div");
+		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
+		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
+		stone.className = "StoneT" + color;
+		stone.style.left = stoneLeft + "px";
+		stone.style.top = stoneTop + "px";
+		stone.style.display = "block";
+		this.div_board.appendChild(stone);
+		this.grid[row][col].t_stone = stone;
+	},
+
+	stone_undead: function(color, row, col) {
+		var target = this.grid[row][col];
+		this.div_board.removeChild(target.t_stone);
+		target.t_stone = undefined;
+		target.stone.style.display = "block";
+		target.shadow.style.display = "block";
+	},
+
+	draw_dead_groups: function(dead_groups) {
+		for (var i = 0, li = dead_groups.length; i < li; ++i) {
+			var group = dead_groups[i];
+			for (var j = 0, lj = group.length; j < lj; ++j) {
+				this.stone_dead(group[j].color, group[j].row, group[j].col);
+			}
+		}
+	},
+
+	clear_dead_groups: function(dead_groups) {
+		for (var i = 0, li = dead_groups.length; i < li; ++i) {
+			var group = dead_groups[i];
+			for (var j = 0, lj = group.length; j < lj; ++j) {
+				this.stone_undead(group[j].color, group[j].row, group[j].col);
+			}
+		}
+	},
+
+	clear_score: function() {
+		for (var row = 0, size = this.game.size; row < size ; row++) {
+			for (var col = 0; col < size; col++) {
+				this.remove_little_stone(row, col);
+			}
+		}
+	},
+
 	binder: function (method, object, args) {
 		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
 	},
@@ -134,69 +236,94 @@ GoGraphic.prototype = {
 
 	mousemove_handler: function(mouse) {
 		var t_stone;
-		switch (this.game.mode) {
-			case "free":
-				t_stone = this.t_white;
-			break;
-			case "play":
-				if (this.game.next_move == "B") {
-					t_stone = this.t_black;
-				} else {
+
+		if (this.game.mode == "count") {
+			this.clean_t_stones();
+			var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
+			var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
+			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
+				return false;
+			}
+
+			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
+			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+
+			var tmp_color = this.game.get_pos(row, col);
+			if (tmp_color == "B") {
+				t_stone = this.t_little_white;
+			} else if (tmp_color == "W") {
+				t_stone = this.t_little_black;
+			} else {
+				return false;
+			}
+			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
+			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
+			t_stone.style.display = "block";
+			return false;
+
+		} else {
+
+			switch (this.game.mode) {
+				case "free":
 					t_stone = this.t_white;
-				}
-			break;
-			case "play_online":
-				if (this.game.is_my_turn()) {
+				break;
+				case "play":
 					if (this.game.next_move == "B") {
 						t_stone = this.t_black;
 					} else {
 						t_stone = this.t_white;
 					}
-				} else {
-					t_stone = null;
-				}
-			case "count":
-			break;
+				break;
+				case "play_online":
+					if (this.game.is_my_turn()) {
+						if (this.game.next_move == "B") {
+							t_stone = this.t_black;
+						} else {
+							t_stone = this.t_white;
+						}
+					} else {
+						t_stone = null;
+					}
+				break;
+			}
+
+
+			if (t_stone == null) {
+				this.clean_t_stones();
+				return false;
+			}
+
+			var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
+			var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
+			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
+				t_stone.style.display = "none";
+				return false;
+			}
+
+			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
+			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+
+			if (this.game.get_pos(row, col) != undefined) {
+				t_stone.style.display = "none";
+				return false;
+			}
+
+			if (this.game.pos_is_ko(row, col)) {
+				t_stone.style.display = "none";
+				return false;
+			}
+
+			var tmp_play = new Play(this.game.next_move, row, col);
+			this.game.play_eat(tmp_play);
+			if (this.game.play_check_suicide(tmp_play)) {
+				t_stone.style.display = "none";
+				return false;
+			}
+
+			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
+			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
+			t_stone.style.display = "block";
 		}
-
-
-		if (t_stone == null) {
-			this.t_black.style.display = "none";
-			this.t_white.style.display = "none";
-			return false;
-		}
-
-		var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
-		var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
-		if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
-			t_stone.style.display = "none";
-			return false;
-		}
-
-		var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-		var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-
-		if (this.game.get_pos(row, col) != undefined) {
-			t_stone.style.display = "none";
-			return false;
-		}
-
-		if (this.game.pos_is_ko(row, col)) {
-			t_stone.style.display = "none";
-			return false;
-		}
-
-		var tmp_play = new Play(this.game.next_move, row, col);
-		this.game.play_eat(tmp_play);
-		if (this.game.play_check_suicide(tmp_play)) {
-			t_stone.style.display = "none";
-			return false;
-		}
-
-		t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-		t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-		t_stone.style.display = "block";
-
 	},
 
 	mouseout_handler: function(mouse) {
@@ -272,6 +399,10 @@ GoGraphic.prototype = {
 		(new Image()).src = tmp_path + "img/shadow.png";
 		(new Image()).src = tmp_path + "img/last_stone_w.png";
 		(new Image()).src = tmp_path + "img/last_stone_b.png";
+		(new Image()).src = tmp_path + "img/little_white.png";
+		(new Image()).src = tmp_path + "img/little_black.png";
+		(new Image()).src = tmp_path + "img/t_little_white.png";
+		(new Image()).src = tmp_path + "img/t_little_black.png";
 
 		// Transparent Stones
 		var t_white = document.createElement("div");
@@ -284,6 +415,16 @@ GoGraphic.prototype = {
 		this.div_board.appendChild(t_black);
 		t_black.style.display = "none";
 		this.t_black= t_black;
+		var t_little_black = document.createElement("div");
+		t_little_black.className = "LittleStoneTB";
+		this.div_board.appendChild(t_little_black);
+		t_little_black.style.display = "none";
+		this.t_little_black= t_little_black;
+		var t_little_white = document.createElement("div");
+		t_little_white.className = "LittleStoneTW";
+		this.div_board.appendChild(t_little_white);
+		t_little_white.style.display = "none";
+		this.t_little_white= t_little_white;
 
 		// Last stone markers
 		this.last_stone = [];
@@ -316,6 +457,8 @@ GoGraphic.prototype = {
 	clean_t_stones: function() {
 		this.t_white.style.display = "none";
 		this.t_black.style.display = "none";
+		this.t_little_white.style.display = "none";
+		this.t_little_black.style.display = "none";
 	},
 
 	clear: function() {

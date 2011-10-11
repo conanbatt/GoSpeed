@@ -102,7 +102,7 @@
 
 	div.LastStoneW {
 		position: absolute;
-		background-image: url("../img/last_stone_b.png");
+		background-image: url("../img/last_stone_w.png");
 		width: 25px;
 		height: 25px;
 		z-index: 10;
@@ -110,7 +110,7 @@
 
 	div.LastStoneB {
 		position: absolute;
-		background-image: url("../img/last_stone_w.png");
+		background-image: url("../img/last_stone_b.png");
 		width: 25px;
 		height: 25px;
 		z-index: 10;

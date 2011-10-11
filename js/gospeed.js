@@ -1025,10 +1025,13 @@ GoSpeed.prototype = {
 		if (data.size) {
 			sSgf += "SZ[" + data.size + "]";
 		}
-		if (!data.time) {
-			data.time = 3000;
+		// FIXME: temp ugly hardcoded stuff
+		if (this.timer != undefined) {
+			if (!data.time) {
+				data.time = 3000;
+			}
+			sSgf += "TM[" + data.time + "]";
 		}
-		sSgf += "TM[" + data.time + "]";
 		if (data.moves) {
 			sSgf += data.moves;
 		}

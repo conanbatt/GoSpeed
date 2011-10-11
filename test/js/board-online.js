@@ -26,7 +26,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
 		this.gospeed.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game(move_list);
+			this.update_game({moves: move_list});
 		}, this.gospeed));
 		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -43,7 +43,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
 		this.gospeed2.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game(move_list);
+			this.update_game({moves: move_list});
 		}, this.gospeed2));
 		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});

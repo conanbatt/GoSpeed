@@ -26,7 +26,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
 		this.gospeed.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game(move_list);
+			this.update_game({moves: move_list});
 		}, this.gospeed));
 		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -43,7 +43,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
 		this.gospeed2.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game(move_list);
+			this.update_game({moves: move_list});
 		}, this.gospeed2));
 		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -77,7 +77,7 @@ test("Initialization", function() {
 	equal(this.gospeed.shower.t_black.style.display, "none", "Board 1: as it's not my turn, black transparent stone must not be displayed.");
 	equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: as it's not my turn, white transparent stone must not be displayed.");
 
-	// Mouse move Board 1
+	// Mouse move Board 2
 	triggerMouseMove(this.gospeed2.shower.div_board, 1, 1);
 	equal(this.gospeed2.shower.t_black.style.display, "block", "Board 2: it's my turn, black transparent stone must be displayed.");
 	equal(this.gospeed2.shower.t_white.style.display, "none", "Board 2: it's my turn, but my colour is black, so white transparent stone must not be displayed.");

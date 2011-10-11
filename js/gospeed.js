@@ -667,6 +667,11 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 
+		// Timer
+		if (this.timer != undefined) {
+			this.timer.stop();
+		}
+
 		// GameTree
 		this.game_tree = new GameTree();
 
@@ -694,6 +699,12 @@ GoSpeed.prototype = {
 			if (sgf_node.SZ != undefined) {
 				this.change_size(Number(sgf_node.SZ));
 			}
+			if (sgf_node.TM != undefined) {
+				if (this.timer != undefined) {
+					// FIXME: check the time system, not only ABSOLUTE
+					this.timer = new AbsoluteTimer(this, sgf_node.TM);
+				}
+			}
 			if (sgf_node.HA != undefined) {
 				this.next_move = "W";
 				if (sgf_node.AB != undefined) {
@@ -717,6 +728,7 @@ GoSpeed.prototype = {
 			pend_game_tree_node.push(this.game_tree.root)
 
 			var move;
+			var time_left;
 			var tmp;
 			var tree_node;
 			while(sgf_node = pend_sgf_node.pop()) {
@@ -735,13 +747,15 @@ GoSpeed.prototype = {
 				if (sgf_node.B || sgf_node.W) {
 					if (this.next_move == "B" && sgf_node.B) {
 						move = sgf_node.B;
+						time_left = sgf_node.BL;
 					} else if (sgf_node.W) {
 						move = sgf_node.W;
+						time_left = sgf_node.WL;
 					} else {
 						throw new Error("Turn and Play mismatch");
 						return false;
 					}
-					if (move == "" || move == "tt") {
+					if (move == "" || (this.size < 20 && move == "tt")) {
 						//this.pass();
 						this.turn_count++;
 						throw new Error("Pass not implemented");
@@ -754,6 +768,9 @@ GoSpeed.prototype = {
 						}
 						this.game_tree.append(new GameNode(tmp));
 						this.make_play(tmp);
+						if (time_left != undefined) {
+							this.timer.set_remain(this.next_move, time_left);
+						}
 						if (tmp instanceof Play) {
 							this.next_move = (this.next_move == "W" ? "B" : "W");
 						}
@@ -977,24 +994,51 @@ GoSpeed.prototype = {
 		return {row: row, col: col};
 	},
 
-	coord_converter: function(play) {
-		return ";" + play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
+	data_to_sgf_node: function(play, remain) {
+		var res = ";";
+
+		// Move property
+		res += play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
+
+		// Time left property
+		if (remain) {
+			res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
+		}
+
+		return res;
 	},
 
 	send_play: function(play, remain) {
 		if (this.server_path_game_move != undefined) {
-			$.post(this.server_path_game_move, {move: this.coord_converter(play)});
+			$.post(this.server_path_game_move, {move: this.data_to_sgf_node(play, remain)});
 		}
 	},
 
 	update_game: function(data) {
 		this.clear();
-		this.sgf = new SGFParser("(" + data + ")");
+
+		var sSgf = "(;FF[4]";
+		if (data.size) {
+			sSgf += "SZ[" + data.size + "]";
+		}
+		if (!data.time) {
+			data.time = 3000;
+		}
+		sSgf += "TM[" + data.time + "]";
+		if (data.moves) {
+			sSgf += data.moves;
+		}
+		sSgf += ")";
+
+		this.sgf = new SGFParser(sSgf);
 		this.load_sgf();
 		this.render();
 		this.goto_end();
 		if (this.timer != undefined) {
 			this.timer.resume(this.next_move);
+			if (data.time_adjustment) {
+				this.timer.adjust(data.time_adjustment);
+			}
 		}
 	}
 }

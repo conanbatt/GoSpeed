@@ -17,6 +17,8 @@ set fileencodings=ucs-bom,utf-8,default,latin1
 set guifont=Monospace\ 9
 set helplang=en
 set history=50
+set iminsert=0
+set imsearch=0
 set nomodeline
 set mouse=a
 set printoptions=paper:letter
@@ -31,21 +33,21 @@ set window=50
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/git-root/gospeed
+cd ~/git-root/gospeed/js
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
 badd +1 ~/git-root/gospeed/css/style.css
-badd +618 ~/git-root/gospeed/js/gospeed.js
+badd +59 ~/git-root/gospeed/js/gospeed.js
 badd +1 ~/git-root/gospeed/test/js/board-init.js
 badd +1 ~/git-root/gospeed/test/js/board-play.js
 badd +1 ~/git-root/gospeed/test/board-init.html
 badd +1 ~/git-root/gospeed/test/index.html
 badd +1 ~/git-root/gospeed/test/board-play.html
-badd +1 ~/git-root/gospeed/index.html
-badd +1 ~/git-root/gospeed/js/gographic.js
-badd +1 ~/git-root/gospeed/js/utils.js
+badd +196 ~/git-root/gospeed/index.html
+badd +183 ~/git-root/gospeed/js/gographic.js
+badd +169 ~/git-root/gospeed/js/utils.js
 badd +1 ~/git-root/gospeed/js/stone.js
 badd +1 ~/git-root/gospeed/js/sgf.js
 badd +1 ~/git-root/gospeed/test/js/board-online.js
@@ -56,7 +58,8 @@ badd +1 ~/git-root/gospeed/test/board-online-gographic.html
 badd +1 ~/git-root/gospeed/test/board-online.html
 badd +1 ~/git-root/gospeed/test/js/helpers.js
 badd +1 ~/git-root/gospeed/test/js/server_emulator.js
-args js/gospeed.js
+badd +13 ~/git-root/gospeed/js/score.js
+args gospeed.js
 edit ~/git-root/gospeed/index.html
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -117,7 +120,7 @@ setlocal formatexpr=
 setlocal formatoptions=tcq
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal grepprg=
-setlocal iminsert=2
+setlocal iminsert=0
 setlocal imsearch=2
 setlocal include=
 setlocal includeexpr=
@@ -173,11 +176,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 27) / 54)
+let s:l = 196 - ((39 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
+196
 normal! 0
 wincmd w
 argglobal
@@ -285,13 +288,14 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 618 - ((0 * winheight(0) + 27) / 54)
+let s:l = 618 - ((26 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 618
-normal! 02l
+normal! 0
 wincmd w
+2wincmd w
 exe 'vert 1resize ' . ((&columns * 111 + 111) / 223)
 exe 'vert 2resize ' . ((&columns * 111 + 111) / 223)
 tabnext 1

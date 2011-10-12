@@ -288,6 +288,8 @@ GoSpeed.prototype = {
 			if (this.shower) {
 				this.shower.refresh_ko(play);
 			}
+		} else {
+			return false;
 		}
 
 		if (this.shower) {
@@ -295,6 +297,7 @@ GoSpeed.prototype = {
 		}
 
 		this.render_tree();
+		return true;
 	},
 
 	next: function() {
@@ -331,6 +334,12 @@ GoSpeed.prototype = {
 		this.game_tree.down();
 
 		this.render_tree();
+	},
+
+	goto_start: function() {
+		while (this.prev()) {
+			continue;
+		}
 	},
 
 	goto_end: function() {

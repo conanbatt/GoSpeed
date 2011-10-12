@@ -62,6 +62,7 @@ GoSpeed.prototype = {
 			switch(args.time_config.time_system) {
 				case "Absolute":
 					this.timer = new AbsoluteTimer(this, args.time_config.starting_time);
+					this.update_clocks(this.timer.remain);
 				break;
 			}
 		}
@@ -94,6 +95,11 @@ GoSpeed.prototype = {
 
 	// Render
 		this.render();
+
+	// Load SGF
+		if (this.sgf.root != null) {
+			this.load_sgf();
+		}
 	},
 
 //	Manage Board

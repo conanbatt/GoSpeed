@@ -24,6 +24,7 @@ GoSpeed.prototype = {
 		}
 
 	// Divs
+		// Board
 		if (args.div_id_board != undefined) {
 			this.div_id_board = args.div_id_board;
 			// Read div contents
@@ -32,6 +33,7 @@ GoSpeed.prototype = {
 				this.sgf = new SGFParser(tmp_div.innerHTML);
 			}
 		}
+		// Time
 		if (args.time_config != undefined) {
 			if (args.time_config.div_id_clock_w != undefined) {
 				this.div_id_clock_w = args.time_config.div_id_clock_w;
@@ -40,11 +42,23 @@ GoSpeed.prototype = {
 				this.div_id_clock_b = args.time_config.div_id_clock_b;
 			}
 		}
+		// Captured
 		if (args.div_id_captured_w != undefined) {
 			this.div_id_captured_w = args.div_id_captured_w;
 		}
 		if (args.div_id_captured_b != undefined) {
 			this.div_id_captured_b = args.div_id_captured_b;
+		}
+		// Score
+		if (args.div_id_score_w != undefined) {
+			this.div_id_score_w = args.div_id_score_w;
+		}
+		if (args.div_id_score_b != undefined) {
+			this.div_id_score_b = args.div_id_score_b;
+		}
+		// Result
+		if (args.div_id_result != undefined) {
+			this.div_id_result = args.div_id_result;
 		}
 
 	// Shower
@@ -472,16 +486,23 @@ GoSpeed.prototype = {
 				if (target == undefined) {
 					return false;
 				}
-				this.shower.clear_dead_groups(this.score.dead_groups);
+				if (this.shower != undefined) {
+					this.shower.clear_dead_groups(this.score.dead_groups);
+				}
 				if (shift) {
 					this.score.revive_stone(target, row, col);
 				} else {
 					this.score.kill_stone(target, row, col);
 				}
-				this.shower.draw_dead_groups(this.score.dead_groups);
-				this.shower.clear_score();
 				var score = this.score.calculate_score();
-				this.shower.draw_score(score);
+				this.score.calculate_result(this.captured, this.komi);
+				if (this.shower != undefined) {
+					this.shower.draw_dead_groups(this.score.dead_groups);
+					this.shower.clear_score();
+					this.shower.draw_score(score);
+					this.shower.update_score(this.score.result);
+					this.shower.update_result(this.score.result);
+				}
 			break;
 		}
 
@@ -658,19 +679,27 @@ GoSpeed.prototype = {
 			if (this.shower != undefined) {
 				this.shower.clear_dead_groups(this.score.dead_groups);
 				this.shower.clear_score();
+			}
+			this.score = undefined;
+			if (this.shower != undefined) {
 				if (this.game_tree.actual_move.play instanceof Play) {
 					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
 				}
+				this.shower.update_score();
+				this.shower.update_result();
 			}
-			this.score = undefined;
 		}
 		this.mode = mode;
 		// If I'm going to count, do the first calculation and draw territory.
 		if (this.mode == "count") {
 			this.score = new Score(this.ruleset, this.grid);
+			var score = this.score.calculate_score();
+			this.score.calculate_result(this.captured, this.komi);
 			if (this.shower != undefined) {
 				this.shower.clear_last_stone_markers();
-				this.shower.draw_score(this.score.calculate_score());
+				this.shower.draw_score(score);
+				this.shower.update_score(this.score.result);
+				this.shower.update_result(this.score.result);
 			}
 		}
 	},
@@ -999,6 +1028,31 @@ GoSpeed.prototype = {
 					throw new Error("The 'div_id_captured_b' parameter points to no existing div.");
 				}
 			}
+
+		// Score Divs
+			if (typeof div_id_score_w != "undefined") {
+				if (typeof div_id_score_w != "string") {
+					throw new Error("The 'div_id_score_w' parameter must be a string");
+				} else if (!document.getElementById(div_id_score_w)) {
+					throw new Error("The 'div_id_score_w' parameter points to no existing div.");
+				}
+			}
+			if (typeof div_id_score_b != "undefined") {
+				if (typeof div_id_score_b != "string") {
+					throw new Error("The 'div_id_score_b' parameter must be a string");
+				} else if (!document.getElementById(div_id_score_b)) {
+					throw new Error("The 'div_id_score_b' parameter points to no existing div.");
+				}
+			}
+
+		// Result Div
+		if (typeof div_id_result != "undefined") {
+			if (typeof div_id_result != "string") {
+				throw new Error("The 'div_id_result' parameter must be a string");
+			} else if (!document.getElementById(div_id_result)) {
+				throw new Error("The 'div_id_result' parameter points to no existing div.");
+			}
+		}
 
 		// Komi
 		if (typeof komi != "undefined") {

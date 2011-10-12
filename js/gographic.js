@@ -158,6 +158,44 @@ GoGraphic.prototype = {
 		}
 	},
 
+	// Pick score result and write it in corresponding divs
+	update_score: function(result) {
+		if (result != undefined) {
+			if (this.div_score_w != undefined) {
+				this.div_score_w.innerHTML = result["W"];
+			}
+			if (this.div_score_b != undefined) {
+				this.div_score_b.innerHTML = result["B"];
+			}
+		} else {
+			if (this.div_score_w != undefined) {
+				this.div_score_w.innerHTML = "-";
+			}
+			if (this.div_score_b != undefined) {
+				this.div_score_b.innerHTML = "-";
+			}
+		}
+	},
+
+	// Pick game result by score and write it in corresponding div
+	// TODO: this should be calculated by gospeed.js or score.js
+	update_result: function(result) {
+		if (this.div_result != undefined) {
+			if (result != undefined) {
+				var res_diff = result["W"] - result["B"];
+				if (res_diff == 0) {
+					this.div_result.innerHTML = "Jigo";
+				} else if (res_diff < 0) {
+					this.div_result.innerHTML = "B+" + Math.abs(res_diff);
+				} else {
+					this.div_result.innerHTML = "W+" + res_diff;
+				}
+			} else {
+				this.div_result.innerHTML = "-";
+			}
+		}
+	},
+
 	draw_score: function(score) {
 		for (var i = 0, li = score.groups.length; i < li; ++i) {
 			var group = score.groups[i];
@@ -533,6 +571,24 @@ GoGraphic.prototype = {
 				this.div_captured_b.innerHTML = "";
 			} else {
 				throw new Error("GoGraphic: error finding black captured div.");
+			}
+		}
+		if (this.game.div_id_score_w != undefined) {
+			this.div_score_w = document.getElementById(this.game.div_id_score_w);
+			if (!this.div_score_w) {
+				throw new Error("GoGraphic: error finding white score div.");
+			}
+		}
+		if (this.game.div_id_score_b != undefined) {
+			this.div_score_b = document.getElementById(this.game.div_id_score_b);
+			if (!this.div_score_b) {
+				throw new Error("GoGraphic: error finding black score div.");
+			}
+		}
+		if (this.game.div_id_result != undefined) {
+			this.div_result = document.getElementById(this.game.div_id_result);
+			if (!this.div_result) {
+				throw new Error("GoGraphic: error finding result div.");
 			}
 		}
 	},

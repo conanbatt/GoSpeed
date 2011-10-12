@@ -157,6 +157,36 @@ Score.prototype = {
 		return result;
 	},
 
+	calculate_result: function(captured, komi) {
+		var res_white = 0;
+		var res_black = 0;
+		if (komi != undefined) {
+			if (komi > 0) {
+				res_white += komi;
+			} else {
+				res_black += Math.abs(komi);
+			}
+		}
+		if (this.white_points != undefined) {
+			res_white += this.white_points;
+		}
+		if (this.black_points != undefined) {
+			res_black += this.black_points;
+		}
+		if (captured != undefined) {
+			if (captured[BLACK] != undefined) {
+				res_white += captured[BLACK];
+			}
+			if (captured[WHITE] != undefined) {
+				res_black += captured[WHITE];
+			}
+		}
+		this.result = {};
+		this.result[BLACK] = res_black;
+		this.result[WHITE] = res_white;
+		return this.result;
+	},
+
 	connected_component: function(x, y) {
 		var board = this.grid;
 		var size = board.length; // Localize length for better performance

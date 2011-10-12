@@ -13,6 +13,7 @@ GoSpeed.prototype = {
 		this.size = args.size;
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
+		this.komi = args.komi;
 		this.next_move = "B";
 		this.ko = undefined;
 
@@ -700,6 +701,13 @@ GoSpeed.prototype = {
 		}
 	},
 
+	change_komi: function(komi) {
+		if (typeof komi != "number") {
+			throw new Error("The 'komi' parameter must be a number");
+		}
+		this.komi = komi;
+	},
+
 	clear: function() {
 		this.next_move = "B";
 		this.ko = undefined;
@@ -738,6 +746,9 @@ GoSpeed.prototype = {
 			var sgf_node = this.sgf.root;
 			if (sgf_node.RU != undefined) {
 				this.change_ruleset(sgf_node.RU);
+			}
+			if (sgf_node.KM != undefined) {
+				this.change_komi(Number(sgf_node.KM));
 			}
 			if (sgf_node.SZ != undefined) {
 				this.change_size(Number(sgf_node.SZ));
@@ -973,6 +984,13 @@ GoSpeed.prototype = {
 					throw new Error("The 'div_id_captured_b' parameter points to no existing div.");
 				}
 			}
+
+		// Komi
+		if (typeof komi != "undefined") {
+			if (typeof komi != "number") {
+				throw new Error("The 'komi' parameter must be a number");
+			}
+		}
 
 
 		// Shower

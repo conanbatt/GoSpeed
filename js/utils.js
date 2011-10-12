@@ -189,3 +189,28 @@
 			return false;
 		}
 
+	// inArrayDeep: returns true if the needle is an element into the haystack (with deep comparison)
+		function inArrayDeep(needle, haystack) {
+			var length = haystack.length;
+			var res = true;
+			for (var i = 0; i < length; i++) {
+				if (haystack[i].length != needle.length) {
+					continue;
+				}
+				for (var j in needle) {
+					if (haystack[i][j] != needle[j]) {
+						res = false;
+						break;
+					} else {
+						continue;
+					}
+				}
+				if (res) {
+					return true;
+				} else {
+					res = true;
+				}
+			}
+			return false;
+		}
+

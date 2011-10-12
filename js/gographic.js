@@ -186,7 +186,7 @@ GoGraphic.prototype = {
 		this.grid[row][col].t_stone = stone;
 	},
 
-	stone_undead: function(color, row, col) {
+	stone_revive: function(color, row, col) {
 		var target = this.grid[row][col];
 		this.div_board.removeChild(target.t_stone);
 		target.t_stone = undefined;
@@ -207,7 +207,7 @@ GoGraphic.prototype = {
 		for (var i = 0, li = dead_groups.length; i < li; ++i) {
 			var group = dead_groups[i];
 			for (var j = 0, lj = group.length; j < lj; ++j) {
-				this.stone_undead(group[j].color, group[j].row, group[j].col);
+				this.stone_revive(group[j].color, group[j].row, group[j].col);
 			}
 		}
 	},
@@ -230,7 +230,7 @@ GoGraphic.prototype = {
 		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-			this.game.play(gridY, gridX);
+			this.game.play(gridY, gridX, click.shiftKey);
 		}
 	},
 
@@ -250,9 +250,17 @@ GoGraphic.prototype = {
 
 			var tmp_color = this.game.get_pos(row, col);
 			if (tmp_color == "B") {
-				t_stone = this.t_little_white;
+				if (mouse.shiftKey) {
+					t_stone = this.revive_b;
+				} else {
+					t_stone = this.t_little_white;
+				}
 			} else if (tmp_color == "W") {
-				t_stone = this.t_little_black;
+				if (mouse.shiftKey) {
+					t_stone = this.revive_w;
+				} else {
+					t_stone = this.t_little_black;
+				}
 			} else {
 				return false;
 			}
@@ -370,19 +378,16 @@ GoGraphic.prototype = {
 				this.div_board.style.width = "495px";
 				this.div_board.style.height = "495px";
 				this.div_board.className = "OnlyBoard19";
-				//this.div_board.style.backgroundImage = "url(img/OnlyBoard19.png)";
 			break;
 			case 13:
 				this.div_board.style.width = "346px";
 				this.div_board.style.height = "346px";
 				this.div_board.className = "OnlyBoard13";
-				//this.div_board.style.backgroundImage = "url(img/OnlyBoard13.png)";
 			break;
 			case 9:
 				this.div_board.style.width = "246px";
 				this.div_board.style.height = "246px";
 				this.div_board.className = "OnlyBoard9";
-				//this.div_board.style.backgroundImage = "url(img/OnlyBoard9.png)";
 			break;
 		}
 		this.div_board.style.position = "relative";
@@ -426,6 +431,18 @@ GoGraphic.prototype = {
 		t_little_white.style.display = "none";
 		this.t_little_white= t_little_white;
 
+		// Revive stones
+		var revive_stone = document.createElement("div");
+		revive_stone.className = "ReviveStoneW";
+		revive_stone.style.display = "none";
+		this.div_board.appendChild(revive_stone);
+		this.revive_w = revive_stone;
+		revive_stone = document.createElement("div");
+		revive_stone.className = "ReviveStoneB";
+		revive_stone.style.display = "none";
+		this.div_board.appendChild(revive_stone);
+		this.revive_b = revive_stone;
+
 		// Last stone markers
 		this.last_stone = [];
 		var last_stone = document.createElement("div");
@@ -459,6 +476,8 @@ GoGraphic.prototype = {
 		this.t_black.style.display = "none";
 		this.t_little_white.style.display = "none";
 		this.t_little_black.style.display = "none";
+		this.revive_b.style.display = "none";
+		this.revive_w.style.display = "none";
 	},
 
 	clear: function() {

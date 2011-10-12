@@ -137,7 +137,7 @@
 		background-image: url("../img/t_little_black.png");
 		width: 25px;
 		height: 25px;
-		z-index: 3;
+		z-index: 5;
 	}
 
 	div.LittleStoneTW {
@@ -145,7 +145,23 @@
 		background-image: url("../img/t_little_white.png");
 		width: 25px;
 		height: 25px;
-		z-index: 3;
+		z-index: 5;
+	}
+
+	div.ReviveStoneW {
+		position: absolute;
+		background-image: url("../img/white.png");
+		width: 25px;
+		height: 25px;
+		z-index: 10;
+	}
+
+	div.ReviveStoneB {
+		position: absolute;
+		background-image: url("../img/black.png");
+		width: 25px;
+		height: 25px;
+		z-index: 10;
 	}
 
 

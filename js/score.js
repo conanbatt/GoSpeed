@@ -63,13 +63,42 @@ Score.prototype = {
 
 	kill_stone: function(color, row, col) {
 		if (color == BLACK) {
+			if (this.grid[row][col] == BLACK_DEAD) {
+				return false;
+			}
 			this.grid[row][col] = BLACK_DEAD;
 		} else {
+			if (this.grid[row][col] == WHITE_DEAD) {
+				return false;
+			}
 			this.grid[row][col] = WHITE_DEAD;
 		}
 		this.clear_visited();
+		/*
+		// Hellrider version, maybe too agressive.
+		var deads = this.connected_component(row, col).deads;
+		var group = deads[BLACK].concat(deads[WHITE]);
+		*/
 		var group = this.connected_component(row, col).deads[color];
+
+		group.push({color: color, row: row, col: col});
 		this.dead_groups.push(group);
+	},
+
+	revive_stone: function(color, row, col) {
+		if (this.grid[row][col] == BLACK || this.grid[row][col] == WHITE) {
+			return false;
+		}
+		var group;
+		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
+			if (inArrayDeep({color: color, row: row, col: col}, this.dead_groups[i])) {
+				group = this.dead_groups.splice(i, 1)[0]; //XXX Warning [0]
+				break;
+			}
+		}
+		for (var i = 0, li = group.length; i < li; ++i) {
+			this.grid[group[i].row][group[i].col] = group[i].color;
+		}
 	},
 
 	clear_visited: function() {
@@ -91,15 +120,10 @@ Score.prototype = {
 			groups: []
 		};
 
-		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
-			this.set_dead_group(this.dead_groups[i]);
-		}
-
 		this.clear_visited();
 
 		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
-			var elem = this.dead_groups[i][0];
-			result.groups = result.groups.concat(this.connected_component(elem.row, elem.col));
+			this.set_dead_group(this.dead_groups[i]);
 		}
 
 		for (var row = 0; row < size; ++row) {
@@ -121,11 +145,14 @@ Score.prototype = {
 		for (var index in result.groups) {
 			item = result.groups[index];
 			if (item.owner == BLACK) {
-				result.black_points += item.score + (item.deads * this._deadStonesMultiplier);
+				result.black_points += item.score + (item.dead_count.W * this._deadStonesMultiplier);
 			} else if (item.owner == WHITE) {
-				result.white_points += item.score + (item.deads * this._deadStonesMultiplier);
+				result.white_points += item.score + (item.dead_count.B * this._deadStonesMultiplier);
 			}
 		}
+
+		this.white_points = result.white_points;
+		this.black_points = result.black_points;
 
 		return result;
 	},
@@ -138,21 +165,16 @@ Score.prototype = {
 		var conexa = {
 			owner: null,
 			score: 0,
-			deads: 0,
-			coords: [],
-		};
-		/*
-		var conexa = {
-			owner: null,
-			score: 0,
 			deads: {
 				B: [],
 				W: [],
 			},
+			dead_count: {
+				B: 0,
+				W: 0,
+			},
 			coords: [],
 		};
-		*/
-
 
 		while (current_coord = stack_coord.shift()) {
 			x = current_coord[0]; y = current_coord[1];
@@ -175,37 +197,32 @@ Score.prototype = {
 					break;
 				}
 				case (BLACK_DEAD): {
-					//conexa.deads.B.push({color: BLACK, row: x, col: y});
-					conexa.deads++;
+					conexa.dead_count.B++;
 					conexa.coords.push({row: x, col: y});
 					this.visited[x][y] = READY;
 
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 
-					conexa.owner = (conexa.owner != BLACK)? WHITE : NO_OWNER;
 					break;
 				}
 				case (WHITE_DEAD): {
-					//conexa.deads.W.push({color: WHITE, row: x, col: y});
-					conexa.deads++;
+					conexa.dead_count.W++;
 					conexa.coords.push({row: x, col: y});
 					this.visited[x][y] = READY;
 
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 
-					conexa.owner = (conexa.owner != WHITE)? BLACK : NO_OWNER;
 					break;
 				}
 				case(BLACK): {
-					/*
-					if (conexa.deads.B.length > 0) {
+					if (conexa.dead_count.B > 0) {
 						conexa.deads.B.push({color: BLACK, row: x, col: y});
+						conexa.dead_count.B++;
 						conexa.coords.push({row: x, col: y});
 						this.visited[x][y] = READY;
 
 						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					} else {
-						*/
 						if (!conexa.owner) {
 							conexa.owner = BLACK;
 						} else {
@@ -213,19 +230,18 @@ Score.prototype = {
 								conexa.owner = NO_OWNER;
 							}
 						}
-					//}
+					}
 					break;
 				}
 				case(WHITE): {
-					/*
-					if (conexa.deads.W.length > 0) {
+					if (conexa.dead_count.W > 0) {
 						conexa.deads.W.push({color: WHITE, row: x, col: y});
+						conexa.dead_count.W++;
 						conexa.coords.push({row: x, col: y});
 						this.visited[x][y] = READY;
 
 						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					} else {
-						*/
 						if (!conexa.owner) {
 							conexa.owner = WHITE;
 						} else {
@@ -233,7 +249,7 @@ Score.prototype = {
 								conexa.owner = NO_OWNER;
 							}
 						}
-					//}
+					}
 					break;
 				}
 			}

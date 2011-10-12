@@ -333,7 +333,7 @@ GoSpeed.prototype = {
 	},
 
 //	Gameplay
-	play: function(row, col) {
+	play: function(row, col, shift) {
 		var bRes = false;
 		var tmp_play;
 		switch(this.mode) {
@@ -456,19 +456,14 @@ GoSpeed.prototype = {
 				if (target == undefined) {
 					return false;
 				}
-				/*
 				this.shower.clear_dead_groups(this.score.dead_groups);
-				this.score.kill_stone(target, row, col);
+				if (shift) {
+					this.score.revive_stone(target, row, col);
+				} else {
+					this.score.kill_stone(target, row, col);
+				}
 				this.shower.draw_dead_groups(this.score.dead_groups);
 				this.shower.clear_score();
-				var score = this.score.calculate_score();
-				this.shower.draw_score(score);
-				*/
-				var group = this.get_distinct_chains([new Stone(target, row, col)])[0];
-				this.shower.clear_dead_groups(this.score.dead_groups);
-				this.score.dead_groups.push(group);
-				this.shower.clear_score();
-				this.shower.draw_dead_groups(this.score.dead_groups);
 				var score = this.score.calculate_score();
 				this.shower.draw_score(score);
 			break;
@@ -641,6 +636,8 @@ GoSpeed.prototype = {
 		} else {
 			throw new Error("The 'mode' parameter must be a string");
 		}
+
+		// If I was counting, clean score and set up everything to keep on playing.
 		if (this.mode == "count" && mode != "count") {
 			if (this.shower != undefined) {
 				this.shower.clear_dead_groups(this.score.dead_groups);
@@ -650,9 +647,9 @@ GoSpeed.prototype = {
 				}
 			}
 			this.score = undefined;
-
 		}
 		this.mode = mode;
+		// If I'm going to count, do the first calculation and draw territory.
 		if (this.mode == "count") {
 			this.score = new Score(this.ruleset, this.grid);
 			if (this.shower != undefined) {

@@ -6,13 +6,133 @@
 		<link rel="icon" type="image/png" href="img/icon16.png" />
 		<link type="text/css" href="css/style.css" rel="stylesheet" />
 		<script type="text/javascript" src="js/sgf.js"></script>
+		<script type="text/javascript" src="js/score.js"></script>
 		<script type="text/javascript" src="js/timer_absolute.js"></script>
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/utils.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
 		<script type="text/javascript" src="js/goshower.js"></script>
 		<script type="text/javascript" src="js/gographic.js"></script>
-		<style type="text/css">
+
+        <style type="text/css">
+            body {
+                background-color: #333;
+                margin: 0px;
+                font-size: 12px;
+                font-family: Verdana, sans, courier;
+            }
+
+            div#container {
+                width: 950px;
+                margin: 0px auto;
+                background-color: #CCC;
+            }
+
+            div#float-container {
+                float: left;
+                width: 950px;
+                margin: 0px;
+                background-color: #CCC;
+            }
+
+            div.debug-info {
+                float: left;
+                width: 950px;
+                min-height: 50px;
+                background-color: #DDD;
+                font-family: "courier new", courier, monospace;
+            }
+
+			div.game-tree {
+				min-height: 100px;
+				white-space: nowrap;
+				overflow: scroll;
+				/*background-color: #FFA;*/
+				text-align: left;
+				font-family: courier new;
+				font-size: 9px;
+				padding: 5px;
+			}
+
+            p {
+                margin: 6px 4px 4px;
+            }
+
+            div.panel {
+                float: left;
+            }
+
+            div#global-left {
+                width: 495px;
+                padding: 5px;
+            }
+
+            div#global-right {
+                width: 435px;
+                padding: 5px;
+            }
+
+            div#board-container {
+                float: left;
+                width: 495px;
+            }
+
+            div#button-container {
+                float: left;
+                width: 485px;
+				padding: 5px;
+				text-align: center;
+            }
+
+            div#players-left {
+                width: 230px;
+                padding: 5px;
+            }
+
+            div#players-right {
+                width: 230px;
+                padding: 5px;
+            }
+
+            span.player {
+                font-size: 16px;
+                font-weight: bold;
+                position: relative;
+                top: -5px;
+            }
+
+            div#ownership {
+                width: 425px;
+                padding: 5px;
+                min-height: 70px;
+            }
+
+            div#chat-container {
+                width: 425px;
+                padding: 5px;
+            }
+
+            div#chat {
+                width: 352px;
+                margin: 0px auto;
+            }
+
+            table.editor {
+                margin: 0px auto;
+            }
+
+            table.editor th {
+                text-align: right;
+				padding: 3px;
+            }
+
+            table.editor td {
+                text-align: left;
+				padding: 3px;
+            }
+
+			/* VIEJO */
+
 			table.Main {
 				/*border: 1px solid #666;*/
 				text-align: center;
@@ -25,114 +145,226 @@
 		</style>
 	</head>
 	<body>
-		<table class="Main">
-			<tr>
-				<td style="width: 50px;">
-					<div id="board1" style="margin: 0px auto;"></div>
-				</td>
-				<td>
-					<div style="margin: 0px auto;">
-						<table class="Main">
-							<tr>
+
+        <div id="container">
+            <div id="float-container">
+                <div class="panel" id="global-left">
+                    <div class="panel" id="players-left">
+                        <p>
+                            <img src="img/t_black.png">
+                            <span id="black_player" class="player">Black</span>
+                        </p>
+                        <p id="panel_black" style="padding-left: 30px;">
+                            <strong>Captures: </strong><span id="div_id_captured_w">0</span>
+                            <br />
+                            <strong>Time: </strong><span id="div_id_clock_b">-</span>
+							<br />
+                            <strong>Komi: </strong><span id="div_id_komi_b">-</span>
+							<br />
+                            <strong>Score: </strong><span id="div_id_score_b">-</span>
+                        </p>
+                    </div>
+                    <div class="panel" id="players-right">
+                        <p>
+                            <img src="img/t_white.png">
+                            <span id="white_player" class="player">White</span>
+                        </p>
+                        <p id="panel_white" style="padding-left: 30px;">
+                            <strong>Captures: </strong><span id="div_id_captured_b">0</span>
+                            <br />
+                            <strong>Time: </strong><span id="div_id_clock_w">-</span>
+							<br />
+                            <strong>Komi: </strong><span id="div_id_komi_w">-</span>
+							<br />
+                            <strong>Score: </strong><span id="div_id_score_w">-</span>
+                        </p>
+                    </div>
+                    <div class="panel" id="board-container">
+                        <div id="board1" style="margin: 0px auto;">
+(;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]RU[Japanese]SZ[9]KM[6.50]TM[1800]OT[25/600 Canadian]PW[DP]PB[ros88]DT[2011-03-23]PC[The KGS Go Server at http://www.gokgs.com/]RE[W+Resign];B[cc]BL[1789.879];W[gg]WL[1792.648];B[ca]BL[1772.694];W[ge]WL[1787.75];B[ad]BL[1764.549];W[bd]WL[1753.164];B[ab]BL[1750.349];W[cd]WL[1703.366];B[bh]BL[1711.53];W[eh]WL[1695.496];B[bf]BL[1697.054];W[cf]WL[1674.699];B[fe]BL[1677.371];W[ff]WL[1664.598];B[hf]BL[1663.687];W[fd]WL[1649.58];B[ee]BL[1658.333];W[ed]WL[1620.258];B[de]BL[1640.48];W[dd]WL[1530.993];B[gd]BL[1625.806];W[ef]WL[1474.27];B[df]BL[1556.493];W[dg]WL[1459.307];B[bc]BL[1450.349];W[da]WL[1366.786];B[dc]BL[1402.309];W[ec]WL[1339.208];B[be]BL[1383.01];W[ce]WL[1331.405];B[ea]BL[1349.314];W[eb]WL[1230.421];B[db]BL[1316.642];W[fa]WL[1215.527];B[fb]BL[1289.665];W[da]WL[1145.297];B[ee]BL[1256.769];W[de]WL[1094.622];B[ea]BL[1217.724];W[bg]WL[999.251];B[ga]BL[1206.357];W[af]WL[966.754];B[ag]BL[1150.092];W[ae]WL[952.056](;B[ac]BL[1144.522]C[DP: ?ros88 [?\]: sorry don't worryDP: ok :)];W[ha]WL[825.204];B[hb]BL[1086.315];W[gb]WL[741.829];B[gc]BL[1074.154];W[hd]WL[663.946];B[fc]BL[1050.013];W[he]WL[634.611];B[ia]BL[1032.357];W[ic]WL[624.195];B[ie]BL[1012.855];W[hg]WL[588.634];B[fh]BL[903.484];W[gh]WL[560.257];B[fg]BL[819.406];W[if]WL[523.19];B[ig]BL[808.733];W[fi]WL[463.468];B[gi]BL[681.441];W[eg]WL[455.786];B[id]BL[585.117];W[ih]WL[397.4];B[hc]BL[574.444];W[if]WL[346.226];B[ch]BL[474.541];W[ah]WL[329.759];B[di]BL[473.799];W[dh]WL[300.946];B[ci]BL[459.447];W[ai]WL[284.695]C[ros88 [?\]: gracias x la partida me rindoDP: gracias a vosDP: un placer])(;B[ac]BL[990.879]))
+						</div>
+                    </div>
+					<div class="panel" id="button-container">
+						<input type="button" value="&lt;&lt;" onclick="gospeed.goto_start();" />
+						<input type="button" value="&lt;" onclick="gospeed.prev();" />
+						<input type="button" value="&gt;" onclick="gospeed.next();" />
+						<input type="button" value="&gt;&gt;" onclick="gospeed.goto_end();" />
+					</div>
+                </div>
+                <div class="panel" id="global-right">
+                    <div class="panel" id="ownership">
+                        <table class="editor">
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+                                    Controls
+                                </th>
+                            </tr>
+                            <tr>
 								<th>
-									<strong>Mode</strong>
+									Mode
 								</th>
-							</tr>
-							<tr>
 								<td>
-									<select onchange="gospeed.change_mode(this.value);" style="text-align: center;">
+									<select id="mode_selector" onchange="gospeed.change_mode(this.value);">
 										<option value="play">play</option>
 										<option value="free">free</option>
 										<option value="count">count</option>
 									</select>
 								</td>
+								<td>
+									&nbsp;
+								</td>
 							</tr>
-						</table>
-					</div>
-					<br />
-					<table class="Main">
-						<tr>
-							<th colspan="2">
-								Clocks
-							</th>
-						</tr>
-						<tr>
-							<th>
-								Black
-							</th>
-							<th>
-								White
-							</th>
-						</tr>
-						<tr>
-							<td>
-								<div id="div_id_clock_b"></div>
-							</td>
-							<td>
-								<div id="div_id_clock_w"></div>
-							</td>
-						</tr>
-					</table>
-					<br />
-					<table class="Main">
-						<tr>
-							<th colspan="2">
-								Captures
-							</th>
-						</tr>
-						<tr>
-							<th>
-								Black
-							</th>
-							<th>
-								White
-							</th>
-						</tr>
-						<tr>
-							<td>
-								<div id="div_id_captured_b"></div>
-							</td>
-							<td>
-								<div id="div_id_captured_w"></div>
-							</td>
-						</tr>
-					</table>
-					<br />
-					<div style="position: relative; margin: 0px auto; width: 65px;">
-						<input type="button" value="&lt;" onclick="gospeed.prev();" /><input type="button" value="&gt;" onclick="gospeed.next();" /><input type="button" value="^" onclick="gospeed.up();" /><input type="button" value="v" onclick="gospeed.down();" />
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<div style="position: relative; margin: 0px auto; width: 900px; min-height: 200px; white-space: nowrap; overflow: scroll; background-color: #FFA; text-align: left;">
-						<div style="font-family: courier new; font-size: 9px;" id="arbol"></div>
-					</div>
-				</td>
-			</tr>
-		</table>
-
-
+							<tr>
+                                <th>
+                                    Size:
+                                </th>
+                                <td>
+                                    <select id="size_selector" onchange="gospeed.change_size(Number(this.value));">
+                                        <option value="9">9x9</option>
+                                        <option value="13">13x13</option>
+                                        <option value="19">19x19</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    Ruleset:
+                                </th>
+                                <td>
+                                    <select id="ruleset_selector" onchange="gospeed.change_ruleset(this.value);">
+										<option value="Japanese">Japanese</option>
+										<option value="Chinese">Chinese</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    SGF Result:
+                                </th>
+                                <td>
+									<span id="sgf_result">-</span>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    GoSpeed Result:
+                                </th>
+                                <td>
+									<span id="gospeed_result">-</span>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+				<div class="debug-info">
+					<div class="game-tree" id="arbol"></div>
+				</div>
+            </div>
+        </div>
 		<script type="text/javascript">
 			var args = {
 				size: 19,
+				komi: -10.5,
 				mode: "play",
 				div_id_board: "board1",
 				div_id_tree: "arbol",
 				shower: "graphic",
 				time_config: {
 					time_system: "Absolute",
-					starting_time: 120,
+					starting_time: 600,
 					div_id_clock_w: "div_id_clock_w",
 					div_id_clock_b: "div_id_clock_b",
 				},
 				div_id_captured_w: "div_id_captured_w",
 				div_id_captured_b: "div_id_captured_b",
+				div_id_score_w: "div_id_score_w",
+				div_id_score_b: "div_id_score_b",
+				div_id_result: "gospeed_result",
 			};
 			var gospeed = new GoSpeed(args);
-			//gospeed.load_sgf();
-			gospeed.timer.resume("B");
 
+			// Controls and Labels
+			var player_w = document.getElementById("white_player");
+			var player_b = document.getElementById("black_player");
+			var komi_w = document.getElementById("div_id_komi_w");
+			var komi_b = document.getElementById("div_id_komi_b");
+			var control_mode = document.getElementById("mode_selector");
+			var control_size = document.getElementById("size_selector");
+			var control_ruleset = document.getElementById("ruleset_selector");
+			var label_sgf_result = document.getElementById("sgf_result");
+			var label_gospeed_result = document.getElementById("gospeed_result");
+
+			// Refresh data
+			function refresh_data() {
+				if (gospeed.komi > 0) {
+					komi_w.innerHTML = gospeed.komi;
+					komi_b.innerHTML = "0"
+				} else {
+					komi_b.innerHTML = Math.abs(gospeed.komi);
+					komi_w.innerHTML = "0"
+				}
+				selector(control_mode, gospeed.mode);
+				selector(control_ruleset, gospeed.ruleset);
+
+				var s = "";
+				if (gospeed.sgf && gospeed.sgf.root != null) {
+					if (gospeed.sgf.root.SZ) {
+						if (selector(control_size, gospeed.sgf.root.SZ)) {
+							control_size.disabled = true;
+						}
+					}
+					if (gospeed.sgf.root.RU) {
+						if (selector(control_ruleset, gospeed.sgf.root.RU)) {
+							control_ruleset.disabled = true;
+						}
+					}
+					if (gospeed.sgf.root.PB) {
+						s = gospeed.sgf.root.PB;
+						if (gospeed.sgf.root.BR) {
+							s += " (" + gospeed.sgf.root.BR + ")";
+						}
+						player_b.innerHTML = s;
+					}
+					if (gospeed.sgf.root.PW) {
+						s = gospeed.sgf.root.PW;
+						if (gospeed.sgf.root.WR) {
+							s += " (" + gospeed.sgf.root.WR + ")";
+						}
+						player_w.innerHTML = s;
+					}
+					if (gospeed.sgf.root.RE) {
+						label_sgf_result.innerHTML = gospeed.sgf.root.RE;
+					}
+				}
+			}
+
+			// Select element in a select element helper.
+			function selector(select, value) {
+				for (var i = 0, li = select.options.length; i < li; i++) {
+					if (select.options[i].value == value) {
+						select.options[i].selected = true;
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// Ok, refresh!
+			refresh_data();
+
+			// Key Handler
 			function keyhandler(event) {
 				/*
 				var s = "";
@@ -143,20 +375,31 @@
 				*/
 				switch(event.keyCode) {
 					case event["DOM_VK_UP"]:
-						gospeed.up();
+						if (event.ctrlKey) {
+							gospeed.up();
+						}
 					break;
 					case event["DOM_VK_LEFT"]:
-						gospeed.prev();
+						if (event.ctrlKey) {
+							gospeed.goto_start();
+						} else {
+							gospeed.prev();
+						}
 					break;
 					case event["DOM_VK_RIGHT"]:
-						gospeed.next();
+						if (event.ctrlKey) {
+							gospeed.goto_end();
+						} else {
+							gospeed.next();
+						}
 					break;
 					case event["DOM_VK_DOWN"]:
-						gospeed.down();
+						if (event.ctrlKey) {
+							gospeed.down();
+						}
 					break;
 				}
 			}
-
 			document.addEventListener("keypress", keyhandler, false);
 		</script>
 	</body>

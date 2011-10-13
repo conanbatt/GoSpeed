@@ -22,11 +22,12 @@ module("OnlineSuite", {
 			mode: "play_online",
 			div_id_board: BOARD_DIV_ID,
 			shower: BOARD_SHOWER,
+			my_nick: "pocho",
 		};
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
-		this.gospeed.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game({moves: move_list});
+		this.gospeed.my_colour = this.server.connect(this.gospeed.my_nick, binder(function() {
+			this.update_game(arguments[0]);
 		}, this.gospeed));
 		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -39,11 +40,12 @@ module("OnlineSuite", {
 			mode: "play_online",
 			div_id_board: BOARD_DIV_ID_2,
 			shower: BOARD_SHOWER,
+			my_nick: "cacho",
 		};
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
-		this.gospeed2.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game({moves: move_list});
+		this.gospeed2.my_colour = this.server.connect(this.gospeed2.my_nick, binder(function() {
+			this.update_game(arguments[0]);
 		}, this.gospeed2));
 		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -91,12 +93,12 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[1][1], undefined, "Board 1: shower grid position [1][1] must not be undefined.");
-			equal(this.gospeed.shower.grid[1][1][0].className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
-			equal(this.gospeed.shower.grid[1][1][0].style.top, "35px", "Board 1: current stone must be positioned on top: 35px.");
-			equal(this.gospeed.shower.grid[1][1][0].style.left, "35px", "Board 1: current stone must be positioned on left: 35px.");
-			equal(this.gospeed.shower.grid[1][1][1].className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed.shower.grid[1][1][1].style.top, "37px", "Board 1: current shadow must be positioned on top: 37px.");
-			equal(this.gospeed.shower.grid[1][1][1].style.left, "37px", "Board 1: current shadow must be positioned on left: 37px.");
+			equal(this.gospeed.shower.grid[1][1].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
+			equal(this.gospeed.shower.grid[1][1].stone.style.top, "35px", "Board 1: current stone must be positioned on top: 35px.");
+			equal(this.gospeed.shower.grid[1][1].stone.style.left, "35px", "Board 1: current stone must be positioned on left: 35px.");
+			equal(this.gospeed.shower.grid[1][1].shadow.className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed.shower.grid[1][1].shadow.style.top, "37px", "Board 1: current shadow must be positioned on top: 37px.");
+			equal(this.gospeed.shower.grid[1][1].shadow.style.left, "37px", "Board 1: current shadow must be positioned on left: 37px.");
 			equal(this.gospeed.shower.ko.className, "Ko", "Board 1: shower ko class name is 'Ko'.");
 			equal(this.gospeed.shower.ko.style.display, "none", "Board 1: shower ko is not being displayed.");
 			equal(this.gospeed.shower.t_white.className, "StoneTW", "Board 1: shower transparent white stone's class name is 'StoneTW'.");
@@ -115,12 +117,12 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[1][1], undefined, "Board 2: shower grid position [1][1] must not be undefined.");
-			equal(this.gospeed2.shower.grid[1][1][0].className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
-			equal(this.gospeed2.shower.grid[1][1][0].style.top, "35px", "Board 2: current stone must be positioned on top: 35px.");
-			equal(this.gospeed2.shower.grid[1][1][0].style.left, "35px", "Board 2: current stone must be positioned on left: 35px.");
-			equal(this.gospeed2.shower.grid[1][1][1].className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed2.shower.grid[1][1][1].style.top, "37px", "Board 2: current shadow must be positioned on top: 37px.");
-			equal(this.gospeed2.shower.grid[1][1][1].style.left, "37px", "Board 2: current shadow must be positioned on left: 37px.");
+			equal(this.gospeed2.shower.grid[1][1].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
+			equal(this.gospeed2.shower.grid[1][1].stone.style.top, "35px", "Board 2: current stone must be positioned on top: 35px.");
+			equal(this.gospeed2.shower.grid[1][1].stone.style.left, "35px", "Board 2: current stone must be positioned on left: 35px.");
+			equal(this.gospeed2.shower.grid[1][1].shadow.className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed2.shower.grid[1][1].shadow.style.top, "37px", "Board 2: current shadow must be positioned on top: 37px.");
+			equal(this.gospeed2.shower.grid[1][1].shadow.style.left, "37px", "Board 2: current shadow must be positioned on left: 37px.");
 			equal(this.gospeed2.shower.ko.className, "Ko", "Board 2: shower ko class name is 'Ko'.");
 			equal(this.gospeed2.shower.ko.style.display, "none", "Board 2: shower ko is not being displayed.");
 			equal(this.gospeed2.shower.t_white.className, "StoneTW", "Board 2: shower transparent white stone's class name is 'StoneTW'.");
@@ -142,12 +144,12 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[1][0], undefined, "Board 1: shower grid position [1][0] must not be undefined.");
-			equal(this.gospeed.shower.grid[1][0][0].className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
-			equal(this.gospeed.shower.grid[1][0][0].style.top, "35px", "Board 1: current stone must be positioned on top: 35px.");
-			equal(this.gospeed.shower.grid[1][0][0].style.left, "10px", "Board 1: current stone must be positioned on left: 10px.");
-			equal(this.gospeed.shower.grid[1][0][1].className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed.shower.grid[1][0][1].style.top, "37px", "Board 1: current shadow must be positioned on top: 37px.");
-			equal(this.gospeed.shower.grid[1][0][1].style.left, "12px", "Board 1: current shadow must be positioned on left: 12px.");
+			equal(this.gospeed.shower.grid[1][0].stone.className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
+			equal(this.gospeed.shower.grid[1][0].stone.style.top, "35px", "Board 1: current stone must be positioned on top: 35px.");
+			equal(this.gospeed.shower.grid[1][0].stone.style.left, "10px", "Board 1: current stone must be positioned on left: 10px.");
+			equal(this.gospeed.shower.grid[1][0].shadow.className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed.shower.grid[1][0].shadow.style.top, "37px", "Board 1: current shadow must be positioned on top: 37px.");
+			equal(this.gospeed.shower.grid[1][0].shadow.style.left, "12px", "Board 1: current shadow must be positioned on left: 12px.");
 			equal(this.gospeed.shower.ko.className, "Ko", "Board 1: shower ko class name is 'Ko'.");
 			equal(this.gospeed.shower.ko.style.display, "none", "Board 1: shower ko is not being displayed.");
 			equal(this.gospeed.shower.t_white.className, "StoneTW", "Board 1: shower transparent white stone's class name is 'StoneTW'.");
@@ -166,12 +168,12 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[1][0], undefined, "Board 2: shower grid position [1][0] must not be undefined.");
-			equal(this.gospeed2.shower.grid[1][0][0].className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
-			equal(this.gospeed2.shower.grid[1][0][0].style.top, "35px", "Board 2: current stone must be positioned on top: 35px.");
-			equal(this.gospeed2.shower.grid[1][0][0].style.left, "10px", "Board 2: current stone must be positioned on left: 10px.");
-			equal(this.gospeed2.shower.grid[1][0][1].className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed2.shower.grid[1][0][1].style.top, "37px", "Board 2: current shadow must be positioned on top: 37px.");
-			equal(this.gospeed2.shower.grid[1][0][1].style.left, "12px", "Board 2: current shadow must be positioned on left: 12px.");
+			equal(this.gospeed2.shower.grid[1][0].stone.className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
+			equal(this.gospeed2.shower.grid[1][0].stone.style.top, "35px", "Board 2: current stone must be positioned on top: 35px.");
+			equal(this.gospeed2.shower.grid[1][0].stone.style.left, "10px", "Board 2: current stone must be positioned on left: 10px.");
+			equal(this.gospeed2.shower.grid[1][0].shadow.className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed2.shower.grid[1][0].shadow.style.top, "37px", "Board 2: current shadow must be positioned on top: 37px.");
+			equal(this.gospeed2.shower.grid[1][0].shadow.style.left, "12px", "Board 2: current shadow must be positioned on left: 12px.");
 			equal(this.gospeed2.shower.ko.className, "Ko", "Board 2: shower ko class name is 'Ko'.");
 			equal(this.gospeed2.shower.ko.style.display, "none", "Board 2: shower ko is not being displayed.");
 			equal(this.gospeed2.shower.t_white.className, "StoneTW", "Board 2: shower transparent white stone's class name is 'StoneTW'.");
@@ -193,12 +195,12 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][2], undefined, "Board 1: shower grid position [0][2] must not be undefined.");
-			equal(this.gospeed.shower.grid[0][2][0].className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
-			equal(this.gospeed.shower.grid[0][2][0].style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
-			equal(this.gospeed.shower.grid[0][2][0].style.left, "60px", "Board 1: current stone must be positioned on left: 60px.");
-			equal(this.gospeed.shower.grid[0][2][1].className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed.shower.grid[0][2][1].style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
-			equal(this.gospeed.shower.grid[0][2][1].style.left, "62px", "Board 1: current shadow must be positioned on left: 62px.");
+			equal(this.gospeed.shower.grid[0][2].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
+			equal(this.gospeed.shower.grid[0][2].stone.style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
+			equal(this.gospeed.shower.grid[0][2].stone.style.left, "60px", "Board 1: current stone must be positioned on left: 60px.");
+			equal(this.gospeed.shower.grid[0][2].shadow.className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed.shower.grid[0][2].shadow.style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
+			equal(this.gospeed.shower.grid[0][2].shadow.style.left, "62px", "Board 1: current shadow must be positioned on left: 62px.");
 			equal(this.gospeed.shower.ko.className, "Ko", "Board 1: shower ko class name is 'Ko'.");
 			equal(this.gospeed.shower.ko.style.display, "none", "Board 1: shower ko is not being displayed.");
 			equal(this.gospeed.shower.t_white.className, "StoneTW", "Board 1: shower transparent white stone's class name is 'StoneTW'.");
@@ -217,12 +219,12 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][2], undefined, "Board 2: shower grid position [0][2] must not be undefined.");
-			equal(this.gospeed2.shower.grid[0][2][0].className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
-			equal(this.gospeed2.shower.grid[0][2][0].style.top, "10px", "Board 2: current stone must be positioned on top: 10px.");
-			equal(this.gospeed2.shower.grid[0][2][0].style.left, "60px", "Board 2: current stone must be positioned on left: 60px.");
-			equal(this.gospeed2.shower.grid[0][2][1].className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed2.shower.grid[0][2][1].style.top, "12px", "Board 2: current shadow must be positioned on top: 12px.");
-			equal(this.gospeed2.shower.grid[0][2][1].style.left, "62px", "Board 2: current shadow must be positioned on left: 62px.");
+			equal(this.gospeed2.shower.grid[0][2].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
+			equal(this.gospeed2.shower.grid[0][2].stone.style.top, "10px", "Board 2: current stone must be positioned on top: 10px.");
+			equal(this.gospeed2.shower.grid[0][2].stone.style.left, "60px", "Board 2: current stone must be positioned on left: 60px.");
+			equal(this.gospeed2.shower.grid[0][2].shadow.className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed2.shower.grid[0][2].shadow.style.top, "12px", "Board 2: current shadow must be positioned on top: 12px.");
+			equal(this.gospeed2.shower.grid[0][2].shadow.style.left, "62px", "Board 2: current shadow must be positioned on left: 62px.");
 			equal(this.gospeed2.shower.ko.className, "Ko", "Board 2: shower ko class name is 'Ko'.");
 			equal(this.gospeed2.shower.ko.style.display, "none", "Board 2: shower ko is not being displayed.");
 			equal(this.gospeed2.shower.t_white.className, "StoneTW", "Board 2: shower transparent white stone's class name is 'StoneTW'.");
@@ -244,12 +246,12 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][1], undefined, "Board 1: shower grid position [0][1] must not be undefined.");
-			equal(this.gospeed.shower.grid[0][1][0].className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
-			equal(this.gospeed.shower.grid[0][1][0].style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
-			equal(this.gospeed.shower.grid[0][1][0].style.left, "35px", "Board 1: current stone must be positioned on left: 35px.");
-			equal(this.gospeed.shower.grid[0][1][1].className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed.shower.grid[0][1][1].style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
-			equal(this.gospeed.shower.grid[0][1][1].style.left, "37px", "Board 1: current shadow must be positioned on left: 37px.");
+			equal(this.gospeed.shower.grid[0][1].stone.className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
+			equal(this.gospeed.shower.grid[0][1].stone.style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
+			equal(this.gospeed.shower.grid[0][1].stone.style.left, "35px", "Board 1: current stone must be positioned on left: 35px.");
+			equal(this.gospeed.shower.grid[0][1].shadow.className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed.shower.grid[0][1].shadow.style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
+			equal(this.gospeed.shower.grid[0][1].shadow.style.left, "37px", "Board 1: current shadow must be positioned on left: 37px.");
 			equal(this.gospeed.shower.ko.className, "Ko", "Board 1: shower ko class name is 'Ko'.");
 			equal(this.gospeed.shower.ko.style.display, "none", "Board 1: shower ko is not being displayed.");
 			equal(this.gospeed.shower.t_white.className, "StoneTW", "Board 1: shower transparent white stone's class name is 'StoneTW'.");
@@ -268,12 +270,12 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][1], undefined, "Board 2: shower grid position [0][1] must not be undefined.");
-			equal(this.gospeed2.shower.grid[0][1][0].className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
-			equal(this.gospeed2.shower.grid[0][1][0].style.top, "10px", "Board 2: current stone must be positioned on top: 10px.");
-			equal(this.gospeed2.shower.grid[0][1][0].style.left, "35px", "Board 2: current stone must be positioned on left: 35px.");
-			equal(this.gospeed2.shower.grid[0][1][1].className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed2.shower.grid[0][1][1].style.top, "12px", "Board 2: current shadow must be positioned on top: 12px.");
-			equal(this.gospeed2.shower.grid[0][1][1].style.left, "37px", "Board 2: current shadow must be positioned on left: 37px.");
+			equal(this.gospeed2.shower.grid[0][1].stone.className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
+			equal(this.gospeed2.shower.grid[0][1].stone.style.top, "10px", "Board 2: current stone must be positioned on top: 10px.");
+			equal(this.gospeed2.shower.grid[0][1].stone.style.left, "35px", "Board 2: current stone must be positioned on left: 35px.");
+			equal(this.gospeed2.shower.grid[0][1].shadow.className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed2.shower.grid[0][1].shadow.style.top, "12px", "Board 2: current shadow must be positioned on top: 12px.");
+			equal(this.gospeed2.shower.grid[0][1].shadow.style.left, "37px", "Board 2: current shadow must be positioned on left: 37px.");
 			equal(this.gospeed2.shower.ko.className, "Ko", "Board 2: shower ko class name is 'Ko'.");
 			equal(this.gospeed2.shower.ko.style.display, "none", "Board 2: shower ko is not being displayed.");
 			equal(this.gospeed2.shower.t_white.className, "StoneTW", "Board 2: shower transparent white stone's class name is 'StoneTW'.");
@@ -295,12 +297,12 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][0], undefined, "Board 1: shower grid position [0][0] must not be undefined.");
-			equal(this.gospeed.shower.grid[0][0][0].className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
-			equal(this.gospeed.shower.grid[0][0][0].style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
-			equal(this.gospeed.shower.grid[0][0][0].style.left, "10px", "Board 1: current stone must be positioned on left: 10px.");
-			equal(this.gospeed.shower.grid[0][0][1].className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed.shower.grid[0][0][1].style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
-			equal(this.gospeed.shower.grid[0][0][1].style.left, "12px", "Board 1: current shadow must be positioned on left: 12px.");
+			equal(this.gospeed.shower.grid[0][0].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
+			equal(this.gospeed.shower.grid[0][0].stone.style.top, "10px", "Board 1: current stone must be positioned on top: 10px.");
+			equal(this.gospeed.shower.grid[0][0].stone.style.left, "10px", "Board 1: current stone must be positioned on left: 10px.");
+			equal(this.gospeed.shower.grid[0][0].shadow.className, "Shadow", "Board 1: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed.shower.grid[0][0].shadow.style.top, "12px", "Board 1: current shadow must be positioned on top: 12px.");
+			equal(this.gospeed.shower.grid[0][0].shadow.style.left, "12px", "Board 1: current shadow must be positioned on left: 12px.");
 			equal(this.gospeed.shower.ko.className, "Ko", "Board 1: shower ko class name is 'Ko'.");
 			equal(this.gospeed.shower.ko.style.display, "block", "Board 1: shower ko is being displayed.");
 			equal(this.gospeed.shower.ko.style.top, "10px", "Board 1: ko indicator must be positioned on top: 10px.");
@@ -321,12 +323,12 @@ test("GamePlay", function() {
 			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][0], undefined, "Board 2: shower grid position [0][0] must not be undefined.");
-			equal(this.gospeed2.shower.grid[0][0][0].className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
-			equal(this.gospeed2.shower.grid[0][0][0].style.top, "10px", "Board 2: current stone must be positioned on top: 35px.");
-			equal(this.gospeed2.shower.grid[0][0][0].style.left, "10px", "Board 2: current stone must be positioned on left: 35px.");
-			equal(this.gospeed2.shower.grid[0][0][1].className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
-			equal(this.gospeed2.shower.grid[0][0][1].style.top, "12px", "Board 2: current shadow must be positioned on top: 35px.");
-			equal(this.gospeed2.shower.grid[0][0][1].style.left, "12px", "Board 2: current shadow must be positioned on left: 35px.");
+			equal(this.gospeed2.shower.grid[0][0].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
+			equal(this.gospeed2.shower.grid[0][0].stone.style.top, "10px", "Board 2: current stone must be positioned on top: 35px.");
+			equal(this.gospeed2.shower.grid[0][0].stone.style.left, "10px", "Board 2: current stone must be positioned on left: 35px.");
+			equal(this.gospeed2.shower.grid[0][0].shadow.className, "Shadow", "Board 2: current shadow class name must be 'Shadow'.");
+			equal(this.gospeed2.shower.grid[0][0].shadow.style.top, "12px", "Board 2: current shadow must be positioned on top: 35px.");
+			equal(this.gospeed2.shower.grid[0][0].shadow.style.left, "12px", "Board 2: current shadow must be positioned on left: 35px.");
 			equal(this.gospeed2.shower.ko.className, "Ko", "Board 2: shower ko class name is 'Ko'.");
 			equal(this.gospeed2.shower.ko.style.display, "block", "Board 2: shower ko is being displayed.");
 			equal(this.gospeed2.shower.ko.style.top, "10px", "Board 1: ko indicator must be positioned on top: 10px.");

@@ -16,26 +16,26 @@
 			}
 		},
 
-		connect: function(callback) {
+		connect: function(nick, callback) {
+			var res;
 			this.players.push(callback);
-			this.broadcast();
 			if (this.players.length == 1) {
-				return "W";
+				this.white_player = nick;
+				res = "W";
 			} else if (this.players.length == 2) {
-				return "B";
+				this.black_player = nick;
+				res = "B";
 			} else {
-				return "O";
+				res = "O";
 			}
+			this.broadcast();
+			return res;
 		},
 
 		broadcast: function() {
-			//var s = ";SZ[" + this.size + "]";
-			//var s = ";FF[" + this.size + "]";
-			var s = "";
-			s += this.moves;
-
-			for (var i = 0; i < this.players.length; i++) {
-				this.players[i].call(s, s, s);
+			var data = {black_player: this.black_player, white_player: this.white_player, moves: this.moves};
+			for (var i = 0, li = this.players.length; i < li; ++i) {
+				this.players[i].apply(null, [data]);
 			}
 		}
 	}

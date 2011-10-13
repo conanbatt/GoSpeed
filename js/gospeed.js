@@ -1158,12 +1158,16 @@ GoSpeed.prototype = {
 	update_game: function(data) {
 		this.clear();
 
-		if (data.black_player == this.my_nick && data.white_player == this.my_nick) {
-			this.change_my_colour("A");
-		} else if (data.black_player == this.my_nick) {
-			this.change_my_colour("B");
-		} else if (data.white_player == this.my_nick) {
-			this.change_my_colour("W");
+		if (this.my_nick != undefined) {
+			if (data.black_player == this.my_nick && data.white_player == this.my_nick) {
+				this.change_my_colour("A");
+			} else if (data.black_player == this.my_nick) {
+				this.change_my_colour("B");
+			} else if (data.white_player == this.my_nick) {
+				this.change_my_colour("W");
+			} else {
+				this.change_my_colour("O");
+			}
 		} else {
 			this.change_my_colour("O");
 		}

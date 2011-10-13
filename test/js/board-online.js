@@ -22,11 +22,12 @@ module("OnlineSuite", {
 			mode: "play_online",
 			div_id_board: BOARD_DIV_ID,
 			shower: BOARD_SHOWER,
+			my_nick: "pocho",
 		};
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
-		this.gospeed.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game({moves: move_list});
+		this.gospeed.my_colour = this.server.connect(this.gospeed.my_nick, binder(function() {
+			this.update_game(arguments[0]);
 		}, this.gospeed));
 		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
@@ -39,11 +40,12 @@ module("OnlineSuite", {
 			mode: "play_online",
 			div_id_board: BOARD_DIV_ID_2,
 			shower: BOARD_SHOWER,
+			my_nick: "cacho",
 		};
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
-		this.gospeed2.my_colour = this.server.connect(binder(function(move_list) {
-			this.update_game({moves: move_list});
+		this.gospeed2.my_colour = this.server.connect(this.gospeed2.my_nick, binder(function() {
+			this.update_game(arguments[0]);
 		}, this.gospeed2));
 		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});

@@ -1,3 +1,6 @@
+var SGFPARSER_ST_ERROR = 1;
+var SGFPARSER_ST_PARSED = 2;
+var SGFPARSER_ST_LOADED = 4;
 
 function SGFNode() {
 	this.prev = null;
@@ -75,11 +78,23 @@ SGFParser.prototype = {
 				break;
 				default:
 					if (!/\s/.test(chr)) {
-						throw new Error("SGF Parser: Unexpected character.");
+						this.status = SGFPARSER_ST_ERROR;
+						this.error = "Unexpected character";
+						return false;
 					}
 				break;
 			}
 			i++;
+		}
+
+		// Result
+		if (this.root == null) {
+			this.status = SGFPARSER_ST_ERROR;
+			this.error = "Empty SGF";
+			return false;
+		} else {
+			this.status = SGFPARSER_ST_PARSED;
+			return true;
 		}
 	},
 

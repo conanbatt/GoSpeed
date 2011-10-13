@@ -111,9 +111,7 @@ GoSpeed.prototype = {
 		this.render();
 
 	// Load SGF
-		if (this.sgf.root != null) {
-			this.load_sgf();
-		}
+		//this.load_sgf();
 	},
 
 //	Manage Board
@@ -779,12 +777,12 @@ GoSpeed.prototype = {
 	},
 
 	load_sgf: function() {
-		if (this.sgf != undefined) {
+		if (this.sgf != undefined && this.sgf.status == SGFPARSER_ST_PARSED) {
 			var pend_sgf_node = [];
 			var pend_game_tree_node = [];
 
 			if (!this.sgf.root) {
-				return;
+				return false;
 			}
 			// Setup based on root node properties.
 			var sgf_node = this.sgf.root;
@@ -850,7 +848,8 @@ GoSpeed.prototype = {
 						move = sgf_node.W;
 						time_left = sgf_node.WL;
 					} else {
-						throw new Error("Turn and Play mismatch");
+						this.sgf.status = SGFPARSER_ST_ERROR;
+						this.sgf.error = "Turn and Play mismatch";
 						return false;
 					}
 					if (move == "" || (this.size < 20 && move == "tt")) {
@@ -861,7 +860,8 @@ GoSpeed.prototype = {
 					} else {
 						tmp = this.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
 						if (!tmp) {
-							throw new Error("Illegal move or such...");
+							this.sgf.status = SGFPARSER_ST_ERROR;
+							this.sgf.error = "Illegal move or such...";
 							return false;
 						}
 						this.game_tree.append(new GameNode(tmp));
@@ -894,8 +894,12 @@ GoSpeed.prototype = {
 			this.render_tree();
 
 		} else {
-			throw new Error("Empty / Wrong SGF");
+			//throw new Error("Empty / Wrong SGF");
+			return false;
 		}
+
+		this.sgf.status = SGFPARSER_ST_LOADED;
+		return true;
 	},
 
 	render: function() {

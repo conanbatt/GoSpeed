@@ -94,6 +94,7 @@ GoSpeed.prototype = {
 		if (args.my_nick != undefined) {
 			this.my_nick = args.my_nick;
 		}
+		this.connected = (this.mode != "play_online");
 
 	// Game
 		this.turn_count = 0;
@@ -362,6 +363,9 @@ GoSpeed.prototype = {
 
 //	Gameplay
 	play: function(row, col, shift) {
+		if (!this.connected) {
+			return false;
+		}
 		var bRes = false;
 		var tmp_play;
 		switch(this.mode) {

@@ -29,6 +29,7 @@ module("OnlineSuite", {
 		this.gospeed.my_colour = this.server.connect(this.gospeed.my_nick, binder(function() {
 			this.update_game(arguments[0]);
 		}, this.gospeed));
+		this.gospeed.connected = (this.gospeed.my_colour != undefined);
 		this.gospeed.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
 		}, this.server);
@@ -47,6 +48,7 @@ module("OnlineSuite", {
 		this.gospeed2.my_colour = this.server.connect(this.gospeed2.my_nick, binder(function() {
 			this.update_game(arguments[0]);
 		}, this.gospeed2));
+		this.gospeed2.connected = (this.gospeed2.my_colour != undefined);
 		this.gospeed2.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
 		}, this.server);

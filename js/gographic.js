@@ -273,6 +273,10 @@ GoGraphic.prototype = {
 	},
 
 	mousemove_handler: function(mouse) {
+		if (!this.game.connected) {
+			return false;
+		}
+
 		var t_stone;
 
 		if (this.game.mode == "count") {

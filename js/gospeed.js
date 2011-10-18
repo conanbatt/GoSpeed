@@ -678,31 +678,45 @@ GoSpeed.prototype = {
 
 		// If I was counting, clean score and set up everything to keep on playing.
 		if (this.mode == "count" && mode != "count") {
-			if (this.shower != undefined) {
-				this.shower.clear_dead_groups(this.score.dead_groups);
-				this.shower.clear_score();
-			}
-			this.score = undefined;
-			if (this.shower != undefined) {
-				if (this.game_tree.actual_move.play instanceof Play) {
-					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
-				}
-				this.shower.update_score();
-				this.shower.update_result();
-			}
+			this.quit_territory_counting();
 		}
-		this.mode = mode;
 		// If I'm going to count, do the first calculation and draw territory.
-		if (this.mode == "count") {
-			this.score = new Score(this.ruleset, this.grid);
-			var score = this.score.calculate_score();
-			this.score.calculate_result(this.captured, this.komi);
-			if (this.shower != undefined) {
-				this.shower.clear_last_stone_markers();
-				this.shower.draw_score(score);
-				this.shower.update_score(this.score.result);
-				this.shower.update_result(this.score.result);
+		if (this.mode != "count" && mode == "count") {
+			this.mode = mode;
+			this.start_territory_counting();
+		} else {
+			this.mode = mode;
+		}
+	},
+
+	// Clean score and set up everything to keep on playing.
+	quit_territory_counting: function() {
+		if (this.shower != undefined) {
+			this.shower.clear_dead_groups(this.score.dead_groups);
+			this.shower.clear_score();
+		}
+		this.score = undefined;
+		if (this.shower != undefined) {
+			if (this.game_tree.actual_move.play instanceof Play) {
+				this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				this.shower.refresh_ko(this.game_tree.actual_move.play);
 			}
+			this.shower.update_score();
+			this.shower.update_result();
+		}
+	},
+
+	// Do the first calculation and draw territory.
+	start_territory_counting: function() {
+		this.score = new Score(this.ruleset, this.grid);
+		var score = this.score.calculate_score();
+		this.score.calculate_result(this.captured, this.komi);
+		if (this.shower != undefined) {
+			this.shower.clear_last_stone_markers();
+			this.shower.clear_ko();
+			this.shower.draw_score(score);
+			this.shower.update_score(this.score.result);
+			this.shower.update_result(this.score.result);
 		}
 	},
 

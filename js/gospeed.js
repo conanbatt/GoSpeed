@@ -1148,6 +1148,14 @@ GoSpeed.prototype = {
 	},
 
 // Online helpers
+	connect: function() {
+		this.connected = true;
+	},
+
+	disconnect: function() {
+		this.connected = false;
+	},
+
 	string_to_play: function(data) {
 		var row_patt = /^[A-Z]/;
 		var row = row_patt.exec(data)[0];

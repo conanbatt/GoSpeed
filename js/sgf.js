@@ -27,14 +27,15 @@ SGFParser.prototype = {
 		this.sgf = sSGF;
 		this.root = null;
 		this.pointer = null;
-		this.sgfLoad();
+		this.parse();
 	},
 
-	appendNode: function(node) {
-		if (this.pointer == null) {
-			node.prev = null;
-			this.root = node;
-			this.pointer = node;
+	append_node: function(node) {
+		if (this.pointer == this.root && !this.root.loaded) {
+			for (var prop in node) {
+				this.root[prop] = node[prop];
+			}
+			this.root.loaded = true;
 		} else {
 			node.prev = this.pointer;
 			this.pointer.next.push(node);
@@ -43,9 +44,9 @@ SGFParser.prototype = {
 		}
 	},
 
-	sgfLoad: function() {
-		this.root = null;
-		this.pointer = null;
+	parse: function() {
+		this.root = new SGFNode();
+		this.pointer = this.root;
 		var new_node;
 		var nodes_for_var = [];	// Track the last node where a variation started.
 
@@ -73,7 +74,7 @@ SGFParser.prototype = {
 				case ";":
 					if (!esc_next) {
 						// New node
-						i += this.sgfHandleNode(i + 1);
+						i += this.sgf_handle_node(this.sgf, i + 1);
 					}
 				break;
 				default:
@@ -98,7 +99,7 @@ SGFParser.prototype = {
 		}
 	},
 
-	sgfHandleNode: function(buf_start) {
+	sgf_handle_node: function(buffer, buf_start) {
 		var prop_end = false;
 		var buf_end = buf_start;
 		var rex_prop = /^[A-Z]$/
@@ -108,11 +109,11 @@ SGFParser.prototype = {
 		var cur_char = '';
 		var esc_next = false;
 
-		this.appendNode(new SGFNode());
+		this.append_node(new SGFNode());
 
 		while (!prop_end) {
 			while (!prop_end) {
-				cur_char = this.sgf[buf_end];
+				cur_char = buffer[buf_end];
 				if (rex_prop.test(cur_char)) {
 					prop_ident += cur_char;
 				} else if (cur_char == '[') {
@@ -122,14 +123,14 @@ SGFParser.prototype = {
 			}
 			prop_end = false;
 			while (!prop_end) {
-				cur_char = this.sgf[buf_end];
+				cur_char = buffer[buf_end];
 				if (cur_char == '\\') {
 					prop_val += cur_char;
 					esc_next = true;
 				} else if (!esc_next && cur_char == ']') {
 					prop_arr.push(prop_val);
 					prop_val = "";
-					if (this.sgf[buf_end + 1] != '[') {
+					if (buffer[buf_end + 1] != '[') {
 						prop_end = true;
 					} else {
 						buf_end++;
@@ -149,20 +150,20 @@ SGFParser.prototype = {
 			prop_arr = [];
 			prop_ident = "";
 			prop_val = "";
-			buf_end += this.sgfEatBlank(buf_end);
-			if (rex_prop.test(this.sgf[buf_end])) {
+			buf_end += this.sgf_eat_blank(buffer, buf_end);
+			if (rex_prop.test(buffer[buf_end])) {
 				prop_end = false;
 			}
 		}
 		return buf_end - buf_start;
 	},
 
-	sgfEatBlank: function(buf_start) {
+	sgf_eat_blank: function(buffer, buf_start) {
 		var buf_end = buf_start;
 		var cur_char = '';
 		var end = false;
 		while (!end) {
-			cur_char = this.sgf[buf_end];
+			cur_char = buffer[buf_end];
 			switch (cur_char) {
 				case '\n':
 				break;

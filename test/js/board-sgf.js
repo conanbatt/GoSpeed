@@ -28,7 +28,7 @@ module("Board Init Full", {
 		};
 		document.getElementById(BOARD_DIV_ID).innerHTML = BOARD_DIV_ORIGINAL_CONTENT;
 		this.gospeed = new GoSpeed(conf);
-		this.gospeed.load_sgf();
+		this.gospeed.sgf.load(this.gospeed);
 	},
 	teardown: function() {
 		//delete this.gospeed;

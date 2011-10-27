@@ -274,6 +274,11 @@ GoSpeed.prototype = {
 			this.shower.draw_play(play);
 			this.shower.update_captures();
 		}
+		if (this.sgf != undefined) {
+			this.sgf.moves_loaded += this.data_to_sgf_node(play);
+			// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
+		}
+		this.turn_count++;
 		this.next_move = (this.next_move == "W" ? "B" : "W");
 	},
 
@@ -779,9 +784,17 @@ GoSpeed.prototype = {
 		}
 
 		// Timer
+		// TODO: i think this should be something like this.timer = undefined;
 		if (this.timer != undefined) {
 			this.timer.stop();
 		}
+
+		// SGFParser
+		var sgf = "";
+		if (this.sgf != undefined) {
+			sgf = this.sgf.sgf;
+		}
+		this.sgf = new SGFParser(sgf);
 
 		// GameTree
 		this.game_tree = new GameTree();
@@ -792,132 +805,6 @@ GoSpeed.prototype = {
 		// Game
 		this.turn_count = 0;
 		this.captured = {B: 0, W: 0};
-	},
-
-	load_sgf: function() {
-		if (this.sgf != undefined && this.sgf.status == SGFPARSER_ST_PARSED) {
-			var pend_sgf_node = [];
-			var pend_game_tree_node = [];
-
-			if (!this.sgf.root) {
-				return false;
-			}
-			// Setup based on root node properties.
-			var sgf_node = this.sgf.root;
-			if (sgf_node.RU != undefined) {
-				this.change_ruleset(sgf_node.RU);
-			}
-			if (sgf_node.KM != undefined) {
-				this.change_komi(Number(sgf_node.KM));
-			}
-			if (sgf_node.SZ != undefined) {
-				this.change_size(Number(sgf_node.SZ));
-			}
-			if (sgf_node.TM != undefined) {
-				if (this.timer != undefined) {
-					// FIXME: check the time system, not only ABSOLUTE
-					this.timer = new AbsoluteTimer(this, sgf_node.TM);
-				}
-			}
-			if (sgf_node.HA != undefined) {
-				this.next_move = "W";
-				if (sgf_node.AB != undefined) {
-					sgf_node.AB = [].concat(sgf_node.AB);
-					var handicap = new FreePlay();
-					this.game_tree.root.play = handicap;
-					for (var key in sgf_node.AB) {
-						handicap.put.push(new Stone("B", sgf_node.AB[key].charCodeAt(1) - 97, sgf_node.AB[key].charCodeAt(0) - 97));
-					}
-					this.make_play(handicap);
-					if (this.shower != undefined) {
-						this.shower.draw_play(handicap);
-					}
-				}
-			} else {
-				this.next_move = "B";
-			}
-
-			// Push roots to start "recursive-like" iteration.
-			pend_sgf_node.push(this.sgf.root);
-			pend_game_tree_node.push(this.game_tree.root)
-
-			var move;
-			var time_left;
-			var tmp;
-			var tree_node;
-			while(sgf_node = pend_sgf_node.pop()) {
-				tree_node = pend_game_tree_node.pop();
-				tree_node.last_next = tree_node.next[0];
-			// do: rewind game until reaches this tree_node.
-				while (this.game_tree.actual_move != tree_node) {
-					tmp = this.game_tree.prev();
-					this.undo_play(tmp);
-					if (tmp instanceof Play) {
-						this.next_move = (this.next_move == "W" ? "B" : "W");
-					}
-				}
-			// do: play sgf_node contents at this point in game.
-				// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
-				if (sgf_node.B || sgf_node.W) {
-					if (this.next_move == "B" && sgf_node.B) {
-						move = sgf_node.B;
-						time_left = sgf_node.BL;
-					} else if (sgf_node.W) {
-						move = sgf_node.W;
-						time_left = sgf_node.WL;
-					} else {
-						this.sgf.status = SGFPARSER_ST_ERROR;
-						this.sgf.error = "Turn and Play mismatch";
-						return false;
-					}
-					if (move == "" || (this.size < 20 && move == "tt")) {
-						//this.pass();
-						this.turn_count++;
-						throw new Error("Pass not implemented");
-						return false;
-					} else {
-						tmp = this.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
-						if (!tmp) {
-							this.sgf.status = SGFPARSER_ST_ERROR;
-							this.sgf.error = "Illegal move or such...";
-							return false;
-						}
-						this.game_tree.append(new GameNode(tmp));
-						this.make_play(tmp);
-						if (time_left != undefined) {
-							this.timer.set_remain(this.next_move, time_left);
-						}
-						if (tmp instanceof Play) {
-							this.next_move = (this.next_move == "W" ? "B" : "W");
-						}
-						this.turn_count++;
-					}
-				}
-			// do: push actual_node to pend_game_tree_node
-			// do: push sgf_node.next nodes to pend_sgf_node
-				for (var key in sgf_node.next) {
-					pend_sgf_node.push(sgf_node.next[key]);
-					pend_game_tree_node.push(this.game_tree.actual_move);
-				}
-			}
-
-			while (this.game_tree.actual_move != this.game_tree.root) {
-				tmp = this.game_tree.prev();
-				this.undo_play(tmp);
-				if (tmp instanceof Play) {
-					this.next_move = (this.next_move == "W" ? "B" : "W");
-				}
-			}
-
-			this.render_tree();
-
-		} else {
-			//throw new Error("Empty / Wrong SGF");
-			return false;
-		}
-
-		this.sgf.status = SGFPARSER_ST_LOADED;
-		return true;
 	},
 
 	render: function() {
@@ -1185,6 +1072,60 @@ GoSpeed.prototype = {
 		}
 	},
 
+	update_my_colour: function(white_player, black_player) {
+		if (this.my_nick != undefined) {
+			if (black_player == this.my_nick && white_player == this.my_nick) {
+				this.change_my_colour("A");
+			} else if (black_player == this.my_nick) {
+				this.change_my_colour("B");
+			} else if (white_player == this.my_nick) {
+				this.change_my_colour("W");
+			} else {
+				this.change_my_colour("O");
+			}
+		} else {
+			this.change_my_colour("O");
+		}
+	},
+
+	diff_update_game: function(data) {
+		// Clear and change size if required
+		if (data.size != undefined) {
+			this.change_size(Number(data.size));
+		}
+
+		// Check SGF status and load sgf if necesary
+		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
+			this.update_game(data);
+			return false;
+		}
+
+		// Flag fast forward after update
+		//var to_end = (this.actual_turn == this.turn_count);
+		var to_end = true;
+
+		// Change my colour if player has changed
+		this.update_my_colour(data.white_player, data.black_player);
+
+		// Compare SGF and add only new moves
+		if (data.moves != undefined && data.moves != null) {
+			this.sgf.add_moves(this, data.moves);
+		}
+
+		if (to_end) {
+			// Fast forward
+			this.goto_end();
+		}
+
+		// Update timer
+		if (this.timer != undefined) {
+			this.timer.resume(this.next_move); // XXX Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
+			if (data.time_adjustment) {
+				this.timer.adjust(data.time_adjustment);
+			}
+		}
+	},
+
 	update_game: function(data) {
 		this.clear();
 
@@ -1219,7 +1160,7 @@ GoSpeed.prototype = {
 		sSgf += ")";
 
 		this.sgf = new SGFParser(sSgf);
-		this.load_sgf();
+		this.sgf.load(this);
 		this.render();
 		this.goto_end();
 		if (this.timer != undefined) {

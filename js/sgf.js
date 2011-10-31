@@ -278,7 +278,7 @@ SGFParser.prototype = {
 				if (board.next_move == "B" && sgf_node.B) {
 					move = sgf_node.B;
 					time_left = sgf_node.BL;
-				} else if (sgf_node.W) {
+				} else if (board.next_move == "W" && sgf_node.W) {
 					move = sgf_node.W;
 					time_left = sgf_node.WL;
 				} else {
@@ -385,7 +385,11 @@ SGFParser.prototype = {
 		// Rewind game so goto_end method can draw it.
 		// XXX depending on user focus this could be wrong, maybe the correct is rewind until you reach the user focus.
 		// XXX in fact, depending on the focus i might have to rewind before all this loading...
-		this.rewind_game(game, new_moves_count);
+
+		// XXX Added condition, maybe helps...
+		if (game.attached) {
+			this.rewind_game(game, new_moves_count);
+		}
 
 		return true;
 	},

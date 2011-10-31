@@ -536,6 +536,23 @@ GoGraphic.prototype = {
 		this.div_board.innerHTML = "";
 	},
 
+	redraw: function() {
+		this.clear();
+		this.render();
+		var color;
+		for (var i = 0, li = this.game.size; i < li; ++i) {
+			for (var j = 0; j < li; ++j) {
+				color = this.game.grid[i][j];
+				if (color != undefined) {
+					this.put_stone(color, i, j);
+				}
+			}
+		}
+		var play = this.game.game_tree.actual_move.play;
+		this.refresh_ko(play);
+		this.place_last_stone_marker(play.put);
+	},
+
 	validate_and_load_divs: function() {
 		if (this.game.div_id_board != undefined) {
 			this.div_board = document.getElementById(this.game.div_id_board);

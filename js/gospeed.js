@@ -15,13 +15,24 @@ GoSpeed.prototype = {
 		this.ruleset = args.ruleset;
 		this.komi = args.komi;
 		this.next_move = "B";
+		this.global_next_move = "B";
 		this.ko = undefined;
 
-	// Grid
+	// Grids
+		// XXX TODO FIXME Ok, we have a situation here.
+		// I want to have a version of the grid of the last state of the online game
+		// and a grid with the actual local info that te user is modifying. Should I
+		// use two different grids and modify all the functions to use one or the other,
+		// or rather I use this.grid as a pointer and implement two methods use_global() and
+		// use_local() to change the current scope. NOTE: if some day this shit becomes
+		// multithreaded, the second option will be sunken in the doomed world of concurrency.
+		// Official Game Grid
 		this.grid = Array(this.size);
 		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
+		this.global_grid = this.grid;
+		this.attached = true;
 
 	// Divs
 		// Board
@@ -782,6 +793,9 @@ GoSpeed.prototype = {
 		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
+		this.global_grid = this.grid;
+		this.local_grid = undefined;
+		this.attached = true;
 
 		// Timer
 		// TODO: i think this should be something like this.timer = undefined;
@@ -1096,23 +1110,28 @@ GoSpeed.prototype = {
 
 		// Check SGF status and load sgf if necesary
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
+			if (this.sgf.status == SGFPARSER_ST_ERROR) {
+				throw new Error("Reloading because SGFParser error: " + this.sgf.error);
+			}
 			this.update_game(data);
 			return false;
 		}
-
-		// Flag fast forward after update
-		//var to_end = (this.actual_turn == this.turn_count);
-		var to_end = true;
 
 		// Change my colour if player has changed
 		this.update_my_colour(data.white_player, data.black_player);
 
 		// Compare SGF and add only new moves
 		if (data.moves != undefined && data.moves != null) {
-			this.sgf.add_moves(this, data.moves);
+			if (!this.attached) {
+				this.attach_head(true);
+				this.sgf.add_moves(this, data.moves);
+				this.detach_head(true);
+			} else {
+				this.sgf.add_moves(this, data.moves);
+			}
 		}
 
-		if (to_end) {
+		if (this.attached) {
 			// Fast forward
 			this.goto_end();
 		}
@@ -1169,6 +1188,56 @@ GoSpeed.prototype = {
 				this.timer.adjust(data.time_adjustment);
 			}
 		}
-	}
+	},
+
+	detach_head: function(no_redraw) {
+		// Only detach if is not detached.
+		if (this.grid == this.global_grid) {
+			// If there is no local grid, create it copying the global.
+			if (this.local_grid == undefined) {
+				this.local_grid = [];
+				for (var i = 0, li = this.size; i < li; ++i) {
+					this.local_grid.push(this.grid[i].slice());
+				}
+			}
+			if (this.game_tree.local_head == undefined) {
+				this.game_tree.local_head = this.game_tree.actual_move;
+			}
+			if (this.local_next_move == undefined) {
+				this.local_next_move = this.next_move.charAt(0);
+			}
+			// Set new grid and save global game_tree node.
+			this.grid = this.local_grid;
+			this.game_tree.global_head = this.game_tree.actual_move;
+			this.game_tree.actual_move = this.game_tree.local_head;
+			this.global_next_move = this.next_move.charAt(0);
+			this.next_move = this.local_next_move.charAt(0);
+			//this.next_move = (this.game_tree.actual_move.prev.play.put.color == "W" ? "B" : "W");
+			this.attached = false;
+			if (!no_redraw) {
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+			}
+		}
+	},
+
+	attach_head: function(no_redraw) {
+		// Only detach if is not already attached.
+		if (this.grid != this.global_grid) {
+			this.grid = this.global_grid;
+			this.game_tree.local_head = this.game_tree.actual_move;
+			this.game_tree.actual_move = this.game_tree.global_head;
+			this.local_next_move = this.next_move.charAt(0);
+			this.next_move = this.global_next_move.charAt(0);
+			//this.next_move = (this.game_tree.actual_move.prev.play.put.color == "W" ? "B" : "W");
+			this.attached = true;
+			if (!no_redraw) {
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+			}
+		}
+	},
 }
 

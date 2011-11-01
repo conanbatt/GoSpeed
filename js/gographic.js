@@ -549,7 +549,9 @@ GoGraphic.prototype = {
 		}
 		var play = this.game.game_tree.actual_move.play;
 		this.refresh_ko(play);
-		this.place_last_stone_marker(play.put);
+		if (play instanceof Play) {
+			this.place_last_stone_marker(play.put);
+		}
 	},
 
 	validate_and_load_divs: function() {

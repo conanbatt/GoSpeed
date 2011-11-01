@@ -1121,9 +1121,6 @@ GoSpeed.prototype = {
 
 		// Check SGF status and load sgf if necesary
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
-			if (this.sgf.status == SGFPARSER_ST_ERROR) {
-				throw new Error("Reloading because SGFParser error: " + this.sgf.error);
-			}
 			this.update_game(data);
 			return false;
 		}

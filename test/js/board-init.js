@@ -22,7 +22,7 @@ test("Ruleset", function() {
 });
 
 test("Next move", function() {
-	equal(this.gospeed.next_move, "B", "The first move should belong to 'B' player.");
+	equal(this.gospeed.get_next_move(), "B", "The first move should belong to 'B' player.");
 });
 
 test("Ko", function() {
@@ -111,7 +111,7 @@ test("Ruleset", function() {
 });
 
 test("Next move", function() {
-	equal(this.gospeed.next_move, "B", "The first move should belong to 'B' player.");
+	equal(this.gospeed.get_next_move(), "B", "The first move should belong to 'B' player.");
 });
 
 test("Ko", function() {

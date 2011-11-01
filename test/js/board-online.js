@@ -64,8 +64,8 @@ module("OnlineSuite", {
 });
 
 test("Initialization", function() {
-	equal(this.gospeed.next_move, "B", "Board 1: first move is 'B'.");
-	equal(this.gospeed2.next_move, "B", "Board 2: first move is 'B'.");
+	equal(this.gospeed.get_next_move(), "B", "Board 1: first move is 'B'.");
+	equal(this.gospeed2.get_next_move(), "B", "Board 2: first move is 'B'.");
 
 	equal(this.gospeed.my_colour, "W", "Board 1: first to connect has colour 'W'.");
 	equal(this.gospeed2.my_colour, "B", "Board 2: second to connect has colour 'B'.");
@@ -90,7 +90,7 @@ test("Ruleset", function() {
 });
 
 test("Next move", function() {
-	equal(this.gospeed.next_move, "B", "The first move should belong to 'B' player.");
+	equal(this.gospeed.get_next_move(), "B", "The first move should belong to 'B' player.");
 });
 
 test("Ko", function() {
@@ -151,7 +151,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(1, 1), "B", "Board 1: get_pos(1, 1) returns 'B'.");
 			equal(this.gospeed.grid[1][1], "B", "Board 1: grid position [1][1] has 'B'.");
 			equal(this.gospeed.ko, undefined, "Board 1: ko is undefined.");
-			equal(this.gospeed.next_move, "W", "Board 1: next_move is now 'W'.");
+			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 1, 1), "Board 1: actual move is a 'B' stone on (1, 1).");
 			equal(this.gospeed.turn_count, 1, "Board 1: we have had only one turn.");
@@ -165,7 +165,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(1, 1), "B", "Board 2: get_pos(1, 1) returns 'B'.");
 			equal(this.gospeed2.grid[1][1], "B", "Board 2: grid position [1][1] has 'B'.");
 			equal(this.gospeed2.ko, undefined, "Board 2: ko is undefined.");
-			equal(this.gospeed2.next_move, "W", "Board 2: next_move is now 'W'.");
+			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 1, 1), "Board 2: actual move is a 'B' stone on (1, 1).");
 			equal(this.gospeed2.turn_count, 1, "Board 2: we have had only one turn.");
@@ -182,7 +182,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(1, 0), "W", "Board 1: get_pos(1, 0) returns 'B'.");
 			equal(this.gospeed.grid[1][0], "W", "Board 1: grid position [1][0] has 'B'.");
 			equal(this.gospeed.ko, undefined, "Board 1: ko is undefined.");
-			equal(this.gospeed.next_move, "B", "Board 1: next_move is now 'W'.");
+			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 1, 0), "Board 1: actual move is a 'W' stone on (1, 0).");
 			equal(this.gospeed.turn_count, 2, "Board 1: we have had 2 turns.");
@@ -196,7 +196,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(1, 0), "W", "Board 2: get_pos(1, 0) returns 'B'.");
 			equal(this.gospeed2.grid[1][0], "W", "Board 2: grid position [1][0] has 'B'.");
 			equal(this.gospeed2.ko, undefined, "Board 2: ko is undefined.");
-			equal(this.gospeed2.next_move, "B", "Board 2: next_move is now 'W'.");
+			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 1, 0), "Board 2: actual move is a 'W' stone on (1, 0).");
 			equal(this.gospeed2.turn_count, 2, "Board 2: we have had 2 turns.");
@@ -213,7 +213,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(0, 2), "B", "Board 1: get_pos(0, 2) returns 'B'.");
 			equal(this.gospeed.grid[0][2], "B", "Board 1: grid position [0][2] has 'B'.");
 			equal(this.gospeed.ko, undefined, "Board 1: ko is undefined.");
-			equal(this.gospeed.next_move, "W", "Board 1: next_move is now 'W'.");
+			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 0, 2), "Board 1: actual move is a 'B' stone on (0, 2).");
 			equal(this.gospeed.turn_count, 3, "Board 1: we have had 3 turns.");
@@ -227,7 +227,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(0, 2), "B", "Board 2: get_pos(0, 2) returns 'B'.");
 			equal(this.gospeed2.grid[0][2], "B", "Board 2: grid position [0][2] has 'B'.");
 			equal(this.gospeed2.ko, undefined, "Board 2: ko is undefined.");
-			equal(this.gospeed2.next_move, "W", "Board 2: next_move is now 'W'.");
+			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 0, 2), "Board 2: actual move is a 'B' stone on (0, 2).");
 			equal(this.gospeed2.turn_count, 3, "Board 2: we have had 3 turns.");
@@ -244,7 +244,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(0, 1), "W", "Board 1: get_pos(0, 1) returns 'B'.");
 			equal(this.gospeed.grid[0][1], "W", "Board 1: grid position [0][1] has 'B'.");
 			equal(this.gospeed.ko, undefined, "Board 1: ko is undefined.");
-			equal(this.gospeed.next_move, "B", "Board 1: next_move is now 'W'.");
+			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 1: actual move is a 'W' stone on (0, 1).");
 			equal(this.gospeed.turn_count, 4, "Board 1: we have had 4 turns.");
@@ -258,7 +258,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(1, 0), "W", "Board 2: get_pos(0, 1) returns 'B'.");
 			equal(this.gospeed2.grid[0][1], "W", "Board 2: grid position [0][1] has 'B'.");
 			equal(this.gospeed2.ko, undefined, "Board 2: ko is undefined.");
-			equal(this.gospeed2.next_move, "B", "Board 2: next_move is now 'W'.");
+			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 2: actual move is a 'W' stone on (0, 1).");
 			equal(this.gospeed2.turn_count, 4, "Board 2: we have had 4 turns.");
@@ -277,7 +277,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(0, 1), undefined, "Board 1: get_pos(0, 1) returns undefined.");
 			equal(this.gospeed.grid[0][1], undefined, "Board 1: grid position [0][1] has undefined.");
 			deepEqual(this.gospeed.ko, {row: 0, col: 1}, "Board 1: position (0, 1) is ko.");
-			equal(this.gospeed.next_move, "W", "Board 1: next_move is now 'W'.");
+			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 0, 0), "Board 1: actual move is a 'B' stone on (0, 0).");
 			equal(this.gospeed.turn_count, 5, "Board 1: we have had 5 turns.");
@@ -293,7 +293,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(0, 1), undefined, "Board 2: get_pos(0, 1) returns undefined.");
 			equal(this.gospeed2.grid[0][1], undefined, "Board 2: grid position [0][1] has undefined.");
 			deepEqual(this.gospeed2.ko, {row: 0, col: 1}, "Board 2: position (0, 1) is ko.");
-			equal(this.gospeed2.next_move, "W", "Board 2: next_move is now 'W'.");
+			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 0, 0), "Board 2: actual move is a 'B' stone on (0, 0).");
 			equal(this.gospeed2.turn_count, 5, "Board 2: we have had 5 turns.");
@@ -325,7 +325,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_pos(0, 0), undefined, "Board 1: get_pos(0, 0) returns undefined.");
 			equal(this.gospeed.grid[0][0], undefined, "Board 1: grid position [0][0] has undefined.");
 			deepEqual(this.gospeed.ko, {row: 0, col: 0}, "Board 1: position (0, 0) is ko.");
-			equal(this.gospeed.next_move, "B", "Board 1: next_move is now 'B'.");
+			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'B'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 1: actual move is a 'W' stone on (0, 1).");
 			equal(this.gospeed.turn_count, 16, "Board 1: we have had 16 turns.");
@@ -339,7 +339,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_pos(0, 0), undefined, "Board 2: get_pos(0, 0) returns undefined.");
 			equal(this.gospeed2.grid[0][0], undefined, "Board 2: grid position [0][0] has undefined.");
 			deepEqual(this.gospeed2.ko, {row: 0, col: 0}, "Board 2: position (0, 0) is ko.");
-			equal(this.gospeed2.next_move, "B", "Board 2: next_move is now 'B'.");
+			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'B'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 2: actual move is a 'W' stone on (0, 1).");
 			equal(this.gospeed2.turn_count, 16, "Board 2: we have had 16 turns.");

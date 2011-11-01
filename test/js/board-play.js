@@ -45,9 +45,9 @@ test("put_stone - get_pos: combined stone-placing / position-checking method", f
 });
 
 test("play: in-game stone-placing method", function() {
-	equal(this.gospeed.next_move, "B", "At the begining, next_move should be 'B'.");
+	equal(this.gospeed.get_next_move(), "B", "At the begining, next_move should be 'B'.");
 	this.gospeed.play(4, 4);
 	equal(this.gospeed.get_pos(4, 4), "B", "After we play in (4, 4) the stone in that position should be 'B'.");
-	equal(this.gospeed.next_move, "W", "After the first move, next_move should be 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "After the first move, next_move should be 'W'.");
 });
 

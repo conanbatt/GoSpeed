@@ -48,7 +48,7 @@ test("Ruleset", function() {
 });
 
 test("Next move", function() {
-	equal(this.gospeed.next_move, "W", "There is handicap, the first move belongs to 'W' player.");
+	equal(this.gospeed.get_next_move(), "W", "There is handicap, the first move belongs to 'W' player.");
 });
 
 test("Ko", function() {
@@ -68,18 +68,18 @@ test("Handicap", function() {
 });
 
 test("Game and Seek", function() {
-	equal(this.gospeed.next_move, "W", "Handicap: first move belongs to 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "Handicap: first move belongs to 'W'.");
 	this.gospeed.prev();
-	equal(this.gospeed.next_move, "W", "No previous move, next move still belongs to 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "No previous move, next move still belongs to 'W'.");
 	this.gospeed.next();
-	equal(this.gospeed.next_move, "B", "Next move belongs to 'B'.");
+	equal(this.gospeed.get_next_move(), "B", "Next move belongs to 'B'.");
 	this.gospeed.next();
-	equal(this.gospeed.next_move, "W", "Next move belongs to 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "Next move belongs to 'W'.");
 	this.gospeed.next();
-	equal(this.gospeed.next_move, "B", "Next move belongs to 'B'.");
+	equal(this.gospeed.get_next_move(), "B", "Next move belongs to 'B'.");
 	this.gospeed.next();
-	equal(this.gospeed.next_move, "W", "Next move belongs to 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "Next move belongs to 'W'.");
 	this.gospeed.next();
-	equal(this.gospeed.next_move, "W", "No more moves, next move still belongs to 'W'.");
+	equal(this.gospeed.get_next_move(), "W", "No more moves, next move still belongs to 'W'.");
 });
 

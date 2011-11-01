@@ -180,7 +180,7 @@ GoSpeed.prototype = {
 			for (var stone in play.put) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
-		} else {
+		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
@@ -199,7 +199,7 @@ GoSpeed.prototype = {
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
-		} else {
+		} else if (play instanceof Play) {
 			this.remove_stone(play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
@@ -293,13 +293,13 @@ GoSpeed.prototype = {
 			if (node.play == null) {
 				return "B";
 			}
-			if (node.play instanceof Play) {
-				return (node.play.put.color == "W" ? "B" : "W");
-			} else {
+			if (node.play instanceof FreePlay) {
 				node = node.prev;
 				if (node == null) {
 					return "W";
 				}
+			} else {
+				return (node.play.put.color == "W" ? "B" : "W");
 			}
 		}
 	},
@@ -307,6 +307,7 @@ GoSpeed.prototype = {
 //	Game Seek
 	prev: function() {
 		if (this.attached) {
+			// TODO: what if we're playing offline?
 			this.detach_head();
 		}
 		var play = this.game_tree.prev();
@@ -573,6 +574,63 @@ GoSpeed.prototype = {
 
 	is_my_turn: function() {
 		return (this.my_colour == "A" || this.my_colour == this.get_next_move());
+	},
+
+	pass: function() {
+		var bRes;
+		switch(this.mode) {
+			case "play":
+				// Setup
+				if (this.timer != undefined) {
+					this.timer.pause();
+				}
+
+				this.game_tree.append(new GameNode(new Pass(this.get_next_move())));
+				this.ko = undefined;
+				if (this.shower != undefined) {
+					this.shower.clear_ko();
+					this.shower.clear_last_stone_markers();
+				}
+
+				if (this.timer != undefined) {
+					this.timer.resume(this.get_next_move());
+					this.timer.tick();
+				}
+
+				bRes = true;
+
+			break;
+			case "play_online":
+				// Not my turn.
+				if (!this.is_my_turn()) {
+					return false;
+				}
+
+				var tmp_remain;
+				if (this.timer != undefined) {
+					tmp_remain = this.timer.pause();
+				}
+
+				var tmp_play = new Pass(this.get_next_move())
+				this.game_tree.append(new GameNode(tmp_play));
+				this.ko = undefined;
+				if (this.shower != undefined) {
+					this.shower.clear_ko();
+					this.shower.clear_last_stone_markers();
+				}
+
+				if (this.sgf != undefined) {
+					this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
+					// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
+				}
+				this.turn_count++;
+				this.send_play(tmp_play, tmp_remain);
+				bRes = true;
+
+			break;
+		}
+
+		return bRes;
 	},
 
 //	Auxiliar functions
@@ -1082,7 +1140,11 @@ GoSpeed.prototype = {
 		var res = ";";
 
 		// Move property
-		res += play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
+		if (play instanceof Play) {
+			res += play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
+		} else if (play instanceof Pass) {
+			res += play.put.color + "[]";
+		}
 
 		// Time left property
 		if (remain) {

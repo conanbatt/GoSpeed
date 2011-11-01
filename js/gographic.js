@@ -114,6 +114,7 @@ GoGraphic.prototype = {
 	},
 
 	draw_play: function(play) {
+		this.clear_last_stone_markers();
 		if (play instanceof FreePlay) {
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
@@ -121,8 +122,7 @@ GoGraphic.prototype = {
 			for (var stone in play.put) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
-			this.clear_last_stone_markers();
-		} else {
+		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			this.place_last_stone_marker(play.put);
 			for (var stone in play.remove) {
@@ -140,7 +140,7 @@ GoGraphic.prototype = {
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
-		} else {
+		} else if (play instanceof Play) {
 			this.remove_stone(play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);

@@ -79,6 +79,15 @@
 		}
 	}
 
+// Pass
+	function Pass(color) {
+		if (color == "W" || color == "B") {
+			this.put = {"color": color};
+		} else {
+			throw new Error("Pass requires a color.");
+		}
+	}
+
 // Game tree
 	function GameTree() {
 		this.root = new GameNode(null);

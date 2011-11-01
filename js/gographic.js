@@ -318,7 +318,7 @@ GoGraphic.prototype = {
 					t_stone = this.t_white;
 				break;
 				case "play":
-					if (this.game.next_move == "B") {
+					if (this.game.get_next_move() == "B") {
 						t_stone = this.t_black;
 					} else {
 						t_stone = this.t_white;
@@ -326,7 +326,7 @@ GoGraphic.prototype = {
 				break;
 				case "play_online":
 					if (this.game.is_my_turn()) {
-						if (this.game.next_move == "B") {
+						if (this.game.get_next_move() == "B") {
 							t_stone = this.t_black;
 						} else {
 							t_stone = this.t_white;
@@ -336,7 +336,6 @@ GoGraphic.prototype = {
 					}
 				break;
 			}
-
 
 			if (t_stone == null) {
 				this.clean_t_stones();
@@ -363,7 +362,7 @@ GoGraphic.prototype = {
 				return false;
 			}
 
-			var tmp_play = new Play(this.game.next_move, row, col);
+			var tmp_play = new Play(this.game.get_next_move(), row, col);
 			this.game.play_eat(tmp_play);
 			if (this.game.play_check_suicide(tmp_play)) {
 				t_stone.style.display = "none";

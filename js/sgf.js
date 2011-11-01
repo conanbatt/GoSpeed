@@ -231,7 +231,6 @@ SGFParser.prototype = {
 			}
 		}
 		if (sgf_node.HA != undefined) {
-			board.next_move = "W";
 			if (sgf_node.AB != undefined) {
 				sgf_node.AB = [].concat(sgf_node.AB);
 				var handicap = new FreePlay();
@@ -244,8 +243,6 @@ SGFParser.prototype = {
 					board.shower.draw_play(handicap);
 				}
 			}
-		} else {
-			board.next_move = "B";
 		}
 	},
 
@@ -267,18 +264,14 @@ SGFParser.prototype = {
 			while (board.game_tree.actual_move != tree_node) {
 				tmp = board.game_tree.prev();
 				board.undo_play(tmp);
-				if (tmp instanceof Play) {
-					// This IF could be out of the loop, checking who's turn is next.
-					board.next_move = (board.next_move == "W" ? "B" : "W");
-				}
 			}
 		// do: play sgf_node contents at board point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
 			if (sgf_node.B || sgf_node.W) {
-				if (board.next_move == "B" && sgf_node.B) {
+				if (board.get_next_move() == "B" && sgf_node.B) {
 					move = sgf_node.B;
 					time_left = sgf_node.BL;
-				} else if (board.next_move == "W" && sgf_node.W) {
+				} else if (board.get_next_move() == "W" && sgf_node.W) {
 					move = sgf_node.W;
 					time_left = sgf_node.WL;
 				} else {
@@ -291,7 +284,7 @@ SGFParser.prototype = {
 					board.turn_count++;
 					throw new Error("Pass not implemented");
 					return false;
-					this.moves_loaded += ";" + board.next_move + "[" + move + "]";
+					this.moves_loaded += ";" + board.get_next_move() + "[" + move + "]";
 				} else {
 					tmp = board.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
 					if (!tmp) {
@@ -299,14 +292,13 @@ SGFParser.prototype = {
 						this.error = "Illegal move or such...";
 						return false;
 					}
+					this.moves_loaded += ";" + board.get_next_move() + "[" + move + "]";
 					board.game_tree.append(new GameNode(tmp));
 					board.make_play(tmp);
 					if (time_left != undefined && board.timer != undefined) {
-						board.timer.set_remain(board.next_move, time_left);
+						board.timer.set_remain(board.get_next_move(), time_left);
 					}
-					this.moves_loaded += ";" + board.next_move + "[" + move + "]";
 					if (tmp instanceof Play) {
-						board.next_move = (board.next_move == "W" ? "B" : "W");
 						board.turn_count++;
 					}
 				}
@@ -324,9 +316,6 @@ SGFParser.prototype = {
 		while (board.game_tree.actual_move != board.game_tree.root) {
 			tmp = board.game_tree.prev();
 			board.undo_play(tmp);
-			if (tmp instanceof Play) {
-				board.next_move = (board.next_move == "W" ? "B" : "W");
-			}
 			if (limit != undefined) {
 				limit--;
 				if (limit <= 0) {

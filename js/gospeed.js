@@ -14,8 +14,6 @@ GoSpeed.prototype = {
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
 		this.komi = args.komi;
-		this.next_move = "B";
-		this.global_next_move = "B";
 		this.ko = undefined;
 
 	// Grids
@@ -290,7 +288,25 @@ GoSpeed.prototype = {
 			// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 		}
 		this.turn_count++;
-		this.next_move = (this.next_move == "W" ? "B" : "W");
+	},
+
+	// Next move method
+	get_next_move: function() {
+		var node = this.game_tree.actual_move;
+		// XXX Danger, while true;
+		while(true) {
+			if (node.play == null) {
+				return "B";
+			}
+			if (node.play instanceof Play) {
+				return (node.play.put.color == "W" ? "B" : "W");
+			} else {
+				node = node.prev;
+				if (node == null) {
+					return "W";
+				}
+			}
+		}
 	},
 
 //	Game Seek
@@ -305,9 +321,6 @@ GoSpeed.prototype = {
 					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
 				}
 				this.shower.update_captures();
-			}
-			if (play instanceof Play) {
-				this.next_move = (this.next_move == "W" ? "B" : "W");
 			}
 		}
 
@@ -339,10 +352,6 @@ GoSpeed.prototype = {
 			}
 		} else {
 			return false;
-		}
-
-		if (play instanceof Play) {
-			this.next_move = (this.next_move == "W" ? "B" : "W");
 		}
 
 		if (this.shower) {
@@ -398,7 +407,7 @@ GoSpeed.prototype = {
 					this.commit_play(tmp_play);
 
 					if (this.timer != undefined) {
-						this.timer.resume(this.next_move);
+						this.timer.resume(this.get_next_move());
 						this.timer.tick();
 					}
 
@@ -542,7 +551,7 @@ GoSpeed.prototype = {
 		}
 
 		// Place stone
-		var tmp_play = new Play(this.next_move, row, col);
+		var tmp_play = new Play(this.get_next_move(), row, col);
 
 		// Eat stones if surrounded
 		this.play_eat(tmp_play);
@@ -559,7 +568,7 @@ GoSpeed.prototype = {
 	},
 
 	is_my_turn: function() {
-		return (this.my_colour == "A" || this.my_colour == this.next_move);
+		return (this.my_colour == "A" || this.my_colour == this.get_next_move());
 	},
 
 //	Auxiliar functions
@@ -785,7 +794,6 @@ GoSpeed.prototype = {
 	},
 
 	clear: function() {
-		this.next_move = "B";
 		this.ko = undefined;
 
 		// Grid
@@ -1138,7 +1146,7 @@ GoSpeed.prototype = {
 
 		// Update timer
 		if (this.timer != undefined) {
-			this.timer.resume(this.next_move); // XXX Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
+			this.timer.resume(this.get_next_move()); // XXX Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
 			if (data.time_adjustment) {
 				this.timer.adjust(data.time_adjustment);
 			}
@@ -1183,7 +1191,7 @@ GoSpeed.prototype = {
 		this.render();
 		this.goto_end();
 		if (this.timer != undefined) {
-			this.timer.resume(this.next_move);
+			this.timer.resume(this.get_next_move());
 			if (data.time_adjustment) {
 				this.timer.adjust(data.time_adjustment);
 			}
@@ -1203,16 +1211,10 @@ GoSpeed.prototype = {
 			if (this.game_tree.local_head == undefined) {
 				this.game_tree.local_head = this.game_tree.actual_move;
 			}
-			if (this.local_next_move == undefined) {
-				this.local_next_move = this.next_move.charAt(0);
-			}
 			// Set new grid and save global game_tree node.
 			this.grid = this.local_grid;
 			this.game_tree.global_head = this.game_tree.actual_move;
 			this.game_tree.actual_move = this.game_tree.local_head;
-			this.global_next_move = this.next_move.charAt(0);
-			this.next_move = this.local_next_move.charAt(0);
-			//this.next_move = (this.game_tree.actual_move.prev.play.put.color == "W" ? "B" : "W");
 			this.attached = false;
 			if (!no_redraw) {
 				if (this.shower != undefined) {
@@ -1228,9 +1230,6 @@ GoSpeed.prototype = {
 			this.grid = this.global_grid;
 			this.game_tree.local_head = this.game_tree.actual_move;
 			this.game_tree.actual_move = this.game_tree.global_head;
-			this.local_next_move = this.next_move.charAt(0);
-			this.next_move = this.global_next_move.charAt(0);
-			//this.next_move = (this.game_tree.actual_move.prev.play.put.color == "W" ? "B" : "W");
 			this.attached = true;
 			if (!no_redraw) {
 				if (this.shower != undefined) {

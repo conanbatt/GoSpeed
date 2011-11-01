@@ -283,11 +283,6 @@ GoSpeed.prototype = {
 			this.shower.draw_play(play);
 			this.shower.update_captures();
 		}
-		if (this.sgf != undefined) {
-			this.sgf.moves_loaded += this.data_to_sgf_node(play);
-			// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
-		}
-		this.turn_count++;
 	},
 
 	// Next move method
@@ -435,6 +430,12 @@ GoSpeed.prototype = {
 				if (tmp_play) {
 					// Commit
 					this.commit_play(tmp_play);
+					if (this.sgf != undefined) {
+						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
+						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
+					}
+					this.game_tree.actual_move.turn_number = this.turn_count;
+					this.turn_count++;
 					this.send_play(tmp_play, tmp_remain);
 					bRes = true;
 				}
@@ -1215,6 +1216,7 @@ GoSpeed.prototype = {
 			this.grid = this.local_grid;
 			this.game_tree.global_head = this.game_tree.actual_move;
 			this.game_tree.actual_move = this.game_tree.local_head;
+			this.change_mode("play");
 			this.attached = false;
 			if (!no_redraw) {
 				if (this.shower != undefined) {
@@ -1230,6 +1232,7 @@ GoSpeed.prototype = {
 			this.grid = this.global_grid;
 			this.game_tree.local_head = this.game_tree.actual_move;
 			this.game_tree.actual_move = this.game_tree.global_head;
+			this.change_mode("play_online");
 			this.attached = true;
 			if (!no_redraw) {
 				if (this.shower != undefined) {

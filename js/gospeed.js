@@ -311,6 +311,9 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function() {
+		if (this.attached) {
+			this.detach_head();
+		}
 		var play = this.game_tree.prev();
 		if (play) {
 			this.undo_play(play);
@@ -1132,7 +1135,7 @@ GoSpeed.prototype = {
 		if (data.moves != undefined && data.moves != null) {
 			if (!this.attached) {
 				this.attach_head(true);
-				this.sgf.add_moves(this, data.moves);
+				this.sgf.add_moves(this, data.moves, true);
 				this.detach_head(true);
 			} else {
 				this.sgf.add_moves(this, data.moves);

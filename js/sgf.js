@@ -325,7 +325,7 @@ SGFParser.prototype = {
 		}
 	},
 
-	add_moves: function(game, sgf) {
+	add_moves: function(game, sgf, no_rewind) {
 		var only_moves = this.parse_only_moves(sgf);
 		var only_moves_loaded;
 		// Check if the moves we have already loaded are the same that have arrived.
@@ -376,7 +376,7 @@ SGFParser.prototype = {
 		// XXX in fact, depending on the focus i might have to rewind before all this loading...
 
 		// XXX Added condition, maybe helps...
-		if (game.attached) {
+		if (!no_rewind) {
 			this.rewind_game(game, new_moves_count);
 		}
 

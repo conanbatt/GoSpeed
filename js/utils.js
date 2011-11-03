@@ -91,6 +91,7 @@
 // Game tree
 	function GameTree() {
 		this.root = new GameNode(null);
+		this.root.root = true;
 		this.actual_move = this.root;
 	}
 

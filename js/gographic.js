@@ -549,6 +549,7 @@ GoGraphic.prototype = {
 		}
 		var play = this.game.game_tree.actual_move.play;
 		this.refresh_ko(play);
+		this.game.update_captures(play);
 		if (play instanceof Play) {
 			this.place_last_stone_marker(play.put);
 		}

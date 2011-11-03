@@ -184,7 +184,6 @@ GoSpeed.prototype = {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
-				this.captured[play.remove[stone].color]++;
 			}
 			this.ko = play.ko;
 		}
@@ -203,7 +202,6 @@ GoSpeed.prototype = {
 			this.remove_stone(play.put.row, play.put.col);
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
-				this.captured[play.remove[stone].color]--;
 			}
 			this.ko = undefined;
 		}
@@ -279,9 +277,9 @@ GoSpeed.prototype = {
 	commit_play: function(play) {
 		this.game_tree.append(new GameNode(play));
 		this.make_play(play);
+		this.update_captures(play);
 		if (this.shower) {
 			this.shower.draw_play(play);
-			this.shower.update_captures();
 		}
 	},
 
@@ -304,6 +302,15 @@ GoSpeed.prototype = {
 		}
 	},
 
+	// Takes a play and updates the game and graphics captures
+	update_captures: function(play) {
+		this.captured = play.captured;
+		if (this.shower) {
+			this.shower.update_captures();
+		}
+	},
+
+
 //	Game Seek
 	prev: function() {
 		if (this.attached) {
@@ -319,13 +326,13 @@ GoSpeed.prototype = {
 				if (this.game_tree.actual_move.play instanceof Play) {
 					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
 				}
-				this.shower.update_captures();
 			}
 		}
 
 		play = this.game_tree.actual_move.play;
 		if (play) {
 			this.refresh_ko(play);
+			this.update_captures(play);
 			if (this.shower) {
 				this.shower.refresh_ko(play);
 			}
@@ -345,9 +352,9 @@ GoSpeed.prototype = {
 		var play = this.game_tree.next();
 		if (play) {
 			this.make_play(play);
+			this.update_captures(play);
 			if (this.shower) {
 				this.shower.draw_play(play);
-				this.shower.update_captures();
 			}
 		} else {
 			return false;
@@ -568,6 +575,17 @@ GoSpeed.prototype = {
 
 		// Update play's ko.
 		this.play_check_ko(tmp_play);
+
+		// Set game captures when this play ocurs.
+		var actual_move = this.game_tree.actual_move;
+		if (actual_move.root != undefined && actual_move.root) {
+			tmp_play.captured = {"B": 0, "W": 0};
+		} else {
+			tmp_play.captured = Object.create(actual_move.play.captured);
+		}
+		for (var stone in tmp_play.remove) {
+			tmp_play.captured[tmp_play.remove[stone].color]++;
+		}
 
 		return tmp_play;
 	},

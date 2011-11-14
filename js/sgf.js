@@ -292,7 +292,7 @@ SGFParser.prototype = {
 						this.error = "Illegal move or such...";
 						return false;
 					}
-					this.moves_loaded += ";" + board.get_next_move() + "[" + move + "]";
+					this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
 					board.game_tree.append(new GameNode(tmp));
 					board.make_play(tmp);
 					if (time_left != undefined && board.timer != undefined) {

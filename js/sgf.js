@@ -234,6 +234,7 @@ SGFParser.prototype = {
 			if (sgf_node.AB != undefined) {
 				sgf_node.AB = [].concat(sgf_node.AB);
 				var handicap = new FreePlay();
+				handicap.captured = {"B": 0, "W": 0};
 				board.game_tree.root.play = handicap;
 				for (var key in sgf_node.AB) {
 					handicap.put.push(new Stone("B", sgf_node.AB[key].charCodeAt(1) - 97, sgf_node.AB[key].charCodeAt(0) - 97));

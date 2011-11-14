@@ -160,7 +160,7 @@
 			}
 			var i, s, x;
 			if (arbol.next.length == 0) {
-				return cadena += (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + ' - </span>');
+				return cadena += (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "&nbsp;F!" : completarAncho(nivel)) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "&nbsp;F!" : completarAncho(nivel)) + ' - </span>');
 			} else {
 				s = "";
 				x = "";
@@ -168,7 +168,7 @@
 					s += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 				}
 				s += "&nbsp;&nbsp;&bull;&nbsp;-&nbsp;";
-				x += this.recRunTree(arbol.next[0], cadena + (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "F!" : completarAncho(nivel)) + ' - </span>'), nivel + 1, sel && (arbol.last_next == arbol.next[0]))
+				x += this.recRunTree(arbol.next[0], cadena + (this.actual_move == arbol ? '<span style="' + (sel ? "color: #000;" : "color: #888;") + '"><span style="text-decoration: underline;">' + (arbol.play instanceof FreePlay ? "&nbsp;F!" : completarAncho(nivel)) + '</span> - </span>' : '<span style="' + (sel ? "color: #000;" : "color: #888;") + '">' + (arbol.play instanceof FreePlay ? "&nbsp;F!" : completarAncho(nivel)) + ' - </span>'), nivel + 1, sel && (arbol.last_next == arbol.next[0]))
 				for (var i = 1; i < arbol.next.length; i++) {
 					x += "<br />" + s + this.recRunTree(arbol.next[i], "", nivel + 1, sel && (arbol.last_next == arbol.next[i]));
 				}

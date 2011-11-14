@@ -468,6 +468,10 @@ GoSpeed.prototype = {
 				}
 
 				var actual_play = this.game_tree.actual_move.play;
+				if (actual_play.captured == undefined) {
+					// Assumed that previous play always has the captured property defined, no matter if it's a Play or FreePlay instance.
+					actual_play.captured = Object.create(this.game_tree.actual_move.prev.play.captured);
+				}
 
 				var put = actual_play.get_put_by_pos(row, col);
 				var rem = actual_play.get_rem_by_pos(row, col);

@@ -289,14 +289,15 @@ GoSpeed.prototype = {
 		var node = this.game_tree.actual_move;
 		// XXX Danger, while true;
 		while(true) {
-			if (node.play == null) {
-				return "B";
+			if (node.root) {
+				if (node.next_move != undefined) {
+					return node.next_move;
+				} else {
+					return "B";
+				}
 			}
 			if (node.play instanceof FreePlay) {
 				node = node.prev;
-				if (node == null) {
-					return "W";
-				}
 			} else {
 				return (node.play.put.color == "W" ? "B" : "W");
 			}

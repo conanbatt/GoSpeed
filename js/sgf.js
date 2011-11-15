@@ -230,20 +230,32 @@ SGFParser.prototype = {
 				board.timer = new AbsoluteTimer(board, sgf_node.TM);
 			}
 		}
-		if (sgf_node.HA != undefined) {
+		if (sgf_node.AB != undefined || sgf_node.AW != undefined) {
+			var free = new FreePlay();
+			free.captured = {"B": 0, "W": 0};
+			board.game_tree.root.play = free;
 			if (sgf_node.AB != undefined) {
 				sgf_node.AB = [].concat(sgf_node.AB);
-				var handicap = new FreePlay();
-				handicap.captured = {"B": 0, "W": 0};
-				board.game_tree.root.play = handicap;
 				for (var key in sgf_node.AB) {
-					handicap.put.push(new Stone("B", sgf_node.AB[key].charCodeAt(1) - 97, sgf_node.AB[key].charCodeAt(0) - 97));
-				}
-				board.make_play(handicap);
-				if (board.shower != undefined) {
-					board.shower.draw_play(handicap);
+					free.put.push(new Stone("B", sgf_node.AB[key].charCodeAt(1) - 97, sgf_node.AB[key].charCodeAt(0) - 97));
 				}
 			}
+			if (sgf_node.AW != undefined) {
+				sgf_node.AW = [].concat(sgf_node.AW);
+				for (var key in sgf_node.AW) {
+					free.put.push(new Stone("W", sgf_node.AW[key].charCodeAt(1) - 97, sgf_node.AW[key].charCodeAt(0) - 97));
+				}
+			}
+			board.make_play(free);
+			if (board.shower != undefined) {
+				board.shower.draw_play(free);
+			}
+		}
+		if (sgf_node.HA != undefined) {
+			board.game_tree.root.next_move = "W";
+		}
+		if (sgf_node.PL != undefined) {
+			board.game_tree.root.next_move = sgf_node.PL;
 		}
 	},
 

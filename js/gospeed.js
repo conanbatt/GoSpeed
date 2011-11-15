@@ -770,6 +770,20 @@ GoSpeed.prototype = {
 		}
 	},
 
+	var_to_string: function(tail) {
+		var s_res = "";
+		var tmp_node = this.game_tree.actual_move;
+		if (tmp_node.source != NODE_OFFLINE) {
+			throw new Error("Algo anda mal con este nodo.");
+		}
+		while((tmp_node.source == NODE_OFFLINE || !tail) && !tmp_node.root) {
+			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+			tmp_node = tmp_node.prev;
+		}
+		s_res = tmp_node.turn_number + s_res;
+		return s_res;
+	},
+
 //	Time commands
 	update_clocks: function(remain) {
 		if (this.shower != undefined) {

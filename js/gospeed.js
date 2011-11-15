@@ -789,6 +789,19 @@ GoSpeed.prototype = {
 		if (this.mode == "count" && mode != "count") {
 			this.quit_territory_counting();
 		}
+
+		if (mode == "free") {
+			if (this.shower != undefined) {
+				this.shower.clear_last_stone_markers();
+			}
+		}
+		if (mode == "play" || mode == "play_online") {
+			if (this.shower != undefined) {
+				if (this.game_tree.actual_move.play instanceof Play) {
+					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				}
+			}
+		}
 		// If I'm going to count, do the first calculation and draw territory.
 		if (this.mode != "count" && mode == "count") {
 			this.mode = mode;

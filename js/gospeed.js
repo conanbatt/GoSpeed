@@ -106,6 +106,7 @@ GoSpeed.prototype = {
 		this.connected = (this.mode != "play_online");
 
 	// Game
+		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
 		this.captured = {B: 0, W: 0};
 
@@ -442,6 +443,7 @@ GoSpeed.prototype = {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 					}
+					// TODO: turn count sucks monkey ass
 					this.turn_count++;
 					this.send_play(tmp_play, tmp_remain);
 					bRes = true;
@@ -648,6 +650,7 @@ GoSpeed.prototype = {
 					this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 					// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 				}
+				// TODO: turn count sucks monkey ass
 				this.turn_count++;
 				this.send_play(tmp_play, tmp_remain);
 				bRes = true;
@@ -925,6 +928,7 @@ GoSpeed.prototype = {
 		this.shower.clear();
 
 		// Game
+		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
 		this.captured = {B: 0, W: 0};
 	},

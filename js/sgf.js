@@ -282,6 +282,7 @@ SGFParser.prototype = {
 				}
 				if (move == "" || (board.size < 20 && move == "tt")) {
 					//board.pass();
+					// TODO: turn count sucks monkey ass
 					board.turn_count++;
 					throw new Error("Pass not implemented");
 					return false;
@@ -300,6 +301,7 @@ SGFParser.prototype = {
 						board.timer.set_remain(board.get_next_move(), time_left);
 					}
 					if (tmp instanceof Play) {
+						// TODO: turn count sucks monkey ass
 						board.turn_count++;
 					}
 				}

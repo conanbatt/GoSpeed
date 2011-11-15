@@ -1186,6 +1186,27 @@ GoSpeed.prototype = {
 			res += play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
 		} else if (play instanceof Pass) {
 			res += play.put.color + "[]";
+		} else if (play instanceof FreePlay) {
+			if (play.remove.length > 0) {
+				res += "AE";
+				for (var e in play.remove) {
+					res += "[" + String.fromCharCode(97 + play.remove[e].col) + String.fromCharCode(97 + play.remove[e].row) + "]";
+				}
+			}
+			if (play.put.length > 0) {
+				var s_tmp = [];
+				s_tmp["B"] = "AB";
+				s_tmp["W"] = "AW";
+				for (var e in play.put) {
+					s_tmp[play.put[e].color] += "[" + String.fromCharCode(97 + play.put[e].col) + String.fromCharCode(97 + play.put[e].row) + "]";
+				}
+				if (s_tmp["B"].length > 2) {
+					res += s_tmp["B"];
+				}
+				if (s_tmp["W"].length > 2) {
+					res += s_tmp["W"];
+				}
+			}
 		}
 
 		// Time left property

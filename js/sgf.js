@@ -196,7 +196,7 @@ SGFParser.prototype = {
 			this.process_root_node(board);
 
 			// Fills the tree with the info from the sgf, starting from each node.
-			this.sgf_to_tree(board, this.root, board.game_tree.root);
+			this.sgf_to_tree(board, this.root, board.game_tree.root, NODE_SGF);
 
 			// Go back to the begining.
 			this.rewind_game(board);
@@ -247,7 +247,7 @@ SGFParser.prototype = {
 		}
 	},
 
-	sgf_to_tree: function(board, sgf_node, tree_node) {
+	sgf_to_tree: function(board, sgf_node, tree_node, node_source) {
 		// Push roots to start "recursive-like" iteration.
 		var pend_sgf_node = [];
 		var pend_game_tree_node = [];
@@ -294,7 +294,7 @@ SGFParser.prototype = {
 						return false;
 					}
 					this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
-					board.game_tree.append(new GameNode(tmp));
+					board.game_tree.append(new GameNode(tmp, node_source));
 					board.make_play(tmp);
 					if (time_left != undefined && board.timer != undefined) {
 						board.timer.set_remain(board.get_next_move(), time_left);
@@ -370,7 +370,7 @@ SGFParser.prototype = {
 		*/
 
 		// Copy the new sgf tree branch to the game tree.
-		this.sgf_to_tree(game, this.pointer, game.game_tree.actual_move);
+		this.sgf_to_tree(game, this.pointer, game.game_tree.actual_move, NODE_ONLINE);
 
 		// Rewind game so goto_end method can draw it.
 		// XXX depending on user focus this could be wrong, maybe the correct is rewind until you reach the user focus.

@@ -274,8 +274,8 @@ GoSpeed.prototype = {
 	},
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
-	commit_play: function(play) {
-		this.game_tree.append(new GameNode(play));
+	commit_play: function(play, node_source) {
+		this.game_tree.append(new GameNode(play, node_source));
 		this.make_play(play);
 		this.update_captures(play);
 		if (this.shower) {
@@ -410,7 +410,7 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Commit
-					this.commit_play(tmp_play);
+					this.commit_play(tmp_play, NODE_OFFLINE);
 
 					if (this.timer != undefined) {
 						this.timer.resume(this.get_next_move());
@@ -437,12 +437,11 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Commit
-					this.commit_play(tmp_play);
+					this.commit_play(tmp_play, NODE_ONLINE);
 					if (this.sgf != undefined) {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 					}
-					this.game_tree.actual_move.turn_number = this.turn_count;
 					this.turn_count++;
 					this.send_play(tmp_play, tmp_remain);
 					bRes = true;

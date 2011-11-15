@@ -1,3 +1,6 @@
+var NODE_SGF = 1;
+var NODE_ONLINE = 2;
+var NODE_OFFLINE = 4;
 
 // Play
 	function Play(color, row, col) {
@@ -98,6 +101,7 @@
 	GameTree.prototype = {
 		append: function(node) {
 			node.prev = this.actual_move;
+			node.turn_number = this.actual_move.turn_number + 1;
 			this.actual_move.next.push(node);
 			this.actual_move.last_next = node;
 			this.actual_move = node;
@@ -182,11 +186,13 @@
 	}
 
 // Game node
-	function GameNode(play) {
+	function GameNode(play, source) {
 		this.play = play;
 		this.prev = null;
 		this.next = [];
 		this.last_next = null;
+		this.source = source;
+		this.turn_number = 0;
 	}
 
 // Helper functions

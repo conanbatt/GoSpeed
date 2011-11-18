@@ -190,6 +190,10 @@ SGFParser.prototype = {
 				return false;
 			}
 
+			// Clear the board
+			board.clear();
+
+			// Clear moves_loaded
 			this.moves_loaded = "";
 
 			// Takes info from the root and configures the board.

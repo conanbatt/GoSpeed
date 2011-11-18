@@ -200,7 +200,14 @@ SGFParser.prototype = {
 			this.process_root_node(board);
 
 			// Fills the tree with the info from the sgf, starting from each node.
-			this.sgf_to_tree(board, this.root, board.game_tree.root, NODE_SGF);
+			if (!this.sgf_to_tree(board, this.root, board.game_tree.root, NODE_SGF)) {
+				if (this.status == SGFPARSER_ST_ERROR) {
+					throw new Error(this.error);
+				} else {
+					throw new Error("Unknown error no 001");
+				}
+				return false;
+			}
 
 			// Go back to the begining.
 			this.rewind_game(board);
@@ -284,11 +291,11 @@ SGFParser.prototype = {
 			}
 		// do: play sgf_node contents at board point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
-			if (sgf_node.B || sgf_node.W) {
-				if (board.get_next_move() == "B" && sgf_node.B) {
+			if (sgf_node.B != undefined || sgf_node.W != undefined) {
+				if (board.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
 					time_left = sgf_node.BL;
-				} else if (board.get_next_move() == "W" && sgf_node.W) {
+				} else if (board.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
 					time_left = sgf_node.WL;
 				} else {
@@ -329,6 +336,7 @@ SGFParser.prototype = {
 				pend_game_tree_node.push(board.game_tree.actual_move);
 			}
 		}
+		return true;
 	},
 
 	rewind_game: function(board, limit) {

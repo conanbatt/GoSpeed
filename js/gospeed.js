@@ -329,6 +329,8 @@ GoSpeed.prototype = {
 					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
 				}
 			}
+		} else {
+			return false;
 		}
 
 		play = this.game_tree.actual_move.play;

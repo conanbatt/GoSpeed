@@ -776,13 +776,17 @@ GoSpeed.prototype = {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
 		if (tmp_node.source != NODE_OFFLINE) {
-			throw new Error("Algo anda mal con este nodo.");
+			throw new Error("No hay jugadas locales.");
 		}
 		while((tmp_node.source == NODE_OFFLINE || !tail) && !tmp_node.root) {
 			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
 			tmp_node = tmp_node.prev;
 		}
-		s_res = tmp_node.turn_number + s_res;
+		if (!tail && tmp_node.root && tmp_node.play) {
+			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+		} else {
+			s_res = tmp_node.turn_number + s_res;
+		}
 		return s_res;
 	},
 

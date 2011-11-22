@@ -212,6 +212,8 @@ SGFParser.prototype = {
 			// Go back to the begining.
 			this.rewind_game(board);
 
+			board.render();
+
 			board.render_tree();
 
 		} else {

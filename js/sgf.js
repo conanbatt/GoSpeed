@@ -342,6 +342,7 @@ SGFParser.prototype = {
 	},
 
 	rewind_game: function(board, limit) {
+		var tmp;
 		while (board.game_tree.actual_move != board.game_tree.root) {
 			tmp = board.game_tree.prev();
 			board.undo_play(tmp);

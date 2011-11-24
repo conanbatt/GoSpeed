@@ -1,6 +1,7 @@
 var NODE_SGF = 1;
 var NODE_ONLINE = 2;
 var NODE_OFFLINE = 4;
+var NODE_VARIATION = 8;
 
 // Play
 	function Play(color, row, col) {

@@ -767,6 +767,103 @@ GoSpeed.prototype = {
 		}
 	},
 
+	get_next_track_id: function(force_id) {
+		var id = 0;
+		if (force_id == undefined) {
+			while(this.tracks[id] != undefined) {
+				id++;
+			}
+		} else {
+			if (this.tracks[force_id] == undefined) {
+				id = force_id;
+			} else {
+				throw new Error("Can't force track id. Already in use.");
+			}
+		}
+		return id;
+	},
+
+	create_empty_track: function(force_id) {
+		var id = this.get_next_track_id(force_id);
+		var new_grid = Array(this.size);
+		for (var i = 0, li = this.size; i < li; ++i) {
+			new_grid[i] = Array(li);
+		}
+		this.tracks[id] = new Track(new_grid, this.game_tree.root);
+
+		// Populate grid if root node has play.
+		var prev_id = this.actual_track;
+		var play = this.game_tree.root.play;
+		if (play) {
+			this.switch_to_track(id, true);
+			this.make_play(play);
+			this.switch_to_track(prev_id, true);
+		}
+		return id;
+	},
+
+	duplicate_actual_track: function(force_id) {
+		var id = this.get_next_track_id(force_id);
+		var new_grid = [];
+		for (var i = 0, li = this.size; i < li; ++i) {
+			new_grid.push(this.grid[i].slice());
+		}
+		this.tracks[id] = new Track(new_grid, this.game_tree.actual_move);
+		return id;
+	},
+
+	load_track: function(variation) {
+		// Validate variation format
+		var rex = /^(0|([1-9]\d*))(\;(B|W)\[[a-s]{2}\])+$/;
+		if (!rex.test(variation)) {
+			return false;
+		}
+
+		var root_number = variation.match(/^0|^[1-9]\d*/)[0];
+		var moves = variation.match(/;.*$/)[0];
+
+		// Save actual track id
+		var old = this.actual_track;
+
+		// Create empty track
+		var id = this.create_empty_track();
+
+		// Switch to new track
+		this.switch_to_track(id, true);
+			// Go to variation root
+			var res;
+			while(this.game_tree.actual_move.turn_number < root_number) {
+				res = this.next(0, true);
+				if (!res) {
+					throw new Error("Todo mal, no llegué nunca al root number!");
+					return false;
+				}
+			}
+
+			// Parse and load moves.
+			var sgf = new SGFParser("(;FF[4]" + moves + ")");
+			sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
+
+		// Switch to old track
+		this.switch_to_track(old, true);
+		return id;
+	},
+
+	switch_to_track: function(id, no_redraw) {
+		if (!(this.tracks[id] instanceof Track)) {
+			return false;
+		}
+		this.grid = this.tracks[id].grid;
+		this.tracks[this.actual_track].head = this.game_tree.actual_move;
+		this.game_tree.actual_move = this.tracks[id].head;
+		this.actual_track = id;
+		if (!no_redraw) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+		}
+	},
+
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
@@ -783,21 +880,6 @@ GoSpeed.prototype = {
 			s_res = tmp_node.turn_number + s_res;
 		}
 		return s_res;
-	},
-
-	show_offline_var: function(variation) {
-		if (this.mode == "play") {
-			this.var_grid = Array(this.size);
-			for (var i = 0, li = this.size; i < li; ++i) {
-				this.var_grid[i] = Array(li);
-			}
-			this.game_tree.var_head = this.game_tree.root;
-			//this.
-
-
-		} else {
-			return false;
-		}
 	},
 
 //	Time commands
@@ -1376,42 +1458,20 @@ GoSpeed.prototype = {
 		if (this.actual_track == TRACK_ONLINE) {
 			// If there is no local grid, create it copying the global.
 			if (this.tracks[TRACK_OFFLINE] == undefined) {
-				var new_grid = [];
-				for (var i = 0, li = this.size; i < li; ++i) {
-					new_grid.push(this.grid[i].slice());
-				}
-				var new_head = this.game_tree.actual_move;
-				this.tracks[TRACK_OFFLINE] = new Track(new_grid, new_head);
+				this.duplicate_actual_track(TRACK_OFFLINE);
 			}
-			// Set new grid and save global game_tree node.
-			var track_offline = this.tracks[TRACK_OFFLINE];
-			this.grid = track_offline.grid;
-			this.tracks[TRACK_ONLINE].head = this.game_tree.actual_move;
-			this.game_tree.actual_move = track_offline.head;
+			// Switch track and mode
+			this.switch_to_track(TRACK_OFFLINE, no_redraw);
 			this.change_mode("play", no_redraw);
-			this.actual_track = TRACK_OFFLINE;
-			if (!no_redraw) {
-				if (this.shower != undefined) {
-					this.shower.redraw();
-				}
-			}
 		}
 	},
 
 	attach_head: function(no_redraw) {
 		// Only attach if is not already attached.
 		if (this.actual_track != TRACK_ONLINE) {
-			var track_online = this.tracks[TRACK_ONLINE];
-			this.grid = track_online.grid;
-			this.tracks[this.actual_track].head = this.game_tree.actual_move;
-			this.game_tree.actual_move = track_online.head;
+			// Switch track and mode
+			this.switch_to_track(TRACK_ONLINE, no_redraw);
 			this.change_mode("play_online", no_redraw);
-			this.actual_track = TRACK_ONLINE;
-			if (!no_redraw) {
-				if (this.shower != undefined) {
-					this.shower.redraw();
-				}
-			}
 		}
 	},
 }

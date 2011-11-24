@@ -1,6 +1,6 @@
-var SGFPARSER_ST_ERROR = "ERROR"; // 1
-var SGFPARSER_ST_PARSED = "PARSED"; // 2
-var SGFPARSER_ST_LOADED = "LOADED"; // 4
+var SGFPARSER_ST_ERROR = 1;//"ERROR"; // 1
+var SGFPARSER_ST_PARSED = 2;//"PARSED"; // 2
+var SGFPARSER_ST_LOADED = 4;//"LOADED"; // 4
 
 function SGFNode() {
 	this.prev = null;
@@ -28,6 +28,7 @@ SGFParser.prototype = {
 		this.root = null;
 		this.pointer = null;
 		this.last_node = null;
+		this.moves_loaded = "";
 		this.parse();
 	},
 

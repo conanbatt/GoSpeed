@@ -1,3 +1,6 @@
+var TRACK_ONLINE = 0;
+var TRACK_OFFLINE = 1;
+var TRACK_VARIATION = 2;
 
 function GoSpeed(args) {
 	this.init.apply(this, [args]);
@@ -17,20 +20,10 @@ GoSpeed.prototype = {
 		this.ko = undefined;
 
 	// Grids
-		// XXX TODO FIXME Ok, we have a situation here.
-		// I want to have a version of the grid of the last state of the online game
-		// and a grid with the actual local info that te user is modifying. Should I
-		// use two different grids and modify all the functions to use one or the other,
-		// or rather I use this.grid as a pointer and implement two methods use_global() and
-		// use_local() to change the current scope. NOTE: if some day this shit becomes
-		// multithreaded, the second option will be sunken in the doomed world of concurrency.
-		// Official Game Grid
 		this.grid = Array(this.size);
 		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
-		this.global_grid = this.grid;
-		this.attached = true;
 
 	// Divs
 		// Board
@@ -104,6 +97,11 @@ GoSpeed.prototype = {
 			this.my_nick = args.my_nick;
 		}
 		this.connected = (this.mode != "play_online");
+
+	// Tracks
+		this.tracks = [];
+		this.tracks[0] = new Track(this.grid, this.game_tree.actual_move);
+		this.actual_track = 0;
 
 	// Game
 		// TODO: turn count sucks monkey ass
@@ -315,7 +313,7 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function() {
-		if (this.attached) {
+		if (this.is_attached()) {
 			// TODO: what if we're playing offline?
 			this.detach_head();
 		}
@@ -790,6 +788,21 @@ GoSpeed.prototype = {
 		return s_res;
 	},
 
+	show_offline_var: function(variation) {
+		if (this.mode == "play") {
+			this.var_grid = Array(this.size);
+			for (var i = 0, li = this.size; i < li; ++i) {
+				this.var_grid[i] = Array(li);
+			}
+			this.game_tree.var_head = this.game_tree.root;
+			//this.
+
+
+		} else {
+			return false;
+		}
+	},
+
 //	Time commands
 	update_clocks: function(remain) {
 		if (this.shower != undefined) {
@@ -802,7 +815,7 @@ GoSpeed.prototype = {
 	},
 
 //	Config commands
-	change_mode: function(mode) {
+	change_mode: function(mode, no_redraw) {
 		var modes = ["play", "play_online", "free", "count",];
 		if (typeof mode == "string") {
 			if (!inArray(mode, modes)) {
@@ -822,10 +835,12 @@ GoSpeed.prototype = {
 				this.shower.clear_last_stone_markers();
 			}
 		}
-		if (mode == "play" || mode == "play_online") {
-			if (this.shower != undefined) {
-				if (this.game_tree.actual_move.play instanceof Play) {
-					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+		if (!no_redraw) {
+			if (mode == "play" || mode == "play_online") {
+				if (this.shower != undefined) {
+					if (this.game_tree.actual_move.play instanceof Play) {
+						this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+					}
 				}
 			}
 		}
@@ -925,9 +940,6 @@ GoSpeed.prototype = {
 		for (var row = 0 ; row < this.size ; row++) {
 			this.grid[row] = Array(this.size);
 		}
-		this.global_grid = this.grid;
-		this.local_grid = undefined;
-		this.attached = true;
 
 		// Timer
 		// TODO: i think this should be something like this.timer = undefined;
@@ -936,22 +948,34 @@ GoSpeed.prototype = {
 		}
 
 		// SGFParser
+		/*
 		var sgf = "";
 		if (this.sgf != undefined) {
 			sgf = this.sgf.sgf;
 		}
 		this.sgf = new SGFParser(sgf);
+		*/
+		if (this.sgf != undefined) {
+			this.sgf.init(this.sgf.sgf);
+		}
 
 		// GameTree
 		this.game_tree = new GameTree();
 
-		// Clear shower
-		this.shower.clear();
+		// Tracks
+		this.tracks = [];
+		this.tracks[0] = new Track(this.grid, this.game_tree.actual_move);
+		this.actual_track = 0;
 
 		// Game
 		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
 		this.captured = {B: 0, W: 0};
+
+		// Clear shower
+		if (this.shower != undefined) {
+			this.shower.clear();
+		}
 	},
 
 	render: function() {
@@ -1277,7 +1301,7 @@ GoSpeed.prototype = {
 
 		// Compare SGF and add only new moves
 		if (data.moves != undefined && data.moves != null) {
-			if (!this.attached) {
+			if (!this.is_attached()) {
 				this.attach_head(true);
 				this.sgf.add_moves(this, data.moves, true);
 				this.detach_head(true);
@@ -1286,14 +1310,14 @@ GoSpeed.prototype = {
 			}
 		}
 
-		if (this.attached) {
+		if (this.is_attached()) {
 			// Fast forward
 			this.goto_end();
 		}
 
 		// Update timer
 		if (this.timer != undefined) {
-			this.timer.resume(this.get_next_move()); // XXX Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
+			this.timer.resume(this.get_next_move()); // XXX TODO FIXME Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
 			if (data.time_adjustment) {
 				this.timer.adjust(data.time_adjustment);
 			}
@@ -1333,7 +1357,11 @@ GoSpeed.prototype = {
 		}
 		sSgf += ")";
 
-		this.sgf = new SGFParser(sSgf);
+		if (this.sgf != undefined) {
+			this.sgf.init(sSgf);
+		} else {
+			this.sgf = new SGFParser(sSgf);
+		}
 		this.sgf.load(this);
 		this.render();
 		this.goto_end();
@@ -1345,25 +1373,29 @@ GoSpeed.prototype = {
 		}
 	},
 
+	is_attached: function() {
+		return this.mode == "play_online" && this.actual_track == TRACK_ONLINE;
+	},
+
 	detach_head: function(no_redraw) {
 		// Only detach if is not detached.
-		if (this.grid == this.global_grid) {
+		if (this.actual_track == TRACK_ONLINE) {
 			// If there is no local grid, create it copying the global.
-			if (this.local_grid == undefined) {
-				this.local_grid = [];
+			if (this.tracks[TRACK_OFFLINE] == undefined) {
+				var new_grid = [];
 				for (var i = 0, li = this.size; i < li; ++i) {
-					this.local_grid.push(this.grid[i].slice());
+					new_grid.push(this.grid[i].slice());
 				}
-			}
-			if (this.game_tree.local_head == undefined) {
-				this.game_tree.local_head = this.game_tree.actual_move;
+				var new_head = this.game_tree.actual_move;
+				this.tracks[TRACK_OFFLINE] = new Track(new_grid, new_head);
 			}
 			// Set new grid and save global game_tree node.
-			this.grid = this.local_grid;
-			this.game_tree.global_head = this.game_tree.actual_move;
-			this.game_tree.actual_move = this.game_tree.local_head;
-			this.change_mode("play");
-			this.attached = false;
+			var track_offline = this.tracks[TRACK_OFFLINE];
+			this.grid = track_offline.grid;
+			this.tracks[TRACK_ONLINE].head = this.game_tree.actual_move;
+			this.game_tree.actual_move = track_offline.head;
+			this.change_mode("play", no_redraw);
+			this.actual_track = TRACK_OFFLINE;
 			if (!no_redraw) {
 				if (this.shower != undefined) {
 					this.shower.redraw();
@@ -1373,13 +1405,14 @@ GoSpeed.prototype = {
 	},
 
 	attach_head: function(no_redraw) {
-		// Only detach if is not already attached.
-		if (this.grid != this.global_grid) {
-			this.grid = this.global_grid;
-			this.game_tree.local_head = this.game_tree.actual_move;
-			this.game_tree.actual_move = this.game_tree.global_head;
-			this.change_mode("play_online");
-			this.attached = true;
+		// Only attach if is not already attached.
+		if (this.actual_track != TRACK_ONLINE) {
+			var track_online = this.tracks[TRACK_ONLINE];
+			this.grid = track_online.grid;
+			this.tracks[this.actual_track].head = this.game_tree.actual_move;
+			this.game_tree.actual_move = track_online.head;
+			this.change_mode("play_online", no_redraw);
+			this.actual_track = TRACK_ONLINE;
 			if (!no_redraw) {
 				if (this.shower != undefined) {
 					this.shower.redraw();

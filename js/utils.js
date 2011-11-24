@@ -195,6 +195,12 @@ var NODE_OFFLINE = 4;
 		this.turn_number = 0;
 	}
 
+// Track
+	function Track(grid, head) {
+		this.grid = grid;
+		this.head = head;
+	}
+
 // Helper functions
 	// inArray: returns true if the needle is an element into the haystack
 		function inArray(needle, haystack) {

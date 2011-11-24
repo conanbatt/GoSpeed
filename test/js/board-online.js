@@ -3,6 +3,7 @@ var BOARD_RULESET = "Chinese";
 var BOARD_MODE = "play_online";
 var BOARD_DIV_ID = "gospeed_board";
 var BOARD_DIV_ID_2 = "gospeed_board_2";
+var BOARD_DIV_ID_3 = "gospeed_board_3";
 var BOARD_TREE_DIV_ID = "gametree_div";
 var BOARD_SHOWER = "graphic";
 var BOARD_MY_COLOUR = "B";
@@ -50,6 +51,25 @@ module("OnlineSuite", {
 		}, this.gospeed2));
 		this.gospeed2.connected = (this.gospeed2.my_colour != undefined);
 		this.gospeed2.send_play = binder(function(play) {
+			this.play({move: coord_converter(play)});
+		}, this.server);
+
+		// Board 3
+		var conf3 = {
+			size: BOARD_SIZE,
+			ruleset: BOARD_RULESET,
+			mode: "play_online",
+			div_id_board: BOARD_DIV_ID_3,
+			shower: BOARD_SHOWER,
+			my_nick: "juancho",
+		};
+		document.getElementById(BOARD_DIV_ID_3).innerHTML = "";
+		this.gospeed3 = new GoSpeed(conf3);
+		this.gospeed3.my_colour = this.server.connect(this.gospeed3.my_nick, binder(function() {
+			this.diff_update_game(arguments[0]);
+		}, this.gospeed3));
+		this.gospeed3.connected = (this.gospeed3.my_colour != undefined);
+		this.gospeed3.send_play = binder(function(play) {
 			this.play({move: coord_converter(play)});
 		}, this.server);
 

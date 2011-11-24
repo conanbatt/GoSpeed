@@ -346,23 +346,26 @@ GoSpeed.prototype = {
 		return true;
 	},
 
-	next: function() {
-		var play = this.game_tree.next();
+	next: function(index, no_redraw) {
+		var play = this.game_tree.next(index);
 		if (play) {
 			this.make_play(play);
-			if (this.shower) {
-				this.shower.draw_play(play);
-				this.shower.update_captures(play);
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.draw_play(play);
+					this.shower.update_captures(play);
+				}
 			}
 		} else {
 			return false;
 		}
 
-		if (this.shower) {
-			this.shower.clean_t_stones();
+		if (!no_redraw) {
+			if (this.shower) {
+				this.shower.clean_t_stones();
+			}
+			this.render_tree();
 		}
-
-		this.render_tree();
 		return true;
 	},
 

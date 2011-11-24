@@ -107,11 +107,16 @@ var NODE_OFFLINE = 4;
 			this.actual_move = node;
 		},
 
-		next: function() {
-			if (this.actual_move.next.length == 0) {
+		next: function(index) {
+			var next = this.actual_move.next;
+			if (next.length == 0) {
 				return false;
 			} else {
-				this.actual_move = this.actual_move.last_next;
+				if (next[index] != undefined) {
+					this.actual_move = next[index];
+				} else {
+					this.actual_move = this.actual_move.last_next;
+				}
 			}
 			return this.actual_move.play;
 		},

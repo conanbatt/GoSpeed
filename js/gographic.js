@@ -149,12 +149,21 @@ GoGraphic.prototype = {
 		this.clear_last_stone_markers();
 	},
 
-	update_captures: function() {
-		if (this.div_captured_w != undefined) {
-			this.div_captured_w.innerHTML = this.game.captured["W"];
-		}
-		if (this.div_captured_b != undefined) {
-			this.div_captured_b.innerHTML = this.game.captured["B"];
+	update_captures: function(play) {
+		if (play != undefined && play.captured != undefined) {
+			if (this.div_captured_w != undefined) {
+				this.div_captured_w.innerHTML = play.captured["W"];
+			}
+			if (this.div_captured_b != undefined) {
+				this.div_captured_b.innerHTML = play.captured["B"];
+			}
+		} else {
+			if (this.div_captured_w != undefined) {
+				this.div_captured_w.innerHTML = "0";
+			}
+			if (this.div_captured_b != undefined) {
+				this.div_captured_b.innerHTML = "0";
+			}
 		}
 	},
 
@@ -509,7 +518,7 @@ GoGraphic.prototype = {
 		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
 
 		// Captures
-		this.update_captures();
+		this.update_captures(this.game.game_tree.actual_move.play);
 	},
 
 	clean_t_stones: function() {
@@ -549,7 +558,7 @@ GoGraphic.prototype = {
 		}
 		var play = this.game.game_tree.actual_move.play;
 		this.refresh_ko(play);
-		this.game.update_captures(play);
+		this.update_captures(play);
 		if (play instanceof Play) {
 			this.place_last_stone_marker(play.put);
 		}

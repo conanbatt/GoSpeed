@@ -17,7 +17,6 @@ GoSpeed.prototype = {
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
 		this.komi = args.komi;
-		this.ko = undefined;
 
 	// Grids
 		this.grid = Array(this.size);
@@ -106,7 +105,6 @@ GoSpeed.prototype = {
 	// Game
 		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
-		this.captured = {B: 0, W: 0};
 
 	// Paths
 		if (args.server_path_game_move != undefined) {
@@ -161,8 +159,9 @@ GoSpeed.prototype = {
 
 	pos_is_ko: function(row, col) {
 		var ret = false;
-		if (this.ko != undefined) {
-			if (this.ko.row == row && this.ko.col == col) {
+		var ko = this.get_ko();
+		if (ko != undefined) {
+			if (ko.row == row && ko.col == col) {
 				ret = true;
 			}
 		}
@@ -184,7 +183,6 @@ GoSpeed.prototype = {
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			this.ko = play.ko;
 		}
 	},
 
@@ -202,7 +200,6 @@ GoSpeed.prototype = {
 			for (var stone in play.remove) {
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
-			this.ko = undefined;
 		}
 	},
 
@@ -250,9 +247,17 @@ GoSpeed.prototype = {
 		}
 	},
 
-	// Takes a play and spreads it's ko property value to the game.
-	refresh_ko: function(play) {
-		this.ko = play.ko;
+	get_ko: function() {
+		return this.game_tree.actual_move.play && this.game_tree.actual_move.play.ko;
+	},
+
+	get_captured_count: function() {
+		var play = this.game_tree.actual_move.play;
+		if (play == undefined || play == null) {
+			return {"B": 0, "W": 0};
+		} else {
+			return play.captured;
+		}
 	},
 
 	// Takes a play and checks if it's suicide.
@@ -276,9 +281,9 @@ GoSpeed.prototype = {
 	commit_play: function(play, node_source) {
 		this.game_tree.append(new GameNode(play, node_source));
 		this.make_play(play);
-		this.update_captures(play);
 		if (this.shower) {
 			this.shower.draw_play(play);
+			this.shower.update_captures(play);
 		}
 	},
 
@@ -299,14 +304,6 @@ GoSpeed.prototype = {
 			} else {
 				return (node.play.put.color == "W" ? "B" : "W");
 			}
-		}
-	},
-
-	// Takes a play and updates the game and graphics captures
-	update_captures: function(play) {
-		this.captured = play.captured;
-		if (this.shower) {
-			this.shower.update_captures();
 		}
 	},
 
@@ -333,10 +330,9 @@ GoSpeed.prototype = {
 
 		play = this.game_tree.actual_move.play;
 		if (play) {
-			this.refresh_ko(play);
-			this.update_captures(play);
-			if (this.shower) {
+			if (this.shower != undefined) {
 				this.shower.refresh_ko(play);
+				this.shower.update_captures(play);
 			}
 		} else {
 			return false;
@@ -354,9 +350,9 @@ GoSpeed.prototype = {
 		var play = this.game_tree.next();
 		if (play) {
 			this.make_play(play);
-			this.update_captures(play);
 			if (this.shower) {
 				this.shower.draw_play(play);
+				this.shower.update_captures(play);
 			}
 		} else {
 			return false;
@@ -544,7 +540,7 @@ GoSpeed.prototype = {
 					this.score.kill_stone(target, row, col);
 				}
 				var score = this.score.calculate_score();
-				this.score.calculate_result(this.captured, this.komi);
+				this.score.calculate_result(this.get_captured_count(), this.komi);
 				if (this.shower != undefined) {
 					this.shower.draw_dead_groups(this.score.dead_groups);
 					this.shower.clear_score();
@@ -614,7 +610,6 @@ GoSpeed.prototype = {
 				}
 
 				this.game_tree.append(new GameNode(new Pass(this.get_next_move())));
-				this.ko = undefined;
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();
@@ -641,7 +636,6 @@ GoSpeed.prototype = {
 
 				var tmp_play = new Pass(this.get_next_move())
 				this.game_tree.append(new GameNode(tmp_play));
-				this.ko = undefined;
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();
@@ -874,7 +868,7 @@ GoSpeed.prototype = {
 	start_territory_counting: function() {
 		this.score = new Score(this.ruleset, this.grid);
 		var score = this.score.calculate_score();
-		this.score.calculate_result(this.captured, this.komi);
+		this.score.calculate_result(this.get_captured_count(), this.komi);
 		if (this.shower != undefined) {
 			this.shower.clear_last_stone_markers();
 			this.shower.clear_ko();
@@ -933,8 +927,6 @@ GoSpeed.prototype = {
 	},
 
 	clear: function() {
-		this.ko = undefined;
-
 		// Grid
 		this.grid = Array(this.size);
 		for (var row = 0 ; row < this.size ; row++) {
@@ -970,7 +962,6 @@ GoSpeed.prototype = {
 		// Game
 		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
-		this.captured = {B: 0, W: 0};
 
 		// Clear shower
 		if (this.shower != undefined) {

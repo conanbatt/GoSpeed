@@ -26,7 +26,7 @@ test("Next move", function() {
 });
 
 test("Ko", function() {
-	equal(this.gospeed.ko, undefined, "At first, Ko should be undefined.");
+	equal(this.gospeed.get_ko(), undefined, "At first, Ko should be undefined.");
 });
 
 test("Grid", function() {
@@ -115,7 +115,7 @@ test("Next move", function() {
 });
 
 test("Ko", function() {
-	equal(this.gospeed.ko, undefined, "At first, Ko should be undefined.");
+	equal(this.gospeed.get_ko(), undefined, "At first, Ko should be undefined.");
 });
 
 test("Grid", function() {

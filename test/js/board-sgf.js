@@ -52,7 +52,7 @@ test("Next move", function() {
 });
 
 test("Ko", function() {
-	equal(this.gospeed.ko, undefined, "At this point, Ko is be undefined.");
+	equal(this.gospeed.get_ko(), undefined, "At this point, Ko is be undefined.");
 });
 
 test("DivContent", function() {

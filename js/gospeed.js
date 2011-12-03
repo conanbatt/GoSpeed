@@ -812,21 +812,20 @@ GoSpeed.prototype = {
 		return id;
 	},
 
-	load_track: function(variation) {
+	load_track: function(variation, force_id) {
 		// Validate variation format
-		var rex = /^(0|([1-9]\d*))(\;(B|W)\[[a-s]{2}\])+$/;
+		var rex = /^(\d\d?\d?)(\ )+([a-s]{2})+$/;
 		if (!rex.test(variation)) {
 			return false;
 		}
-
-		var root_number = variation.match(/^0|^[1-9]\d*/)[0];
-		var moves = variation.match(/;.*$/)[0];
+		//var root_number = variation.match(/^0|^[1-9]\d*/)[0];
+		var root_number = variation.match(/\d\d?\d?/)[0];
 
 		// Save actual track id
 		var old = this.actual_track;
 
 		// Create empty track
-		var id = this.create_empty_track();
+		var id = this.create_empty_track(force_id);
 
 		// Switch to new track
 		this.switch_to_track(id, true);
@@ -839,6 +838,14 @@ GoSpeed.prototype = {
 					return false;
 				}
 			}
+
+			variation = this.ungovar(variation, this.get_next_move());
+			// Validate new variation format
+			var rex = /^(0|([1-9]\d*))(\;(B|W)\[[a-s]{2}\])+$/;
+			if (!rex.test(variation)) {
+				return false;
+			}
+			var moves = variation.match(/;.*$/)[0];
 
 			// Parse and load moves.
 			var sgf = new SGFParser("(;FF[4]" + moves + ")");
@@ -862,12 +869,14 @@ GoSpeed.prototype = {
 				this.shower.redraw();
 			}
 		}
+		return true;
 	},
 
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
 		if (tmp_node.source != NODE_OFFLINE) {
+			return "";
 			throw new Error("No hay jugadas locales.");
 		}
 		while((tmp_node.source == NODE_OFFLINE || !tail) && !tmp_node.root) {
@@ -880,6 +889,28 @@ GoSpeed.prototype = {
 			s_res = tmp_node.turn_number + s_res;
 		}
 		return s_res;
+	},
+
+	govar: function() {
+		var s = this.var_to_string(true);
+		if (s != "") {
+			var i = s.indexOf(';');
+			s = s.substring(0, i) + " " + s.substring(i, s.length).replace(/(;(W|B)\[|\])/g, "");
+		}
+		return s;
+	},
+
+	ungovar: function(govar, first_color) {
+		var move = govar.match(/\d\d?\d?/)[0];
+		var variation = govar.match(/([a-s][a-s])/g);
+		var color = [];
+		color[0] = first_color;
+		color[1] = (first_color == "W" ? "B" : "W");
+		var s = "";
+		for (var i = 0, li = variation.length; i < li; ++i) {
+			s += ";" + color[i % 2] + "[" + variation[i] + "]";
+		}
+		return move + s;
 	},
 
 //	Time commands

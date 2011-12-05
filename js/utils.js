@@ -104,7 +104,9 @@ var NODE_VARIATION = 8;
 			node.prev = this.actual_move;
 			node.turn_number = this.actual_move.turn_number + 1;
 			this.actual_move.next.push(node);
-			this.actual_move.last_next = node;
+			if (node.source != NODE_VARIATION || this.actual_move.source == NODE_VARIATION) {
+				this.actual_move.last_next = node;
+			}
 			this.actual_move = node;
 		},
 
@@ -116,7 +118,11 @@ var NODE_VARIATION = 8;
 				if (next[index] != undefined) {
 					this.actual_move = next[index];
 				} else {
-					this.actual_move = this.actual_move.last_next;
+					if (this.actual_move.last_next != undefined) {
+						this.actual_move = this.actual_move.last_next;
+					} else {
+						return false;
+					}
 				}
 			}
 			return this.actual_move.play;
@@ -196,7 +202,7 @@ var NODE_VARIATION = 8;
 		this.play = play;
 		this.prev = null;
 		this.next = [];
-		this.last_next = null;
+		this.last_next = undefined;
 		this.source = source;
 		this.turn_number = 0;
 	}

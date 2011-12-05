@@ -876,11 +876,11 @@ GoSpeed.prototype = {
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
-		if (tmp_node.source != NODE_OFFLINE) {
+		if (tmp_node.source != NODE_VARIATION) {
 			return "";
 			throw new Error("No hay jugadas locales.");
 		}
-		while((tmp_node.source == NODE_OFFLINE || !tail) && !tmp_node.root) {
+		while((tmp_node.source == NODE_VARIATION || !tail) && !tmp_node.root) {
 			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
 			tmp_node = tmp_node.prev;
 		}
@@ -1494,7 +1494,7 @@ GoSpeed.prototype = {
 			}
 			// Switch track and mode
 			this.switch_to_track(TRACK_OFFLINE, no_redraw);
-			this.change_mode("play", no_redraw);
+			this.change_mode("variation", no_redraw);
 		}
 	},
 

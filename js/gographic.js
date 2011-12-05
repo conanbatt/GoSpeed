@@ -327,6 +327,7 @@ GoGraphic.prototype = {
 					t_stone = this.t_white;
 				break;
 				case "play":
+				case "variation":
 					if (this.game.get_next_move() == "B") {
 						t_stone = this.t_black;
 					} else {

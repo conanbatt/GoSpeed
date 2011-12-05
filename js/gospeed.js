@@ -402,6 +402,7 @@ GoSpeed.prototype = {
 		var tmp_play;
 		switch(this.mode) {
 			case "play":
+			case "variation":
 				// Setup
 				if (this.timer != undefined) {
 					this.timer.pause();
@@ -411,7 +412,7 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Commit
-					this.commit_play(tmp_play, NODE_OFFLINE);
+					this.commit_play(tmp_play, (this.mode == "play" ? NODE_OFFLINE : NODE_VARIATION));
 
 					if (this.timer != undefined) {
 						this.timer.resume(this.get_next_move());
@@ -926,7 +927,7 @@ GoSpeed.prototype = {
 
 //	Config commands
 	change_mode: function(mode, no_redraw) {
-		var modes = ["play", "play_online", "free", "count",];
+		var modes = ["play", "play_online", "free", "variation", "count",];
 		if (typeof mode == "string") {
 			if (!inArray(mode, modes)) {
 				throw new Error("The 'mode' parameter must be in (" + modes + ").");
@@ -1125,7 +1126,7 @@ GoSpeed.prototype = {
 			if (typeof mode == "undefined") {
 				args.mode = "play";
 			} else if (typeof mode == "string") {
-				options = ["play", "play_online", "free", "count",];
+				options = ["play", "play_online", "free", "variation", "count",];
 				if (!inArray(mode, options)) {
 					throw new Error("The 'mode' parameter must be in (" + options + ").");
 				}

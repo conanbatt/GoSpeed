@@ -586,18 +586,23 @@ GoSpeed.prototype = {
 		// Update play's ko.
 		this.play_check_ko(tmp_play);
 
+		// Update play's captures
+		this.update_play_captures(tmp_play);
+
+		return tmp_play;
+	},
+
+	update_play_captures: function(play) {
 		// Set game captures when this play ocurs.
 		var actual_move = this.game_tree.actual_move;
 		if (actual_move.root != undefined && actual_move.root) {
-			tmp_play.captured = {"B": 0, "W": 0};
+			play.captured = {"B": 0, "W": 0};
 		} else {
-			tmp_play.captured = Object.create(actual_move.play.captured);
+			play.captured = Object.create(actual_move.play.captured);
 		}
-		for (var stone in tmp_play.remove) {
-			tmp_play.captured[tmp_play.remove[stone].color]++;
+		for (var stone in play.remove) {
+			play.captured[play.remove[stone].color]++;
 		}
-
-		return tmp_play;
 	},
 
 	is_my_turn: function() {
@@ -613,7 +618,9 @@ GoSpeed.prototype = {
 					this.timer.pause();
 				}
 
-				this.game_tree.append(new GameNode(new Pass(this.get_next_move())));
+				var tmp_play = new Pass(this.get_next_move());
+				this.update_play_captures(tmp_play);
+				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE));
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();
@@ -639,7 +646,8 @@ GoSpeed.prototype = {
 				}
 
 				var tmp_play = new Pass(this.get_next_move())
-				this.game_tree.append(new GameNode(tmp_play));
+				this.update_play_captures(tmp_play);
+				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE);
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();

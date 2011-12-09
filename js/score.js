@@ -181,9 +181,18 @@ Score.prototype = {
 				res_black += captured[WHITE];
 			}
 		}
-		this.result = {};
-		this.result[BLACK] = res_black;
-		this.result[WHITE] = res_white;
+		this.score = {};
+		this.score[BLACK] = res_black;
+		this.score[WHITE] = res_white;
+
+		var res_diff = res_white - res_black;
+		if (res_diff == 0) {
+			this.result = "Jigo";
+		} else if (res_diff < 0) {
+			this.result = "B+" + Math.abs(res_diff);
+		} else {
+			this.result = "W+" + res_diff;
+		}
 		return this.result;
 	},
 

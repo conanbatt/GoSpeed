@@ -168,13 +168,13 @@ GoGraphic.prototype = {
 	},
 
 	// Pick score result and write it in corresponding divs
-	update_score: function(result) {
-		if (result != undefined) {
+	update_score: function(score) {
+		if (score != undefined) {
 			if (this.div_score_w != undefined) {
-				this.div_score_w.innerHTML = result["W"];
+				this.div_score_w.innerHTML = score["W"];
 			}
 			if (this.div_score_b != undefined) {
-				this.div_score_b.innerHTML = result["B"];
+				this.div_score_b.innerHTML = score["B"];
 			}
 		} else {
 			if (this.div_score_w != undefined) {
@@ -186,19 +186,11 @@ GoGraphic.prototype = {
 		}
 	},
 
-	// Pick game result by score and write it in corresponding div
-	// TODO: this should be calculated by gospeed.js or score.js
+	// Pick game result and write it in corresponding div
 	update_result: function(result) {
 		if (this.div_result != undefined) {
 			if (result != undefined) {
-				var res_diff = result["W"] - result["B"];
-				if (res_diff == 0) {
-					this.div_result.innerHTML = "Jigo";
-				} else if (res_diff < 0) {
-					this.div_result.innerHTML = "B+" + Math.abs(res_diff);
-				} else {
-					this.div_result.innerHTML = "W+" + res_diff;
-				}
+				this.div_result.innerHTML = result;
 			} else {
 				this.div_result.innerHTML = "-";
 			}

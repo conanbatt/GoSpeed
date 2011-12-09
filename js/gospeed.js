@@ -549,7 +549,7 @@ GoSpeed.prototype = {
 					this.shower.draw_dead_groups(this.score.dead_groups);
 					this.shower.clear_score();
 					this.shower.draw_score(score);
-					this.shower.update_score(this.score.result);
+					this.shower.update_score(this.score.score);
 					this.shower.update_result(this.score.result);
 				}
 			break;
@@ -998,7 +998,7 @@ GoSpeed.prototype = {
 			this.shower.clear_last_stone_markers();
 			this.shower.clear_ko();
 			this.shower.draw_score(score);
-			this.shower.update_score(this.score.result);
+			this.shower.update_score(this.score.score);
 			this.shower.update_result(this.score.result);
 		}
 	},

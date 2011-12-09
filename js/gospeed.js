@@ -1123,19 +1123,27 @@ GoSpeed.prototype = {
 		return {row: row, col: col};
 	},
 
+	pos_to_sgf_coord: function(row, col) {
+		return String.fromCharCode(97 + col) + String.fromCharCode(97 + row);
+	},
+
+	sgf_coord_to_pos: function(coord) {
+		return {row: coord.charCodeAt(1) - 97, col: coord.charCodeAt(0) - 97};
+	},
+
 	data_to_sgf_node: function(play, remain) {
 		var res = ";";
 
 		// Move property
 		if (play instanceof Play) {
-			res += play.put.color + "[" + String.fromCharCode(97 + play.put.col) + String.fromCharCode(97 + play.put.row) + "]";
+			res += play.put.color + "[" + this.pos_to_sgf_coord(play.put.row, play.put.col) + "]";
 		} else if (play instanceof Pass) {
 			res += play.put.color + "[]";
 		} else if (play instanceof FreePlay) {
 			if (play.remove.length > 0) {
 				res += "AE";
 				for (var e in play.remove) {
-					res += "[" + String.fromCharCode(97 + play.remove[e].col) + String.fromCharCode(97 + play.remove[e].row) + "]";
+					res += "[" + this.pos_to_sgf_coord(play.remove[e].row, play.remove[e].col) + "]";
 				}
 			}
 			if (play.put.length > 0) {
@@ -1143,7 +1151,7 @@ GoSpeed.prototype = {
 				s_tmp["B"] = "AB";
 				s_tmp["W"] = "AW";
 				for (var e in play.put) {
-					s_tmp[play.put[e].color] += "[" + String.fromCharCode(97 + play.put[e].col) + String.fromCharCode(97 + play.put[e].row) + "]";
+					s_tmp[play.put[e].color] += "[" + this.pos_to_sgf_coord(play.put[e].row, play.put[e].col) + "]";
 				}
 				if (s_tmp["B"].length > 2) {
 					res += s_tmp["B"];

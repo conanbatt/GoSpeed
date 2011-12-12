@@ -280,7 +280,7 @@ GoGraphic.prototype = {
 
 		var t_stone;
 
-		if (this.game.mode == "count") {
+		if (this.game.mode == "count" || (this.game.mode == "count_online" && this.game.my_colour != "O")) {
 			this.clean_t_stones();
 			var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
 			var boundedY = mouse.pageY - this.div_board.offsetTop + 1;

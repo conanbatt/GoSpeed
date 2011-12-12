@@ -95,7 +95,7 @@ GoSpeed.prototype = {
 		if (args.my_nick != undefined) {
 			this.my_nick = args.my_nick;
 		}
-		this.connected = (this.mode != "play_online");
+		this.connected = (this.mode != "play_online" && this.mode != "count_online");
 
 	// Tracks
 		this.tracks = [];
@@ -531,6 +531,10 @@ GoSpeed.prototype = {
 
 			break;
 			case "count":
+			case "count_online":
+				if (this.mode == "count_online" && this.my_colour == "O") {
+					return false;
+				}
 				var target = this.get_pos(row, col);
 				if (target == undefined) {
 					return false;
@@ -543,14 +547,9 @@ GoSpeed.prototype = {
 				} else {
 					this.score.kill_stone(target, row, col);
 				}
-				var score = this.score.calculate_score();
-				this.score.calculate_result(this.get_captured_count(), this.komi);
-				if (this.shower != undefined) {
-					this.shower.draw_dead_groups(this.score.dead_groups);
-					this.shower.clear_score();
-					this.shower.draw_score(score);
-					this.shower.update_score(this.score.score);
-					this.shower.update_result(this.score.result);
+				this.draw_score();
+				if (this.mode == "count_online") {
+					this.send_score_state(row, col, shift);
 				}
 			break;
 		}
@@ -877,6 +876,7 @@ GoSpeed.prototype = {
 			if (this.shower != undefined) {
 				this.shower.redraw();
 			}
+			this.handle_score_agreement();
 		}
 		return true;
 	},
@@ -935,7 +935,7 @@ GoSpeed.prototype = {
 
 //	Config commands
 	change_mode: function(mode, no_redraw) {
-		var modes = ["play", "play_online", "free", "variation", "count",];
+		var modes = ["play", "play_online", "free", "variation", "count", "count_online",];
 		if (typeof mode == "string") {
 			if (!inArray(mode, modes)) {
 				throw new Error("The 'mode' parameter must be in (" + modes + ").");
@@ -945,7 +945,7 @@ GoSpeed.prototype = {
 		}
 
 		// If I was counting, clean score and set up everything to keep on playing.
-		if (this.mode == "count" && mode != "count") {
+		if ((this.mode == "count" || this.mode == "count_online") && mode != "count" && mode != "count_online") {
 			this.quit_territory_counting();
 		}
 
@@ -963,8 +963,9 @@ GoSpeed.prototype = {
 				}
 			}
 		}
+
 		// If I'm going to count, do the first calculation and draw territory.
-		if (this.mode != "count" && mode == "count") {
+		if (this.mode != "count" && this.mode != "count_online" && (mode == "count" || mode == "count_online")) {
 			this.mode = mode;
 			this.start_territory_counting();
 		} else {
@@ -1176,6 +1177,12 @@ GoSpeed.prototype = {
 		}
 	},
 
+	send_score_state: function(row, col, alive) {
+		if (this.server_path_game_move != undefined) {
+			$.post(this.server_path_game_move, {score_state: ";" + (alive ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]"});
+		}
+	},
+
 	update_my_colour: function(white_player, black_player) {
 		if (this.my_nick != undefined) {
 			if (black_player == this.my_nick && white_player == this.my_nick) {
@@ -1212,6 +1219,7 @@ GoSpeed.prototype = {
 			if (!this.is_attached()) {
 				this.attach_head(true);
 				this.sgf.add_moves(this, data.moves, true);
+				this.update_raw_score_state(data.raw_score_state)
 				this.detach_head(true);
 			} else {
 				this.sgf.add_moves(this, data.moves);
@@ -1221,6 +1229,7 @@ GoSpeed.prototype = {
 		if (this.is_attached()) {
 			// Fast forward
 			this.goto_end();
+			this.handle_score_agreement(data.raw_score_state);
 		}
 
 		// Update timer
@@ -1273,6 +1282,7 @@ GoSpeed.prototype = {
 		this.sgf.load(this);
 		this.render();
 		this.goto_end();
+		this.handle_score_agreement(data.raw_score_state);
 		if (this.timer != undefined) {
 			this.timer.resume(this.get_next_move());
 			if (data.time_adjustment) {
@@ -1281,8 +1291,87 @@ GoSpeed.prototype = {
 		}
 	},
 
+	handle_score_agreement: function(raw_score_state) {
+		if (this.mode == "count_online" || this.mode == "count") {
+			this.update_raw_score_state(raw_score_state);
+			this.refresh_score();
+		} else {
+			if (this.check_score_agreement()) {
+				if (this.mode == "play_online") {
+					this.change_mode("count_online");
+				} else if (this.mode == "play") {
+					this.change_mode("count");
+				}
+				if (raw_score_state) {
+					this.update_raw_score_state(raw_score_state);
+				}
+				this.refresh_score();
+			}
+		}
+	},
+
+	check_score_agreement: function() {
+		if (this.mode == "count_online" || this.mode == "count" || this.mode == "variation") {
+			return false;
+		} else {
+			var prev = this.game_tree.actual_move.prev;
+			var play = this.game_tree.actual_move.play;
+			if (prev != undefined && prev.play instanceof Pass && play instanceof Pass) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	},
+
+	update_raw_score_state: function(score_state) {
+		var play = this.game_tree.actual_move.play;
+		if (play instanceof Pass) {
+			play.raw_score_state = score_state;
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	refresh_score: function() {
+		if (this.mode != "count_online" && this.mode != "count") {
+			return false;
+		}
+		if (this.shower != undefined) {
+			this.shower.clear_dead_groups(this.score.dead_groups); // XXX FIXME TODO: maybe this should be independent from this.score... maybe a full clean.
+		}
+		var states = this.game_tree.actual_move.play.raw_score_state.match(/;(A|D)\[[a-s]{2}\]/g);
+		for (var id in states) {
+			var alive = (states[id].charAt(1) == "A");
+			var pos = this.sgf_coord_to_pos(states[id].match(/[a-s]{2}/)[0]);
+			var target = this.get_pos(pos.row, pos.col);
+			if (target == undefined) {
+				continue;
+			}
+			if (alive) {
+				this.score.revive_stone(target, pos.row, pos.col);
+			} else {
+				this.score.kill_stone(target, pos.row, pos.col);
+			}
+		}
+		this.draw_score();
+	},
+
+	draw_score: function() {
+		var score = this.score.calculate_score();
+		this.score.calculate_result(this.get_captured_count(), this.komi);
+		if (this.shower != undefined) {
+			this.shower.draw_dead_groups(this.score.dead_groups);
+			this.shower.clear_score();
+			this.shower.draw_score(score);
+			this.shower.update_score(this.score.score);
+			this.shower.update_result(this.score.result);
+		}
+	},
+
 	is_attached: function() {
-		return this.mode == "play_online" && this.actual_track == TRACK_ONLINE;
+		return (this.mode == "play_online" || this.mode == "count_online") && this.actual_track == TRACK_ONLINE;
 	},
 
 	detach_head: function(no_redraw) {
@@ -1293,8 +1382,8 @@ GoSpeed.prototype = {
 				this.duplicate_actual_track(TRACK_OFFLINE);
 			}
 			// Switch track and mode
-			this.switch_to_track(TRACK_OFFLINE, no_redraw);
 			this.change_mode("variation", no_redraw);
+			this.switch_to_track(TRACK_OFFLINE, no_redraw);
 		}
 	},
 
@@ -1302,8 +1391,8 @@ GoSpeed.prototype = {
 		// Only attach if is not already attached.
 		if (this.actual_track != TRACK_ONLINE) {
 			// Switch track and mode
-			this.switch_to_track(TRACK_ONLINE, no_redraw);
 			this.change_mode("play_online", no_redraw);
+			this.switch_to_track(TRACK_ONLINE, no_redraw);
 		}
 	},
 }

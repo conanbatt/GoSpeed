@@ -80,7 +80,7 @@ GoGraphic.prototype = {
 	},
 
 	refresh_ko: function(play) {
-		if (play.ko) {
+		if (play && play.ko) {
 			this.place_ko(play.ko);
 		} else {
 			this.clear_ko();

@@ -107,11 +107,17 @@ GoSpeed.prototype = {
 		this.turn_count = 0;
 
 	// Paths
+		if (args.server_path_gospeed_root != undefined) {
+			this.server_path_gospeed_root = args.server_path_gospeed_root;
+		}
+		if (args.server_path_absolute_url != undefined) {
+			this.server_path_absolute_url = args.server_path_absolute_url;
+		}
 		if (args.server_path_game_move != undefined) {
 			this.server_path_game_move = args.server_path_game_move;
 		}
-		if (args.server_path_gospeed_root != undefined) {
-			this.server_path_gospeed_root = args.server_path_gospeed_root;
+		if (args.server_path_game_end != undefined) {
+			this.server_path_game_end = args.server_path_game_end;
 		}
 
 	// Render
@@ -1172,14 +1178,14 @@ GoSpeed.prototype = {
 	},
 
 	send_play: function(play, remain) {
-		if (this.server_path_game_move != undefined) {
-			$.post(this.server_path_game_move, {move: this.data_to_sgf_node(play, remain)});
+		if (this.server_path_absolute_url != undefined && this.server_path_game_move != undefined) {
+			$.post(this.server_path_absolute_url + this.server_path_game_move, {move: this.data_to_sgf_node(play, remain)});
 		}
 	},
 
 	send_score_state: function(row, col, alive) {
-		if (this.server_path_game_move != undefined) {
-			$.post(this.server_path_game_move, {score_state: ";" + (alive ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]"});
+		if (this.server_path_absolute_url != undefined && this.server_path_game_move != undefined) {
+			$.post(this.server_path_absolute_url + this.server_path_game_move, {score_state: ";" + (alive ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]"});
 		}
 	},
 

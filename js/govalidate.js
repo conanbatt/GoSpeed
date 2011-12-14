@@ -144,20 +144,20 @@ GoValidate.prototype = {
 			}
 
 		// Result Div
-		if (typeof div_id_result != "undefined") {
-			if (typeof div_id_result != "string") {
-				throw new Error("The 'div_id_result' parameter must be a string");
-			} else if (!document.getElementById(div_id_result)) {
-				throw new Error("The 'div_id_result' parameter points to no existing div.");
+			if (typeof div_id_result != "undefined") {
+				if (typeof div_id_result != "string") {
+					throw new Error("The 'div_id_result' parameter must be a string");
+				} else if (!document.getElementById(div_id_result)) {
+					throw new Error("The 'div_id_result' parameter points to no existing div.");
+				}
 			}
-		}
 
 		// Komi
-		if (typeof komi != "undefined") {
-			if (typeof komi != "number") {
-				throw new Error("The 'komi' parameter must be a number");
+			if (typeof komi != "undefined") {
+				if (typeof komi != "number") {
+					throw new Error("The 'komi' parameter must be a number");
+				}
 			}
-		}
 
 
 		// Shower
@@ -195,18 +195,8 @@ GoValidate.prototype = {
 				}
 			}
 
-		// Server Move Path
-			if (typeof server_path_game_move != "undefined") {
-				if (typeof server_path_game_move != "string") {
-					throw new Error("The 'server_path_game_move' parameter must be a string");
-				} else {
-					if (server_path_game_move == "") {
-						throw new Error("The 'server_path_game_move' parameter must not be empty");
-					}
-				}
-			}
-
-		// Server Resources Path
+		// Server Paths
+			// Server Resources Path
 			if (typeof server_path_gospeed_root != "undefined") {
 				if (typeof server_path_gospeed_root != "string") {
 					throw new Error("The 'server_path_gospeed_root' parameter must be a string");
@@ -217,6 +207,43 @@ GoValidate.prototype = {
 						if (server_path_gospeed_root.charAt(server_path_gospeed_root.length - 1) != '/') {
 							args.server_path_gospeed_root += '/';
 						}
+					}
+				}
+			}
+
+			// Absolute URL
+			if (typeof server_path_absolute_url != "undefined") {
+				if (typeof server_path_absolute_url != "string") {
+					throw new Error("The 'server_path_absolute_url' parameter must be a string");
+				} else {
+					if (server_path_absolute_url == "") {
+						throw new Error("The 'server_path_absolute_url' parameter must not be empty");
+					} else {
+						if (server_path_absolute_url.charAt(server_path_absolute_url.length - 1) != '/') {
+							args.server_path_absolute_url += '/';
+						}
+					}
+				}
+			}
+
+			// Game Move
+			if (typeof server_path_game_move != "undefined") {
+				if (typeof server_path_game_move != "string") {
+					throw new Error("The 'server_path_game_move' parameter must be a string");
+				} else {
+					if (server_path_game_move == "") {
+						throw new Error("The 'server_path_game_move' parameter must not be empty");
+					}
+				}
+			}
+
+			// Game End
+			if (typeof server_path_game_end != "undefined") {
+				if (typeof server_path_game_end != "string") {
+					throw new Error("The 'server_path_game_end' parameter must be a string");
+				} else {
+					if (server_path_game_end == "") {
+						throw new Error("The 'server_path_game_end' parameter must not be empty");
 					}
 				}
 			}

@@ -81,7 +81,7 @@ GoValidate.prototype = {
 					if (typeof time_config.time_system != "string") {
 						throw new Error("The 'time_system' parameter must be a string");
 					} else {
-						options = ["Absolute", ];
+						options = ["Absolute", "Free", ];
 						if (!inArray(time_config.time_system, options)) {
 							throw new Error("The 'time_system' parameter must be in (" + options + ").");
 						}

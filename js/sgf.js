@@ -239,9 +239,10 @@ SGFParser.prototype = {
 			board.change_size(Number(sgf_node.SZ));
 		}
 		if (sgf_node.TM != undefined) {
-			if (board.timer != undefined) {
-				// FIXME: check the time system, not only ABSOLUTE
-				board.timer = new AbsoluteTimer(board, sgf_node.TM);
+			if (sgf_node.OT == undefined) {
+				board.setup_timer("Absolute", sgf_node.TM);
+			} else {
+				// Hello polly from the future, here you can place new time systems...
 			}
 		}
 		if (sgf_node.AB != undefined || sgf_node.AW != undefined) {
@@ -317,6 +318,7 @@ SGFParser.prototype = {
 						return false;
 					}
 				}
+				tmp.time_left = time_left;
 				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
 				board.game_tree.append(new GameNode(tmp, node_source));
 				board.make_play(tmp);

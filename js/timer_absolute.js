@@ -14,10 +14,15 @@ function AbsoluteTimer(game, time) {
 	this.remain[WHITE] = time;
 
 	// Stats
-	this.status = ST_STOPED;
+	this.status = ST_PAUSED;
 	this.actual_color;
 	this.last_resume;
 	this.last_pause;
+
+	// System
+	this.system = {};
+	this.system.name = "Absolute";
+	this.system.time = time;
 
 	// Draw
 	//this.game.update_clocks(this.remain);
@@ -35,7 +40,7 @@ AbsoluteTimer.prototype = {
 
 	// If it's not counting: update remain, color, last_resume and status, register interval, start!
 	resume: function(color, remain_b, remain_w) {
-		if (this.status != ST_COUNTING) {
+		if (this.status == ST_PAUSED) {
 			if (remain_b && remain_w) {
 				this.remain[BLACK] = remain_b;
 				this.remain[WHITE] = remain_w;
@@ -73,7 +78,9 @@ AbsoluteTimer.prototype = {
 	},
 
 	adjust: function(adjustment) {
-		this.remain[this.actual_color] -= Number(adjustment);
+		if (this.status != ST_STOPED) {
+			this.remain[this.actual_color] -= Number(adjustment);
+		}
 	},
 
 	// This handles the interval callback, creates a remain estimation and updates the clocks.
@@ -87,7 +94,7 @@ AbsoluteTimer.prototype = {
 		if (tmp_remain[this.actual_color] <= 0) {
 			this.remain[this.actual_color] = 0;
 			this.stop();
-			this.game.announce_loss(this.remain);
+			this.game.announce_time_loss(this.remain);
 		}
 	},
 

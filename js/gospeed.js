@@ -74,12 +74,7 @@ GoSpeed.prototype = {
 
 	// Timer
 		if (args.time_config != undefined) {
-			switch(args.time_config.time_system) {
-				case "Absolute":
-					this.timer = new AbsoluteTimer(this, args.time_config.starting_time);
-					this.update_clocks(this.timer.remain);
-				break;
-			}
+			this.setup_timer(args.time_config.time_system, args.time_config.starting_time);
 		}
 
 	// GameTree
@@ -408,17 +403,18 @@ GoSpeed.prototype = {
 		var tmp_play;
 		switch(this.mode) {
 			case "play":
-			case "variation":
 				// Setup
+				var time_left;
 				if (this.timer != undefined) {
-					this.timer.pause();
+					time_left = this.timer.pause()[this.get_next_move()];
 				}
 
 				tmp_play = this.setup_play(row, col);
 
 				if (tmp_play) {
 					// Commit
-					this.commit_play(tmp_play, (this.mode == "play" ? NODE_OFFLINE : NODE_VARIATION));
+					tmp_play.time_left = time_left;
+					this.commit_play(tmp_play, NODE_OFFLINE);
 
 					if (this.timer != undefined) {
 						this.timer.resume(this.get_next_move());
@@ -435,9 +431,12 @@ GoSpeed.prototype = {
 					return false;
 				}
 
+				// Time
 				var tmp_remain;
+				var time_left;
 				if (this.timer != undefined) {
 					tmp_remain = this.timer.pause();
+					time_left = tmp_remain[this.get_next_move()];
 				}
 
 				// Setup
@@ -445,6 +444,7 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Commit
+					tmp_play.time_left = time_left;
 					this.commit_play(tmp_play, NODE_ONLINE);
 					if (this.sgf != undefined) {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
@@ -456,6 +456,13 @@ GoSpeed.prototype = {
 					bRes = true;
 				}
 
+			break;
+			case "variation":
+				tmp_play = this.setup_play(row, col);
+				if (tmp_play) {
+					this.commit_play(tmp_play, NODE_VARIATION);
+					bRes = true;
+				}
 			break;
 			case "free":
 
@@ -618,12 +625,18 @@ GoSpeed.prototype = {
 		var bRes;
 		switch(this.mode) {
 			case "play":
-				// Setup
+				// Color
+				var color = this.get_next_move();
+
+				// Time
+				var time_left;
 				if (this.timer != undefined) {
-					this.timer.pause();
+					time_left = this.timer.pause()[color]
 				}
 
-				var tmp_play = new Pass(this.get_next_move());
+				// Play
+				var tmp_play = new Pass(color);
+				tmp_play.time_left = time_left;
 				this.update_play_captures(tmp_play);
 				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE));
 				if (this.shower != undefined) {
@@ -645,12 +658,20 @@ GoSpeed.prototype = {
 					return false;
 				}
 
+				// Color
+				var color = this.get_next_move();
+
+				// Time
 				var tmp_remain;
+				var time_left;
 				if (this.timer != undefined) {
 					tmp_remain = this.timer.pause();
+					time_left = tmp_remain[color]
 				}
 
-				var tmp_play = new Pass(this.get_next_move())
+				// Play
+				var tmp_play = new Pass(color)
+				tmp_play.time_left = time_left;
 				this.update_play_captures(tmp_play);
 				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE);
 				if (this.shower != undefined) {
@@ -929,14 +950,27 @@ GoSpeed.prototype = {
 	},
 
 //	Time commands
+	setup_timer: function(time_system, starting_time) {
+		switch(time_system) {
+			case "Absolute":
+				this.timer = new AbsoluteTimer(this, starting_time);
+				//this.update_clocks(this.timer.remain);
+			break;
+		}
+	},
+
 	update_clocks: function(remain) {
 		if (this.shower != undefined) {
 			this.shower.update_clocks(remain);
 		}
 	},
 
-	announce_loss: function(remain) {
-		alert("You lose");
+	announce_time_loss: function(remain) {
+		if (remain[this.my_colour] == 0) {
+			if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
+				$.post(this.server_path_absolute_url + this.server_path_game_end);
+			}
+		}
 	},
 
 //	Config commands
@@ -1066,19 +1100,9 @@ GoSpeed.prototype = {
 		}
 
 		// Timer
-		// TODO: i think this should be something like this.timer = undefined;
-		if (this.timer != undefined) {
-			this.timer.stop();
-		}
+		this.timer = undefined;
 
 		// SGFParser
-		/*
-		var sgf = "";
-		if (this.sgf != undefined) {
-			sgf = this.sgf.sgf;
-		}
-		this.sgf = new SGFParser(sgf);
-		*/
 		if (this.sgf != undefined) {
 			this.sgf.init(this.sgf.sgf);
 		}
@@ -1206,8 +1230,16 @@ GoSpeed.prototype = {
 	},
 
 	diff_update_game: function(data) {
+		if (this.timer != undefined) {
+			if (data.result != undefined) {
+				this.timer.stop();
+			} else {
+				this.timer.pause();
+			}
+		}
+
 		// Clear and change size if required
-		if (data.size != undefined) {
+		if (data.size != undefined && data.size != this.size) {
 			this.change_size(Number(data.size));
 		}
 
@@ -1220,12 +1252,13 @@ GoSpeed.prototype = {
 		// Change my colour if player has changed
 		this.update_my_colour(data.white_player, data.black_player);
 
-		// Compare SGF and add only new moves
+		// Compare SGF and add only new moves + update score state if not attached.
 		if (data.moves != undefined && data.moves != null) {
 			if (!this.is_attached()) {
 				this.attach_head(true);
 				this.sgf.add_moves(this, data.moves, true);
-				this.update_raw_score_state(data.raw_score_state)
+				this.update_raw_score_state(data.raw_score_state);
+				this.update_timer(data.time_adjustment);
 				this.detach_head(true);
 			} else {
 				this.sgf.add_moves(this, data.moves);
@@ -1236,50 +1269,83 @@ GoSpeed.prototype = {
 			// Fast forward
 			this.goto_end();
 			this.handle_score_agreement(data.raw_score_state);
+			this.update_timer(data.time_adjustment);
 		}
+	},
 
-		// Update timer
+	update_timer: function(time_adjustment) {
 		if (this.timer != undefined) {
-			this.timer.resume(this.get_next_move()); // XXX TODO FIXME Probablemente esto no sea this.next_move sino last_move.next_move o algo relativo a lo último que se actualizó.
-			if (data.time_adjustment) {
-				this.timer.adjust(data.time_adjustment);
+			var play;
+			var color;
+			var end = false;
+			var last_remain_black;
+			var last_remain_white;
+			var node = this.game_tree.actual_move;
+			switch(this.timer.system.name) {
+				case "Absolute":
+					while(!end) {
+						play = node.play;
+						if (play instanceof Play || play instanceof Pass) {
+							color = play.put.color;
+							if (color == "B" && last_remain_black == undefined) {
+								last_remain_black = play.time_left;
+							}
+							if (color == "W" && last_remain_white == undefined) {
+								last_remain_white = play.time_left;
+							}
+						}
+						if (last_remain_white != undefined && last_remain_black != undefined) {
+							end = true;
+						} else {
+							node = node.prev;
+							if (node == undefined) {
+								end = true;
+							}
+						}
+					}
+					if (last_remain_white == undefined) {
+						last_remain_white = this.timer.system.time;
+					}
+					if (last_remain_black == undefined) {
+						last_remain_black = this.timer.system.time;
+					}
+					this.timer.set_remain("B", Number(last_remain_black));
+					this.timer.set_remain("W", Number(last_remain_white));
+				break;
+			}
+			this.timer.resume(this.get_next_move());
+			if (time_adjustment != undefined) {
+				this.timer.adjust(time_adjustment);
 			}
 		}
+
 	},
 
 	update_game: function(data) {
 		this.clear();
 
-		if (this.my_nick != undefined) {
-			if (data.black_player == this.my_nick && data.white_player == this.my_nick) {
-				this.change_my_colour("A");
-			} else if (data.black_player == this.my_nick) {
-				this.change_my_colour("B");
-			} else if (data.white_player == this.my_nick) {
-				this.change_my_colour("W");
-			} else {
-				this.change_my_colour("O");
-			}
-		} else {
-			this.change_my_colour("O");
-		}
+		// Change my colour if player has changed
+		this.update_my_colour(data.white_player, data.black_player);
 
-		var sSgf = "(;FF[4]";
-		if (data.size) {
-			sSgf += "SZ[" + data.size + "]";
-		}
-		// FIXME: temp ugly hardcoded stuff
-		if (this.timer != undefined) {
-			if (!data.time) {
-				data.time = 3000;
-			}
-			sSgf += "TM[" + data.time + "]";
-		}
-		if (data.moves) {
-			sSgf += data.moves;
-		}
-		sSgf += ")";
 
+		// Recreate sgf from info
+			var sSgf = "(;FF[4]";
+
+			// Size
+			if (data.size) {
+				sSgf += "SZ[" + data.size + "]";
+			}
+			// Timer config
+			if (data.time_settings != undefined) {
+				this.setup_timer(data.time_settings.name, data.time_settings.settings.main_time);
+			}
+			// Moves
+			if (data.moves) {
+				sSgf += data.moves;
+			}
+			sSgf += ")";
+
+		// Load sgf
 		if (this.sgf != undefined) {
 			this.sgf.init(sSgf);
 		} else {
@@ -1289,12 +1355,7 @@ GoSpeed.prototype = {
 		this.render();
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
-		if (this.timer != undefined) {
-			this.timer.resume(this.get_next_move());
-			if (data.time_adjustment) {
-				this.timer.adjust(data.time_adjustment);
-			}
-		}
+		this.update_timer(data.time_adjustment);
 	},
 
 	handle_score_agreement: function(raw_score_state) {

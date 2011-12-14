@@ -307,12 +307,8 @@ SGFParser.prototype = {
 					return false;
 				}
 				if (move == "" || (board.size < 20 && move == "tt")) {
-					//board.pass();
-					// TODO: turn count sucks monkey ass
-					board.turn_count++;
-					throw new Error("Pass not implemented");
-					return false;
-					this.moves_loaded += ";" + board.get_next_move() + "[" + move + "]";
+					tmp = new Pass(board.get_next_move())
+					board.update_play_captures(tmp);
 				} else {
 					tmp = board.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
 					if (!tmp) {
@@ -320,16 +316,16 @@ SGFParser.prototype = {
 						this.error = "Illegal move or such...";
 						return false;
 					}
-					this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
-					board.game_tree.append(new GameNode(tmp, node_source));
-					board.make_play(tmp);
-					if (time_left != undefined && board.timer != undefined) {
-						board.timer.set_remain(board.get_next_move(), time_left);
-					}
-					if (tmp instanceof Play) {
-						// TODO: turn count sucks monkey ass
-						board.turn_count++;
-					}
+				}
+				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
+				board.game_tree.append(new GameNode(tmp, node_source));
+				board.make_play(tmp);
+				if (time_left != undefined && board.timer != undefined) {
+					board.timer.set_remain(board.get_next_move(), time_left);
+				}
+				if (tmp instanceof Play || tmp instanceof Pass) {
+					// TODO: turn count sucks monkey ass
+					board.turn_count++;
 				}
 			}
 		// do: push actual_node to pend_game_tree_node
@@ -415,7 +411,7 @@ SGFParser.prototype = {
 	},
 
 	parse_only_moves: function(sgf) {
-		var tmp = sgf.match(/;(B|W)\[[a-z]{2}\]/g);
+		var tmp = sgf.match(/;(B|W)\[([a-z]{2})?\]/g);
 		if (tmp) {
 			return tmp.join("");
 		} else {

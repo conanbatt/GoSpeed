@@ -1,6 +1,8 @@
 var STONE_SIZE = 25;
 var BOARD_BOUND = 10;
-var SHADOW_DISTANCE = 2;
+var SHADOW_LEFT = 3;
+var SHADOW_TOP = 1;
+var SHADOW_SIDE = -1; // 1 for right, -1 for left
 
 function GoGraphic(game) {
 	this.init.call(this, game);
@@ -28,8 +30,8 @@ GoGraphic.prototype = {
 
 		var shadow = document.createElement("div");
 		shadow.className = "Shadow";
-		shadow.style.left = (stoneLeft + SHADOW_DISTANCE) + "px";
-		shadow.style.top = (stoneTop + SHADOW_DISTANCE) + "px";
+		shadow.style.left = (stoneLeft + SHADOW_SIDE * SHADOW_LEFT) + "px";
+		shadow.style.top = (stoneTop + SHADOW_TOP) + "px";
 		this.div_board.appendChild(shadow);
 
 		this.clean_t_stones();

@@ -1417,18 +1417,21 @@ GoSpeed.prototype = {
 		if (this.shower != undefined) {
 			this.shower.clear_dead_groups(this.score.dead_groups); // XXX FIXME TODO: maybe this should be independent from this.score... maybe a full clean.
 		}
-		var states = this.game_tree.actual_move.play.raw_score_state.match(/;(A|D)\[[a-s]{2}\]/g);
-		for (var id in states) {
-			var alive = (states[id].charAt(1) == "A");
-			var pos = this.sgf_coord_to_pos(states[id].match(/[a-s]{2}/)[0]);
-			var target = this.get_pos(pos.row, pos.col);
-			if (target == undefined) {
-				continue;
-			}
-			if (alive) {
-				this.score.revive_stone(target, pos.row, pos.col);
-			} else {
-				this.score.kill_stone(target, pos.row, pos.col);
+		var states = this.game_tree.actual_move.play.raw_score_state;
+		if (states != undefined) {
+			states = states.match(/;(A|D)\[[a-s]{2}\]/g);
+			for (var id in states) {
+				var alive = (states[id].charAt(1) == "A");
+				var pos = this.sgf_coord_to_pos(states[id].match(/[a-s]{2}/)[0]);
+				var target = this.get_pos(pos.row, pos.col);
+				if (target == undefined) {
+					continue;
+				}
+				if (alive) {
+					this.score.revive_stone(target, pos.row, pos.col);
+				} else {
+					this.score.kill_stone(target, pos.row, pos.col);
+				}
 			}
 		}
 		this.draw_score();

@@ -1236,15 +1236,13 @@ GoSpeed.prototype = {
 	},
 
 	diff_update_game: function(data) {
+		// Stop timer when game ends
 		if (this.timer != undefined) {
 			if (data.result != undefined) {
 				this.timer.stop();
 			} else {
 				this.timer.pause();
 			}
-		}
-		if (data.result != undefined) {
-			this.mode = "finished";
 		}
 
 		// Clear and change size if required
@@ -1280,10 +1278,15 @@ GoSpeed.prototype = {
 			this.handle_score_agreement(data.raw_score_state);
 			this.update_timer(data.time_adjustment);
 		}
+
+		// Quit playing when game ends
+		if (data.result != undefined) {
+			this.mode = "finished";
+		}
 	},
 
 	update_timer: function(time_adjustment) {
-		if (this.mode == "count" || this.mode == "count_online") {
+		if (this.mode == "count" || this.mode == "count_online" || this.mode == "finished") {
 			return false;
 		}
 		if (this.timer != undefined) {

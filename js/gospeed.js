@@ -987,6 +987,9 @@ GoSpeed.prototype = {
 		// If I was counting, clean score and set up everything to keep on playing.
 		if ((this.mode == "count" || this.mode == "count_online") && mode != "count" && mode != "count_online") {
 			this.quit_territory_counting();
+			if (mode != "free" && this.timer != undefined) {
+				this.timer.resume(this.get_next_move());
+			}
 		}
 
 		if (mode == "free") {
@@ -1008,6 +1011,9 @@ GoSpeed.prototype = {
 		if (this.mode != "count" && this.mode != "count_online" && (mode == "count" || mode == "count_online")) {
 			this.mode = mode;
 			this.start_territory_counting();
+			if (this.timer != undefined) {
+				this.timer.pause();
+			}
 		} else {
 			this.mode = mode;
 		}
@@ -1274,6 +1280,9 @@ GoSpeed.prototype = {
 	},
 
 	update_timer: function(time_adjustment) {
+		if (this.mode == "count" || this.mode == "count_online") {
+			return false;
+		}
 		if (this.timer != undefined) {
 			var play;
 			var color;

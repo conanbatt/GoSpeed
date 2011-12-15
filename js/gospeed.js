@@ -279,11 +279,11 @@ GoSpeed.prototype = {
 	},
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
-	commit_play: function(play, node_source) {
+	commit_play: function(play, node_source, wait) {
 		this.game_tree.append(new GameNode(play, node_source));
 		this.make_play(play);
 		if (this.shower) {
-			this.shower.draw_play(play);
+			this.shower.draw_play(play, wait);
 			this.shower.update_captures(play);
 		}
 	},
@@ -445,7 +445,7 @@ GoSpeed.prototype = {
 				if (tmp_play) {
 					// Commit
 					tmp_play.time_left = time_left;
-					this.commit_play(tmp_play, NODE_ONLINE);
+					this.commit_play(tmp_play, NODE_ONLINE, true);
 					if (this.sgf != undefined) {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
@@ -1216,6 +1216,12 @@ GoSpeed.prototype = {
 	send_score_state: function(row, col, alive) {
 		if (this.server_path_absolute_url != undefined && this.server_path_game_move != undefined) {
 			$.post(this.server_path_absolute_url + this.server_path_game_move, {score_state: ";" + (alive ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]"});
+		}
+	},
+
+	confirm_play: function() {
+		if (this.shower != undefined) {
+			this.shower.confirm_play(this.game_tree.actual_move.play.put);
 		}
 	},
 

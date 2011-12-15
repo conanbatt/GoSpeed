@@ -116,6 +116,22 @@
 		z-index: 3;
 	}
 
+	div.LastStoneWaitW {
+		position: absolute;
+		background-image: url("../img/last_stone_wait_w.gif");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
+	div.LastStoneWaitB {
+		position: absolute;
+		background-image: url("../img/last_stone_wait_b.gif");
+		width: 25px;
+		height: 25px;
+		z-index: 3;
+	}
+
 	div.LittleStoneW {
 		position: absolute;
 		background-image: url("../img/little_white.png");

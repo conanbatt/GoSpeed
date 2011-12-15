@@ -359,8 +359,14 @@ SGFParser.prototype = {
 		var only_moves_loaded;
 		// Check if the moves we have already loaded are the same that have arrived.
 		if (only_moves.length == this.moves_loaded.length) {
+			if (only_moves[only_moves.length - 1] == this.moves_loaded[this.moves_loaded.length - 1]) {
+				game.confirm_play();
+				return true;
+			} else {
+				throw new Error("Same move count but different plays...");
+				return false;
+			}
 			// Here could be the script that confirms the stone positioning to the last player.
-			return true;
 		} else if (only_moves.length > this.moves_loaded.length) {
 			// If we have been asked to load more moves than the set that we have already loaded.
 			only_moves_loaded = only_moves.substring(0, this.moves_loaded.length);

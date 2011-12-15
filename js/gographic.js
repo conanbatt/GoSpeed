@@ -59,6 +59,13 @@ GoGraphic.prototype = {
 		}
 	},
 
+	place_last_stone_wait_marker: function(put) {
+		this.clear_last_stone_markers();
+		this.last_stone_wait[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
+		this.last_stone_wait[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
+		this.last_stone_wait[put.color].style.display = "block";
+	},
+
 	place_last_stone_marker: function(put) {
 		this.clear_last_stone_markers();
 		this.last_stone[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
@@ -69,6 +76,12 @@ GoGraphic.prototype = {
 	clear_last_stone_markers: function() {
 		this.last_stone["W"].style.display = "none";
 		this.last_stone["B"].style.display = "none";
+		this.last_stone_wait["W"].style.display = "none";
+		this.last_stone_wait["B"].style.display = "none";
+	},
+
+	confirm_play: function(put) {
+		this.place_last_stone_marker(put);
 	},
 
 	place_ko: function(ko) {
@@ -115,7 +128,7 @@ GoGraphic.prototype = {
 		}
 	},
 
-	draw_play: function(play) {
+	draw_play: function(play, wait) {
 		this.clear_last_stone_markers();
 		if (play instanceof FreePlay) {
 			for (var stone in play.remove) {
@@ -126,7 +139,11 @@ GoGraphic.prototype = {
 			}
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
-			this.place_last_stone_marker(play.put);
+			if (wait) {
+				this.place_last_stone_wait_marker(play.put);
+			} else {
+				this.place_last_stone_marker(play.put);
+			}
 			for (var stone in play.remove) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
@@ -449,6 +466,8 @@ GoGraphic.prototype = {
 		(new Image()).src = tmp_path + "img/shadow.png";
 		(new Image()).src = tmp_path + "img/last_stone_w.png";
 		(new Image()).src = tmp_path + "img/last_stone_b.png";
+		(new Image()).src = tmp_path + "img/last_stone_wait_w.png";
+		(new Image()).src = tmp_path + "img/last_stone_wait_b.png";
 		(new Image()).src = tmp_path + "img/little_white.png";
 		(new Image()).src = tmp_path + "img/little_black.png";
 		(new Image()).src = tmp_path + "img/t_little_white.png";
@@ -500,6 +519,19 @@ GoGraphic.prototype = {
 		this.div_board.appendChild(last_stone);
 		last_stone.style.display = "none";
 		this.last_stone["B"] = last_stone;
+
+		// Last stone wait markers
+		this.last_stone_wait = [];
+		var last_stone_wait = document.createElement("div");
+		last_stone_wait.className = "LastStoneWaitW";
+		this.div_board.appendChild(last_stone_wait);
+		last_stone_wait.style.display = "none";
+		this.last_stone_wait["W"] = last_stone_wait;
+		last_stone_wait = document.createElement("div");
+		last_stone_wait.className = "LastStoneWaitB";
+		this.div_board.appendChild(last_stone_wait);
+		last_stone_wait.style.display = "none";
+		this.last_stone_wait["B"] = last_stone_wait;
 
 		// Ko
 		var ko = document.createElement("div");

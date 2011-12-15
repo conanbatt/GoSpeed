@@ -1145,9 +1145,21 @@ GoSpeed.prototype = {
 // Online helpers
 	connect: function() {
 		this.connected = true;
+		/*
+		// TODO: guess what is the best thing to do with timer when jugs disconnect.
+		if (this.timer != undefined) {
+			this.timer.resume(this.get_next_move());
+		}
+		*/
 	},
 
 	disconnect: function() {
+		/*
+		// TODO: guess what is the best thing to do with timer when jugs disconnect.
+		if (this.timer != undefined) {
+			this.timer.pause();
+		}
+		*/
 		this.connected = false;
 	},
 

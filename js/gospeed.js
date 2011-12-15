@@ -1243,6 +1243,9 @@ GoSpeed.prototype = {
 				this.timer.pause();
 			}
 		}
+		if (data.result != undefined) {
+			this.mode = "finished";
+		}
 
 		// Clear and change size if required
 		if (data.size != undefined && data.size != this.size) {

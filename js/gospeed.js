@@ -1239,7 +1239,10 @@ GoSpeed.prototype = {
 
 	confirm_play: function() {
 		if (this.shower != undefined) {
-			this.shower.confirm_play(this.game_tree.actual_move.play.put);
+			var play = this.game_tree.actual_move.play;
+			if (play instanceof Play) {
+				this.shower.confirm_play(play.put);
+			}
 		}
 	},
 

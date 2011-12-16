@@ -973,6 +973,12 @@ GoSpeed.prototype = {
 		}
 	},
 
+	resign: function() {
+		if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
+			$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "resign"});
+		}
+	},
+
 //	Config commands
 	change_mode: function(mode, no_redraw) {
 		var modes = ["play", "play_online", "free", "variation", "count", "count_online",];

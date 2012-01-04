@@ -73,6 +73,7 @@ Score.prototype = {
 			}
 			this.grid[row][col] = WHITE_DEAD;
 		}
+
 		this.clear_visited();
 		/*
 		// Hellrider version, maybe too agressive.
@@ -80,9 +81,14 @@ Score.prototype = {
 		var group = deads[BLACK].concat(deads[WHITE]);
 		*/
 		var group = this.connected_component(row, col).deads[color];
-
 		group.push({color: color, row: row, col: col});
 		this.dead_groups.push(group);
+
+		var dead_color = (color == BLACK ? BLACK_DEAD : WHITE_DEAD);
+		for (var i = 0, li = group.length; i < li; ++i) {
+			this.grid[group[i].row][group[i].col] = dead_color;
+		}
+		return true;
 	},
 
 	revive_stone: function(color, row, col) {
@@ -90,15 +96,22 @@ Score.prototype = {
 			return false;
 		}
 		var group;
-		for (var i = 0, li = this.dead_groups.length; i < li; ++i) {
+		var i = 0;
+		while (i < this.dead_groups.length) {
 			if (inArrayDeep({color: color, row: row, col: col}, this.dead_groups[i])) {
 				group = this.dead_groups.splice(i, 1)[0]; //XXX Warning [0]
-				break;
+				for (var j = 0, lj = group.length; j < lj; ++j) {
+					this.grid[group[j].row][group[j].col] = group[j].color;
+				}
+				//break; // TODO: check if enabling this could help with performance.
+				         // The fact is that it was enabled before the bug, and it was disabled to fix it.
+				         // but now that the stones are all marked in the grid, and thus is not possible to have a repeated dead_group, this might be unhelpful.
+						 // NOTE: with the stones marked, IS IT IMPOSSIBLE TO HAVE DUPLICATED DEAD GROUPS????
+			} else {
+				i++;
 			}
 		}
-		for (var i = 0, li = group.length; i < li; ++i) {
-			this.grid[group[i].row][group[i].col] = group[i].color;
-		}
+		return true;
 	},
 
 	clear_visited: function() {

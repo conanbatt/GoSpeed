@@ -246,7 +246,9 @@ GoGraphic.prototype = {
 
 	stone_revive: function(color, row, col) {
 		var target = this.grid[row][col];
-		this.div_board.removeChild(target.t_stone);
+		if (target.t_stone != undefined) {
+			this.div_board.removeChild(target.t_stone);
+		}
 		target.t_stone = undefined;
 		target.stone.style.display = "block";
 		target.shadow.style.display = "block";

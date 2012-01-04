@@ -555,14 +555,17 @@ GoSpeed.prototype = {
 				if (this.shower != undefined) {
 					this.shower.clear_dead_groups(this.score.dead_groups);
 				}
+				var bChanged;
 				if (shift) {
-					this.score.revive_stone(target, row, col);
+					bChanged = this.score.revive_stone(target, row, col);
 				} else {
-					this.score.kill_stone(target, row, col);
+					bChanged = this.score.kill_stone(target, row, col);
 				}
 				this.draw_score();
 				if (this.mode == "count_online") {
-					this.send_score_state(row, col, shift);
+					if (bChanged) {
+						this.send_score_state(row, col, shift);
+					}
 				}
 			break;
 		}

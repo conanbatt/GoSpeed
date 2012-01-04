@@ -74,7 +74,7 @@ GoSpeed.prototype = {
 
 	// Timer
 		if (args.time_config != undefined) {
-			this.setup_timer(args.time_config.time_system, args.time_config.starting_time);
+			this.setup_timer(args.time_config.time_system, {"main_time": args.time_config.starting_time});
 		}
 
 	// GameTree
@@ -950,10 +950,10 @@ GoSpeed.prototype = {
 	},
 
 //	Time commands
-	setup_timer: function(time_system, starting_time) {
+	setup_timer: function(time_system, time_settings) {
 		switch(time_system) {
 			case "Absolute":
-				this.timer = new AbsoluteTimer(this, starting_time);
+				this.timer = new AbsoluteTimer(this, time_settings.main_time);
 				//this.update_clocks(this.timer.remain);
 			break;
 		}
@@ -1379,7 +1379,7 @@ GoSpeed.prototype = {
 			}
 			// Timer config
 			if (data.time_settings != undefined) {
-				this.setup_timer(data.time_settings.name, data.time_settings.settings.main_time);
+				this.setup_timer(data.time_settings.name, data.time_settings.settings);
 			}
 			// Moves
 			if (data.moves) {

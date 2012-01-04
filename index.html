@@ -7,6 +7,7 @@
 		<link type="text/css" href="css/style.css" rel="stylesheet" />
 		<script type="text/javascript" src="js/sgf.js"></script>
 		<script type="text/javascript" src="js/score.js"></script>
+		<script type="text/javascript" src="js/govalidate.js"></script>
 		<script type="text/javascript" src="js/timer_absolute.js"></script>
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/utils.js"></script>
@@ -222,7 +223,7 @@
                                     <select id="size_selector" onchange="gospeed.change_size(Number(this.value));">
                                         <option value="9">9x9</option>
                                         <option value="13">13x13</option>
-                                        <option value="19">19x19</option>
+                                        <option value="19" selected="selected">19x19</option>
                                     </select>
                                 </td>
                                 <td>
@@ -319,7 +320,7 @@
 				selector(control_ruleset, gospeed.ruleset);
 
 				var s = "";
-				if (gospeed.sgf && gospeed.sgf.root != null) {
+				if (gospeed.sgf && gospeed.sgf.root != null && gospeed.sgf.status == SGFPARSER_ST_LOADED) {
 					if (gospeed.sgf.root.SZ) {
 						if (selector(control_size, gospeed.sgf.root.SZ)) {
 							control_size.disabled = true;

@@ -240,7 +240,7 @@ SGFParser.prototype = {
 		}
 		if (sgf_node.TM != undefined) {
 			if (sgf_node.OT == undefined) {
-				board.setup_timer("Absolute", sgf_node.TM);
+				board.setup_timer("Absolute", {"main_time": sgf_node.TM});
 			} else {
 				// Hello polly from the future, here you can place new time systems...
 			}

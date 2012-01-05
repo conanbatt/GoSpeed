@@ -155,6 +155,7 @@ Score.prototype = {
 		}
 
 		// Post process
+		var item;
 		for (var index in result.groups) {
 			item = result.groups[index];
 			if (item.owner == BLACK) {

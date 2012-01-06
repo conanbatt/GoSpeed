@@ -361,7 +361,7 @@ SGFParser.prototype = {
 		if (only_moves.length == this.moves_loaded.length) {
 			if (only_moves[only_moves.length - 1] == this.moves_loaded[this.moves_loaded.length - 1]) {
 				game.confirm_play();
-				return true;
+				return false;
 			} else {
 				throw new Error("Same move count but different plays...");
 				return false;
@@ -405,6 +405,7 @@ SGFParser.prototype = {
 
 		// Copy the new sgf tree branch to the game tree.
 		this.sgf_to_tree(game, this.pointer, game.game_tree.actual_move, NODE_ONLINE);
+		var res = game.game_tree.actual_move;
 
 		// Rewind game so goto_end method can draw it.
 		// XXX depending on user focus this could be wrong, maybe the correct is rewind until you reach the user focus.
@@ -415,7 +416,7 @@ SGFParser.prototype = {
 			this.rewind_game(game, new_moves_count);
 		}
 
-		return true;
+		return res;
 	},
 
 	parse_only_moves: function(sgf) {

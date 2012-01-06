@@ -450,6 +450,9 @@ GoSpeed.prototype = {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 					}
+					if (KAYAGLOBAL != undefined) {
+						KAYAGLOBAL.play_sound(this.get_next_move());
+					}
 					// TODO: turn count sucks monkey ass
 					this.turn_count++;
 					this.send_play(tmp_play, tmp_remain);
@@ -685,6 +688,9 @@ GoSpeed.prototype = {
 				if (this.sgf != undefined) {
 					this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 					// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
+				}
+				if (KAYAGLOBAL != undefined) {
+					KAYAGLOBAL.play_sound("pass");
 				}
 				// TODO: turn count sucks monkey ass
 				this.turn_count++;
@@ -1290,15 +1296,25 @@ GoSpeed.prototype = {
 		this.update_my_colour(data.white_player, data.black_player);
 
 		// Compare SGF and add only new moves + update score state if not attached.
+		var move_added = false;
 		if (data.moves != undefined && data.moves != null) {
 			if (!this.is_attached()) {
 				this.attach_head(true);
-				this.sgf.add_moves(this, data.moves, true);
+				move_added = this.sgf.add_moves(this, data.moves, true);
 				this.update_raw_score_state(data.raw_score_state);
 				this.update_timer(data.time_adjustment);
 				this.detach_head(true);
 			} else {
-				this.sgf.add_moves(this, data.moves);
+				move_added = this.sgf.add_moves(this, data.moves);
+			}
+		}
+
+		// Play sound!
+		if (KAYAGLOBAL != undefined) {
+			if (move_added.play instanceof Play) {
+				KAYAGLOBAL.play_sound(move_added.play.put.color);
+			} else if (move_added.play instanceof Pass) {
+				KAYAGLOBAL.play_sound("pass");
 			}
 		}
 

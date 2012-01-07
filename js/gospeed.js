@@ -451,7 +451,7 @@ GoSpeed.prototype = {
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 					}
 					if (KAYAGLOBAL != undefined) {
-						KAYAGLOBAL.play_sound(this.get_next_move());
+						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
 					// TODO: turn count sucks monkey ass
 					this.turn_count++;

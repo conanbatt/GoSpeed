@@ -491,7 +491,8 @@ GoSpeed.prototype = {
 						actual_play.captured = {"B": 0, "W": 0};
 					} else {
 						// Assumed that previous play always has the captured property defined, no matter if it's a Play or FreePlay instance.
-						actual_play.captured = Object.create(this.game_tree.actual_move.prev.play.captured);
+						var previous_play_captured = this.game_tree.actual_move.prev.play.captured;
+						actual_play.captured = {"B": previous_play_captured["B"], "W": previous_play_captured["W"],};
 					}
 				}
 
@@ -616,7 +617,8 @@ GoSpeed.prototype = {
 		if (actual_move.root != undefined && actual_move.root) {
 			play.captured = {"B": 0, "W": 0};
 		} else {
-			play.captured = Object.create(actual_move.play.captured);
+			var previous_play_captured = actual_move.play.captured;
+			play.captured = {"B": previous_play_captured["B"], "W": previous_play_captured["W"],};
 		}
 		for (var stone in play.remove) {
 			play.captured[play.remove[stone].color]++;

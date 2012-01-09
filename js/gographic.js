@@ -284,13 +284,24 @@ GoGraphic.prototype = {
 		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
 	},
 
-	click_handler: function(click) {
-		var boundedX = click.pageX - this.div_board.offsetLeft + 1;
-		var boundedY = click.pageY - this.div_board.offsetTop + 1;
+	click_handler: function(mouse) {
+		if (mouse) {
+			event = mouse;
+		}
+		if ('pageX' in event) { // all browsers except IE before version 9
+			var pageX = event.pageX;
+			var pageY = event.pageY;
+		} else {  // IE before version 9
+			var pageX = event.clientX + document.documentElement.scrollLeft;
+			var pageY = event.clientY + document.documentElement.scrollTop;
+		}
+
+		var boundedX = pageX - this.div_board.offsetLeft + 1;
+		var boundedY = pageY - this.div_board.offsetTop + 1;
 		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-			this.game.play(gridY, gridX, click.shiftKey);
+			this.game.play(gridY, gridX, event.shiftKey);
 		}
 	},
 
@@ -299,12 +310,23 @@ GoGraphic.prototype = {
 			return false;
 		}
 
+		if (mouse) {
+			event = mouse;
+		}
+		if ('pageX' in event) { // all browsers except IE before version 9
+			var pageX = event.pageX;
+			var pageY = event.pageY;
+		} else {  // IE before version 9
+			var pageX = event.clientX + document.documentElement.scrollLeft;
+			var pageY = event.clientY + document.documentElement.scrollTop;
+		}
+
 		var t_stone;
 
 		if (this.game.mode == "count" || (this.game.mode == "count_online" && this.game.my_colour != "O")) {
 			this.clean_t_stones();
-			var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
-			var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
+			var boundedX = pageX - this.div_board.offsetLeft + 1;
+			var boundedY = pageY - this.div_board.offsetTop + 1;
 			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
 				return false;
 			}
@@ -314,13 +336,13 @@ GoGraphic.prototype = {
 
 			var tmp_color = this.game.get_pos(row, col);
 			if (tmp_color == "B") {
-				if (mouse.shiftKey) {
+				if (event.shiftKey) {
 					t_stone = this.revive_b;
 				} else {
 					t_stone = this.t_little_white;
 				}
 			} else if (tmp_color == "W") {
-				if (mouse.shiftKey) {
+				if (event.shiftKey) {
 					t_stone = this.revive_w;
 				} else {
 					t_stone = this.t_little_black;
@@ -365,8 +387,8 @@ GoGraphic.prototype = {
 				return false;
 			}
 
-			var boundedX = mouse.pageX - this.div_board.offsetLeft + 1;
-			var boundedY = mouse.pageY - this.div_board.offsetTop + 1;
+			var boundedX = pageX - this.div_board.offsetLeft + 1;
+			var boundedY = pageY - this.div_board.offsetTop + 1;
 			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
 				t_stone.style.display = "none";
 				return false;
@@ -399,14 +421,17 @@ GoGraphic.prototype = {
 	},
 
 	mouseout_handler: function(mouse) {
+		if (mouse) {
+			event = mouse;
+		}
 		var hide = false;
-		if (mouse.relatedTarget == null) {
+		if (event.relatedTarget == null) {
 			this.clean_t_stones();
 		} else {
-			if (mouse.relatedTarget == this.div_board) {
+			if (event.relatedTarget == this.div_board) {
 				return;
 			}
-			if (mouse.relatedTarget.parentNode != this.div_board) {
+			if (event.relatedTarget.parentNode != this.div_board) {
 				this.clean_t_stones();
 			}
 		}

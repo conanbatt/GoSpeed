@@ -266,6 +266,25 @@
                                     &nbsp;
                                 </td>
                             </tr>
+                            <tr>
+                                <th colspan="3">
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+									SGF ad-hoc
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+									<textarea id="sgf_adhoc" rows="10" cols="40"></textarea>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+									<input type="button" value="Load!" onclick="gospeed.sgf = new SGFParser(document.getElementById('sgf_adhoc').value); gospeed.sgf.load(gospeed);" />
+                                </th>
+                            </tr>
                         </table>
                     </div>
                 </div>

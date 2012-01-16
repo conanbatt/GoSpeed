@@ -101,6 +101,9 @@ GoSpeed.prototype = {
 		// TODO: turn count sucks monkey ass
 		this.turn_count = 0;
 
+	// Callbacks
+		this.callbacks = args.callbacks || {};
+
 	// Paths
 		if (args.server_path_gospeed_root != undefined) {
 			this.server_path_gospeed_root = args.server_path_gospeed_root;
@@ -395,10 +398,18 @@ GoSpeed.prototype = {
 	},
 
 //	Gameplay
-	play: function(row, col, shift) {
+	play: function(row, col, shift, ctrl) {
+		// Observer ctrl-clicks
+		if (ctrl && this.callbacks.coord_marker != undefined) {
+			this.callbacks.coord_marker(row, col);
+			return false;
+		}
+
+		// Check connection
 		if (!this.connected) {
 			return false;
 		}
+
 		var bRes = false;
 		var tmp_play;
 		switch(this.mode) {

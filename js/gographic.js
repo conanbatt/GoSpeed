@@ -311,7 +311,7 @@ GoGraphic.prototype = {
 		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-			this.game.play(gridY, gridX, event.shiftKey);
+			this.game.play(gridY, gridX, event.shiftKey, event.ctrlKey);
 		}
 	},
 

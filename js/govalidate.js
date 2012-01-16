@@ -195,6 +195,16 @@ GoValidate.prototype = {
 				}
 			}
 
+		// Callbacks
+			if (typeof callbacks != "undefined") {
+				var id;
+				for (id in callbacks) {
+					if (typeof callbacks[id] != "function") {
+						throw new Error("The callback '" + id + "' must be a function");
+					}
+				}
+			}
+
 		// Server Paths
 			// Server Resources Path
 			if (typeof server_path_gospeed_root != "undefined") {

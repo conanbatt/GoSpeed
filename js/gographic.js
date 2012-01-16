@@ -501,70 +501,27 @@ GoGraphic.prototype = {
 		(new Image()).src = tmp_path + "img/t_little_black.png";
 
 		// Transparent Stones
-		var t_white = document.createElement("div");
-		t_white.className = "StoneTW";
-		this.div_board.appendChild(t_white);
-		t_white.style.display = "none";
-		this.t_white = t_white;
-		var t_black = document.createElement("div");
-		t_black.className = "StoneTB";
-		this.div_board.appendChild(t_black);
-		t_black.style.display = "none";
-		this.t_black= t_black;
-		var t_little_black = document.createElement("div");
-		t_little_black.className = "LittleStoneTB";
-		this.div_board.appendChild(t_little_black);
-		t_little_black.style.display = "none";
-		this.t_little_black= t_little_black;
-		var t_little_white = document.createElement("div");
-		t_little_white.className = "LittleStoneTW";
-		this.div_board.appendChild(t_little_white);
-		t_little_white.style.display = "none";
-		this.t_little_white= t_little_white;
+		this.t_white = this.create_elem("div", "StoneTW", true);
+		this.t_black = this.create_elem("div", "StoneTB", true);
+		this.t_little_white = this.create_elem("div", "LittleStoneTW", true);
+		this.t_little_black = this.create_elem("div", "LittleStoneTB", true);
 
 		// Revive stones
-		var revive_stone = document.createElement("div");
-		revive_stone.className = "ReviveStoneW";
-		revive_stone.style.display = "none";
-		this.div_board.appendChild(revive_stone);
-		this.revive_w = revive_stone;
-		revive_stone = document.createElement("div");
-		revive_stone.className = "ReviveStoneB";
-		revive_stone.style.display = "none";
-		this.div_board.appendChild(revive_stone);
-		this.revive_b = revive_stone;
+		this.revive_w = this.create_elem("div", "ReviveStoneW", true);
+		this.revive_b = this.create_elem("div", "ReviveStoneB", true);
 
 		// Last stone markers
 		this.last_stone = [];
-		var last_stone = document.createElement("div");
-		last_stone.className = "LastStoneW";
-		this.div_board.appendChild(last_stone);
-		last_stone.style.display = "none";
-		this.last_stone["W"] = last_stone;
-		last_stone = document.createElement("div");
-		last_stone.className = "LastStoneB";
-		this.div_board.appendChild(last_stone);
-		last_stone.style.display = "none";
-		this.last_stone["B"] = last_stone;
+		this.last_stone["W"] = this.create_elem("div", "LastStoneW", true);
+		this.last_stone["B"] = this.create_elem("div", "LastStoneB", true);
 
 		// Last stone wait markers
 		this.last_stone_wait = [];
-		var last_stone_wait = document.createElement("div");
-		last_stone_wait.className = "LastStoneWaitW";
-		this.div_board.appendChild(last_stone_wait);
-		last_stone_wait.style.display = "none";
-		this.last_stone_wait["W"] = last_stone_wait;
-		last_stone_wait = document.createElement("div");
-		last_stone_wait.className = "LastStoneWaitB";
-		this.div_board.appendChild(last_stone_wait);
-		last_stone_wait.style.display = "none";
-		this.last_stone_wait["B"] = last_stone_wait;
+		this.last_stone_wait["W"] = this.create_elem("div", "LastStoneWaitW", true);
+		this.last_stone_wait["B"] = this.create_elem("div", "LastStoneWaitB", true);
 
 		// Ko
-		var ko = document.createElement("div");
-		ko.className = "Ko";
-		this.div_board.appendChild(ko);
-		this.ko = ko;
+		this.ko = this.create_elem("div", "Ko");
 
 		// Bind mouse handlers
 		this.div_board.onclick = this.binder(this.click_handler, this, null);
@@ -573,6 +530,16 @@ GoGraphic.prototype = {
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
+	},
+
+	create_elem: function(sTag, sClass, bHidden) {
+		var elem = document.createElement(sTag);
+		elem.className = sClass;
+		if (bHidden) {
+			elem.style.display = "none";
+		}
+		this.div_board.appendChild(elem);
+		return elem;
 	},
 
 	clean_t_stones: function() {

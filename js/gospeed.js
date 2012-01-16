@@ -404,14 +404,15 @@ GoSpeed.prototype = {
 		switch(this.mode) {
 			case "play":
 				// Setup
-				var time_left;
-				if (this.timer != undefined) {
-					time_left = this.timer.pause()[this.get_next_move()];
-				}
-
 				tmp_play = this.setup_play(row, col);
 
 				if (tmp_play) {
+					// Timer
+					var time_left;
+					if (this.timer != undefined) {
+						time_left = this.timer.pause()[this.get_next_move()];
+					}
+
 					// Commit
 					tmp_play.time_left = time_left;
 					this.commit_play(tmp_play, NODE_OFFLINE);
@@ -431,18 +432,18 @@ GoSpeed.prototype = {
 					return false;
 				}
 
-				// Time
-				var tmp_remain;
-				var time_left;
-				if (this.timer != undefined) {
-					tmp_remain = this.timer.pause();
-					time_left = tmp_remain[this.get_next_move()];
-				}
-
 				// Setup
 				tmp_play = this.setup_play(row, col);
 
 				if (tmp_play) {
+					// Time
+					var tmp_remain;
+					var time_left;
+					if (this.timer != undefined) {
+						tmp_remain = this.timer.pause();
+						time_left = tmp_remain[this.get_next_move()];
+					}
+
 					// Commit
 					tmp_play.time_left = time_left;
 					this.commit_play(tmp_play, NODE_ONLINE, true);

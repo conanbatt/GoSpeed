@@ -124,6 +124,14 @@
 		z-index: 3;
 	}
 
+	div.CoordMarker {
+		position: absolute;
+		background-image: url("../img/coord_marker.png");
+		width: 25px;
+		height: 25px;
+		z-index: 4;
+	}
+
 	div.LastStoneWaitB {
 		position: absolute;
 		background-image: url("../img/last_stone_wait_b.gif");

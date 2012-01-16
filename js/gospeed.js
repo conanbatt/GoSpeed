@@ -1422,6 +1422,18 @@ GoSpeed.prototype = {
 		this.update_timer(data.time_adjustment);
 	},
 
+	place_coord_marker: function(row, col) {
+		if (this.shower != undefined) {
+			this.shower.place_coord_marker(row, col);
+		}
+	},
+
+	clear_coord_marker: function() {
+		if (this.shower != undefined) {
+			this.shower.clear_coord_marker();
+		}
+	},
+
 	handle_score_agreement: function(raw_score_state) {
 		if (this.mode == "count_online" || this.mode == "count") {
 			this.update_raw_score_state(raw_score_state);

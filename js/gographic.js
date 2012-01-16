@@ -84,6 +84,16 @@ GoGraphic.prototype = {
 		this.place_last_stone_marker(put);
 	},
 
+	place_coord_marker: function(row, col) {
+		this.coord_marker.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
+		this.coord_marker.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
+		this.coord_marker.style.display = "block";
+	},
+
+	clear_coord_marker: function() {
+		this.coord_marker.style.display = "none";
+	},
+
 	place_ko: function(ko) {
 		this.ko.style.left = (ko.col * STONE_SIZE + BOARD_BOUND) + "px";
 		this.ko.style.top = (ko.row * STONE_SIZE + BOARD_BOUND) + "px";
@@ -522,6 +532,9 @@ GoGraphic.prototype = {
 
 		// Ko
 		this.ko = this.create_elem("div", "Ko");
+
+		// Coord Marker
+		this.coord_marker = this.create_elem("div", "CoordMarker", true);
 
 		// Bind mouse handlers
 		this.div_board.onclick = this.binder(this.click_handler, this, null);

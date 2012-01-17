@@ -155,7 +155,7 @@ GoSpeed.prototype = {
 
 	safe_get_pos: function(row, col) {
 		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
-			return "";
+			return false;
 		} else {
 			return this.grid[row][col];
 		}
@@ -758,16 +758,16 @@ GoSpeed.prototype = {
 
 	count_stone_liberties: function(stone) {
 		var count = 0;
-		if (this.safe_get_pos(stone.row - 1, stone.col) == undefined) {
+		if (!this.safe_get_pos(stone.row - 1, stone.col)) {
 			count++;
 		}
-		if (this.safe_get_pos(stone.row, stone.col - 1) == undefined) {
+		if (!this.safe_get_pos(stone.row, stone.col - 1)) {
 			count++;
 		}
-		if (this.safe_get_pos(stone.row, stone.col + 1) == undefined) {
+		if (!this.safe_get_pos(stone.row, stone.col + 1)) {
 			count++;
 		}
-		if (this.safe_get_pos(stone.row + 1, stone.col) == undefined) {
+		if (!this.safe_get_pos(stone.row + 1, stone.col)) {
 			count++;
 		}
 		return count;
@@ -1435,7 +1435,9 @@ GoSpeed.prototype = {
 
 	place_coord_marker: function(row, col) {
 		if (this.shower != undefined) {
-			this.shower.place_coord_marker(row, col);
+			if (this.safe_get_pos(row, col)) {
+				this.shower.place_coord_marker(row, col);
+			}
 		}
 	},
 

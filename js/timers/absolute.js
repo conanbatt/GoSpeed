@@ -23,9 +23,6 @@ function AbsoluteTimer(game, time) {
 	this.system = {};
 	this.system.name = "Absolute";
 	this.system.time = time;
-
-	// Draw
-	//this.game.update_clocks(this.remain);
 }
 
 AbsoluteTimer.prototype = {
@@ -69,7 +66,6 @@ AbsoluteTimer.prototype = {
 		window.clearInterval(this.clock);
 		if (remain) {
 			this.remain = remain;
-			//this.game.update_clocks(this.remain);
 		}
 		this.actual_color = null;
 		this.last_resume = null;

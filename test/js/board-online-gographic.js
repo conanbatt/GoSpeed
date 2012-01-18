@@ -10,6 +10,8 @@ var BOARD_SERVER_PATH_GAME_MOVE = "21/play";
 var BOARD_SERVER_PATH_GOSPEED_ROOT = "/resources/gospeed";
 var BOARD_DIV_ORIGINAL_CONTENT = "(;FF[4];B[bc];W[ff];B[fb];W[bf])";
 
+var KAYAGLOBAL = KAYAGLOBAL || undefined;
+
 module("OnlineSuite", {
 	setup: function() {
 		// Server

@@ -8,7 +8,8 @@
 		<script type="text/javascript" src="js/sgf.js"></script>
 		<script type="text/javascript" src="js/score.js"></script>
 		<script type="text/javascript" src="js/govalidate.js"></script>
-		<script type="text/javascript" src="js/timer_absolute.js"></script>
+		<script type="text/javascript" src="js/timers/absolute.js"></script>
+		<script type="text/javascript" src="js/timers/fischer.js"></script>
 		<script type="text/javascript" src="js/stone.js"></script>
 		<script type="text/javascript" src="js/utils.js"></script>
 		<script type="text/javascript" src="js/gospeed.js"></script>
@@ -301,9 +302,12 @@
 				div_id_board: "board1",
 				div_id_tree: "arbol",
 				shower: "graphic",
-				time_config: {
-					time_system: "Absolute",
-					starting_time: 600,
+				time_settings: {
+					name: "Fischer",
+					settings: {
+						main_time: 600,
+						bonus: 5,
+					},
 					div_id_clock_w: "div_id_clock_w",
 					div_id_clock_b: "div_id_clock_b",
 				},

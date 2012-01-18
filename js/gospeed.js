@@ -1442,7 +1442,9 @@ GoSpeed.prototype = {
 
 	place_coord_marker: function(row, col) {
 		if (this.shower != undefined) {
-			this.shower.place_coord_marker(row, col);
+			if (this.safe_get_pos(row, col) != "") {
+				this.shower.place_coord_marker(row, col);
+			}
 		}
 	},
 

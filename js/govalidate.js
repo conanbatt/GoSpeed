@@ -75,37 +75,30 @@ GoValidate.prototype = {
 			}
 
 		// Time config
-			if (typeof time_config != "undefined") {
+			if (typeof time_settings != "undefined") {
 				// Time system
-				if (typeof time_config.time_system != "undefined") {
-					if (typeof time_config.time_system != "string") {
-						throw new Error("The 'time_system' parameter must be a string");
+				if (typeof time_settings.name != "undefined") {
+					if (typeof time_settings.name != "string") {
+						throw new Error("The 'time_settings.name' parameter must be a string");
 					} else {
-						options = ["Absolute", "Free", ];
-						if (!inArray(time_config.time_system, options)) {
-							throw new Error("The 'time_system' parameter must be in (" + options + ").");
+						options = ["Absolute", "Fischer", "Free", ];
+						if (!inArray(time_settings.name, options)) {
+							throw new Error("The 'time_settings.name' parameter must be in (" + options + ").");
 						}
 					}
 				}
-				if (typeof time_config.starting_time != "undefined") {
-					if (typeof time_config.starting_time != "number") {
-						throw new Error("The 'starting_time' parameter must be a number");
-					}
-				} else {
-					throw new Error("As there is a time config, starting_time property is required.");
-				}
 				// Clocks Div IDs
-				if (typeof time_config.div_id_clock_w != "undefined") {
-					if (typeof time_config.div_id_clock_w != "string") {
+				if (typeof time_settings.div_id_clock_w != "undefined") {
+					if (typeof time_settings.div_id_clock_w != "string") {
 						throw new Error("The 'div_id_clock_w' parameter must be a string");
-					} else if (!document.getElementById(time_config.div_id_clock_w)) {
+					} else if (!document.getElementById(time_settings.div_id_clock_w)) {
 						throw new Error("The 'div_id_clock_w' parameter points to no existing div.");
 					}
 				}
-				if (typeof time_config.div_id_clock_b != "undefined") {
-					if (typeof time_config.div_id_clock_b != "string") {
+				if (typeof time_settings.div_id_clock_b != "undefined") {
+					if (typeof time_settings.div_id_clock_b != "string") {
 						throw new Error("The 'div_id_clock_b' parameter must be a string");
-					} else if (!document.getElementById(time_config.div_id_clock_b)) {
+					} else if (!document.getElementById(time_settings.div_id_clock_b)) {
 						throw new Error("The 'div_id_clock_b' parameter points to no existing div.");
 					}
 				}

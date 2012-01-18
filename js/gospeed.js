@@ -35,12 +35,12 @@ GoSpeed.prototype = {
 			}
 		}
 		// Time
-		if (args.time_config != undefined) {
-			if (args.time_config.div_id_clock_w != undefined) {
-				this.div_id_clock_w = args.time_config.div_id_clock_w;
+		if (args.time_settings != undefined) {
+			if (args.time_settings.div_id_clock_w != undefined) {
+				this.div_id_clock_w = args.time_settings.div_id_clock_w;
 			}
-			if (args.time_config.div_id_clock_b != undefined) {
-				this.div_id_clock_b = args.time_config.div_id_clock_b;
+			if (args.time_settings.div_id_clock_b != undefined) {
+				this.div_id_clock_b = args.time_settings.div_id_clock_b;
 			}
 		}
 		// Captured
@@ -73,8 +73,8 @@ GoSpeed.prototype = {
 		}
 
 	// Timer
-		if (args.time_config != undefined) {
-			this.setup_timer(args.time_config.time_system, {"main_time": args.time_config.starting_time});
+		if (args.time_settings != undefined) {
+			this.setup_timer(args.time_settings);
 		}
 
 	// GameTree
@@ -421,7 +421,7 @@ GoSpeed.prototype = {
 					// Timer
 					var time_left;
 					if (this.timer != undefined) {
-						time_left = this.timer.pause()[this.get_next_move()];
+						time_left = this.timer.pause(true)[this.get_next_move()];
 					}
 
 					// Commit
@@ -451,7 +451,7 @@ GoSpeed.prototype = {
 					var tmp_remain;
 					var time_left;
 					if (this.timer != undefined) {
-						tmp_remain = this.timer.pause();
+						tmp_remain = this.timer.pause(true);
 						time_left = tmp_remain[this.get_next_move()];
 					}
 
@@ -651,7 +651,7 @@ GoSpeed.prototype = {
 				// Time
 				var time_left;
 				if (this.timer != undefined) {
-					time_left = this.timer.pause()[color]
+					time_left = this.timer.pause(true)[color]
 				}
 
 				// Play
@@ -685,7 +685,7 @@ GoSpeed.prototype = {
 				var tmp_remain;
 				var time_left;
 				if (this.timer != undefined) {
-					tmp_remain = this.timer.pause();
+					tmp_remain = this.timer.pause(true);
 					time_left = tmp_remain[color]
 				}
 
@@ -973,11 +973,13 @@ GoSpeed.prototype = {
 	},
 
 //	Time commands
-	setup_timer: function(time_system, time_settings) {
-		switch(time_system) {
+	setup_timer: function(time_settings) {
+		switch(time_settings.name) {
 			case "Absolute":
-				this.timer = new AbsoluteTimer(this, time_settings.main_time);
-				//this.update_clocks(this.timer.remain);
+				this.timer = new AbsoluteTimer(this, time_settings.settings.main_time);
+			break;
+			case "Fischer":
+				this.timer = new FischerTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
 		}
 	},
@@ -1300,7 +1302,7 @@ GoSpeed.prototype = {
 			this.change_size(Number(data.size));
 		}
 
-		// Check SGF status and load sgf if necesary
+		// Check SGF status and load sgf if necesary TODO: this might be better at the begining of diff_update_game
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
 			this.update_game(data);
 			return false;
@@ -1358,6 +1360,7 @@ GoSpeed.prototype = {
 			var node = this.game_tree.actual_move;
 			switch(this.timer.system.name) {
 				case "Absolute":
+				case "Fischer":
 					while(!end) {
 						play = node.play;
 						if (play instanceof Play || play instanceof Pass) {
@@ -1412,7 +1415,7 @@ GoSpeed.prototype = {
 			}
 			// Timer config
 			if (data.time_settings != undefined) {
-				this.setup_timer(data.time_settings.name, data.time_settings.settings);
+				this.setup_timer(data.time_settings);
 			}
 			// Moves
 			if (data.moves) {

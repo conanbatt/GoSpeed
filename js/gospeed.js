@@ -1431,6 +1431,13 @@ GoSpeed.prototype = {
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
 		this.update_timer(data.time_adjustment);
+
+		// Stop timer when game ends
+		if (this.timer != undefined) {
+			if (data.result != undefined) {
+				this.timer.stop();
+			}
+		}
 	},
 
 	place_coord_marker: function(row, col) {

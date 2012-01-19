@@ -248,7 +248,7 @@ SGFParser.prototype = {
 				if (bonus) {
 					time_settings.name = "Fischer";
 					time_settings.settings = {
-						bonus: parseFloat(bonus),
+						bonus: parseFloat(bonus[0]),
 					}
 				}
 			}
@@ -263,7 +263,7 @@ SGFParser.prototype = {
 				time_settings.name = "Free";
 			}
 		} else {
-			if (sgf_node.TM != undefined) {
+			if (sgf_node.TM == undefined) {
 				time_settings.settings.main_time = 0;
 			} else {
 				time_settings.settings.main_time = parseFloat(sgf_node.TM);

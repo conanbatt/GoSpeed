@@ -158,6 +158,8 @@ GoGraphic.prototype = {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
 			this.refresh_ko(play);
+		} else if (play instanceof Pass) {
+			this.refresh_ko(play);
 		}
 	},
 

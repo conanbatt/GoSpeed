@@ -209,10 +209,10 @@ GoGraphic.prototype = {
 			}
 		} else {
 			if (this.div_score_w != undefined) {
-				this.div_score_w.innerHTML = "-";
+				this.div_score_w.innerHTML = "";
 			}
 			if (this.div_score_b != undefined) {
-				this.div_score_b.innerHTML = "-";
+				this.div_score_b.innerHTML = "";
 			}
 		}
 	},
@@ -223,7 +223,7 @@ GoGraphic.prototype = {
 			if (result != undefined) {
 				this.div_result.innerHTML = result;
 			} else {
-				this.div_result.innerHTML = "-";
+				this.div_result.innerHTML = "";
 			}
 		}
 	},

@@ -244,9 +244,12 @@ SGFParser.prototype = {
 		var time_settings = {};
 		if (sgf_node.OT != undefined) {
 			if (/fischer/i.test(sgf_node.OT)) {
-				time_settings.name = "Fischer";
-				time_settings.settings = {
-					bonus: parseFloat(sgf_node.OT),
+				var bonus = sgf_node.OT.match(/\d+(.\d+)?/)
+				if (bonus) {
+					time_settings.name = "Fischer";
+					time_settings.settings = {
+						bonus: parseFloat(bonus),
+					}
 				}
 			}
 		}
@@ -263,7 +266,7 @@ SGFParser.prototype = {
 			if (sgf_node.TM != undefined) {
 				time_settings.settings.main_time = 0;
 			} else {
-				time_settings.settings.main_time = sgf_node.TM;
+				time_settings.settings.main_time = parseFloat(sgf_node.TM);
 			}
 		}
 

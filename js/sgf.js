@@ -238,13 +238,38 @@ SGFParser.prototype = {
 		if (sgf_node.SZ != undefined) {
 			board.change_size(Number(sgf_node.SZ));
 		}
-		if (sgf_node.TM != undefined) {
-			if (sgf_node.OT == undefined) {
-				board.setup_timer("Absolute", {"main_time": sgf_node.TM});
-			} else {
-				// Hello polly from the future, here you can place new time systems...
+
+		// Hello polly from the future, here you can place new time systems...
+		// Generate timer config
+		var time_settings = {};
+		if (sgf_node.OT != undefined) {
+			if (/fischer/i.test(sgf_node.OT)) {
+				time_settings.name = "Fischer";
+				time_settings.settings = {
+					bonus: parseFloat(sgf_node.OT),
+				}
 			}
 		}
+		if (time_settings.name == undefined) {
+			if (sgf_node.TM != undefined) {
+				time_settings.name = "Absolute";
+				time_settings.settings = {
+					main_time: parseFloat(sgf_node.TM),
+				}
+			} else {
+				time_settings.name = "Free";
+			}
+		} else {
+			if (sgf_node.TM != undefined) {
+				time_settings.settings.main_time = 0;
+			} else {
+				time_settings.settings.main_time = sgf_node.TM;
+			}
+		}
+
+		// Finally apply config
+		board.setup_timer(time_settings);
+
 		if (sgf_node.AB != undefined || sgf_node.AW != undefined) {
 			var free = new FreePlay();
 			free.captured = {"B": 0, "W": 0};

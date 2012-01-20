@@ -385,6 +385,18 @@ GoSpeed.prototype = {
 		this.render_tree();
 	},
 
+	fast_forward: function(count) {
+		while(count > 0 && this.next()) {
+			count--;
+		}
+	},
+
+	fast_backward: function(count) {
+		while(count > 0 && this.prev()) {
+			count--;
+		}
+	},
+
 	goto_start: function() {
 		while (this.prev()) {
 			continue;

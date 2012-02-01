@@ -129,7 +129,6 @@ SGFParser.prototype = {
 			while (!prop_end) {
 				cur_char = buffer[buf_end];
 				if (cur_char == '\\') {
-					prop_val += cur_char;
 					esc_next = true;
 				} else if (!esc_next && cur_char == ']') {
 					prop_arr.push(prop_val);

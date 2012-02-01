@@ -237,6 +237,11 @@ SGFParser.prototype = {
 		if (sgf_node.SZ != undefined) {
 			board.change_size(Number(sgf_node.SZ));
 		}
+		if (sgf_node.C != undefined) {
+			if (board.game_tree != undefined && board.game_tree.root != undefined) {
+				board.game_tree.root.comments = sgf_node.C;
+			}
+		}
 
 		// Hello polly from the future, here you can place new time systems...
 		// Generate timer config
@@ -347,7 +352,7 @@ SGFParser.prototype = {
 				}
 				tmp.time_left = time_left;
 				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
-				board.game_tree.append(new GameNode(tmp, node_source));
+				board.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
 				board.make_play(tmp);
 				if (time_left != undefined && board.timer != undefined) {
 					board.timer.set_remain(tmp.put.color, time_left);

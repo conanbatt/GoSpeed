@@ -198,13 +198,14 @@ var NODE_VARIATION = 8;
 	}
 
 // Game node
-	function GameNode(play, source) {
+	function GameNode(play, source, comments) {
 		this.play = play;
 		this.prev = null;
 		this.next = [];
 		this.last_next = undefined;
 		this.source = source;
 		this.turn_number = 0;
+		this.comments = comments;
 	}
 
 // Track

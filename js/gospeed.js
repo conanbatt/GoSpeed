@@ -61,6 +61,10 @@ GoSpeed.prototype = {
 		if (args.div_id_result != undefined) {
 			this.div_id_result = args.div_id_result;
 		}
+		// Result
+		if (args.div_id_comments != undefined) {
+			this.div_id_comments = args.div_id_comments;
+		}
 
 	// Shower
 		// Define the showing engine
@@ -344,6 +348,7 @@ GoSpeed.prototype = {
 
 		if (this.shower) {
 			this.shower.clean_t_stones();
+			this.shower.update_comments();
 		}
 
 		this.render_tree();
@@ -367,6 +372,7 @@ GoSpeed.prototype = {
 		if (!no_redraw) {
 			if (this.shower) {
 				this.shower.clean_t_stones();
+				this.shower.update_comments();
 			}
 			this.render_tree();
 		}

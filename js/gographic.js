@@ -228,6 +228,18 @@ GoGraphic.prototype = {
 		}
 	},
 
+	// Pick game actual move comments and write them in corresponding div
+	update_comments: function() {
+		if (this.div_comments != undefined) {
+			var node = this.game.game_tree.actual_move;
+			if (node.comments != undefined && node.turn_number != undefined) {
+				this.div_comments.innerHTML = '<strong>Move ' + node.turn_number + '</strong><br />' + node.comments.replace(/(\r\n|\n|\r)/gm,"<br />");
+			} else {
+				this.div_comments.innerHTML = '';
+			}
+		}
+	},
+
 	draw_score: function(score) {
 		for (var i = 0, li = score.groups.length; i < li; ++i) {
 			var group = score.groups[i];
@@ -657,6 +669,12 @@ GoGraphic.prototype = {
 			this.div_result = document.getElementById(this.game.div_id_result);
 			if (!this.div_result) {
 				throw new Error("GoGraphic: error finding result div.");
+			}
+		}
+		if (this.game.div_id_comments != undefined) {
+			this.div_comments = document.getElementById(this.game.div_id_comments);
+			if (!this.div_comments) {
+				throw new Error("GoGraphic: error finding comments div.");
 			}
 		}
 	},

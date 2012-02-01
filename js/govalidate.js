@@ -145,6 +145,15 @@ GoValidate.prototype = {
 				}
 			}
 
+		// Comments Div
+			if (typeof div_id_comments != "undefined") {
+				if (typeof div_id_comments != "string") {
+					throw new Error("The 'div_id_comments' parameter must be a string");
+				} else if (!document.getElementById(div_id_comments)) {
+					throw new Error("The 'div_id_comments' parameter points to no existing div.");
+				}
+			}
+
 		// Komi
 			if (typeof komi != "undefined") {
 				if (typeof komi != "number") {

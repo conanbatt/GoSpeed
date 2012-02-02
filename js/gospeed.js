@@ -317,7 +317,7 @@ GoSpeed.prototype = {
 
 
 //	Game Seek
-	prev: function() {
+	prev: function(no_redraw) {
 		if (this.is_attached()) {
 			// TODO: what if we're playing offline?
 			this.detach_head();
@@ -325,11 +325,13 @@ GoSpeed.prototype = {
 		var play = this.game_tree.prev();
 		if (play) {
 			this.undo_play(play);
-			if (this.shower) {
-				this.shower.undraw_play(play);
-				// Place last stone marker
-				if (this.game_tree.actual_move.play instanceof Play) {
-					this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.undraw_play(play);
+					// Place last stone marker
+					if (this.game_tree.actual_move.play instanceof Play) {
+						this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+					}
 				}
 			}
 		} else {
@@ -338,20 +340,23 @@ GoSpeed.prototype = {
 
 		play = this.game_tree.actual_move.play;
 		if (play) {
-			if (this.shower != undefined) {
-				this.shower.refresh_ko(play);
-				this.shower.update_captures(play);
+			if (!no_redraw) {
+				if (this.shower != undefined) {
+					this.shower.refresh_ko(play);
+					this.shower.update_captures(play);
+				}
 			}
 		} else {
 			return false;
 		}
 
-		if (this.shower) {
-			this.shower.clean_t_stones();
-			this.shower.update_comments();
+		if (!no_redraw) {
+			if (this.shower) {
+				this.shower.clean_t_stones();
+				this.shower.update_comments();
+			}
+			this.render_tree();
 		}
-
-		this.render_tree();
 		return true;
 	},
 
@@ -392,27 +397,43 @@ GoSpeed.prototype = {
 	},
 
 	fast_forward: function(count) {
-		while(count > 0 && this.next()) {
+		while(count > 0 && this.next(undefined, true)) {
 			count--;
 		}
+		if (this.shower != undefined) {
+			this.shower.redraw();
+		}
+		this.render_tree();
 	},
 
 	fast_backward: function(count) {
-		while(count > 0 && this.prev()) {
+		while(count > 0 && this.prev(true)) {
 			count--;
 		}
+		if (this.shower != undefined) {
+			this.shower.redraw();
+		}
+		this.render_tree();
 	},
 
 	goto_start: function() {
-		while (this.prev()) {
+		while (this.prev(true)) {
 			continue;
 		}
+		if (this.shower != undefined) {
+			this.shower.redraw();
+		}
+		this.render_tree();
 	},
 
 	goto_end: function() {
-		while (this.next()) {
+		while (this.next(undefined, true)) {
 			continue;
 		}
+		if (this.shower != undefined) {
+			this.shower.redraw();
+		}
+		this.render_tree();
 	},
 
 //	Gameplay

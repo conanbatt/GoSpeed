@@ -97,7 +97,9 @@ var NODE_VARIATION = 8;
 		this.root = new GameNode(null);
 		this.root.root = true;
 		this.actual_move = this.root;
-		this.graphic = new GameTreeGraphic(this, div_id_tree);
+		if (div_id_tree != undefined) {
+			this.graphic = new GameTreeGraphic(this, div_id_tree);
+		}
 	}
 
 	GameTree.prototype = {
@@ -167,6 +169,11 @@ var NODE_VARIATION = 8;
 			}
 		},
 
+		render_tree: function() {
+			if (this.graphic != undefined) {
+				this.graphic.draw();
+			}
+		},
 
 		recRunTree: function(arbol, cadena, nivel, sel) {
 			function completarAncho(nivel) {

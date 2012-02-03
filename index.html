@@ -279,12 +279,22 @@
                             </tr>
                             <tr>
                                 <th colspan="3" style="text-align: center;">
-									<textarea id="sgf_adhoc" rows="10" cols="40"></textarea>
+									<textarea id="sgf_adhoc" rows="3" cols="40"></textarea>
                                 </th>
                             </tr>
                             <tr>
                                 <th colspan="3" style="text-align: center;">
 									<input type="button" value="Load!" onclick="gospeed.sgf = new SGFParser(document.getElementById('sgf_adhoc').value); gospeed.sgf.load(gospeed);" />
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+									Comments
+                                </th>
+                            </tr>
+                            <tr>
+                                <th colspan="3" style="text-align: center;">
+									<div id="comments" style="overflow: auto; background-color: #FFF; border: 1px solid #000; text-align:left; height: 250px; font-weight: normal;"></div>
                                 </th>
                             </tr>
                         </table>
@@ -317,6 +327,7 @@
 				div_id_score_w: "div_id_score_w",
 				div_id_score_b: "div_id_score_b",
 				div_id_result: "gospeed_result",
+				div_id_comments: "comments",
 			};
 			var gospeed = new GoSpeed(args);
 

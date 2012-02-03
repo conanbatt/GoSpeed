@@ -857,7 +857,7 @@ GoSpeed.prototype = {
 	},
 
 	render_tree: function() {
-		this.game_tree.graphic.draw();
+		this.game_tree.render_tree();
 	},
 
 	get_next_track_id: function(force_id) {

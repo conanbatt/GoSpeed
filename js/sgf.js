@@ -364,8 +364,8 @@ SGFParser.prototype = {
 			}
 		// do: push actual_node to pend_game_tree_node
 		// do: push sgf_node.next nodes to pend_sgf_node
-			for (var key in sgf_node.next) {
-				pend_sgf_node.push(sgf_node.next[key]);
+			for (var i = sgf_node.next.length - 1; i >= 0; --i) {
+				pend_sgf_node.push(sgf_node.next[i]);
 				pend_game_tree_node.push(board.game_tree.actual_move);
 			}
 		}

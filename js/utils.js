@@ -226,10 +226,14 @@ var NODE_VARIATION = 8;
 				}
 				max_lvl += node.lvl;
 				var div = document.createElement("div");
-				if (node.elem.play == undefined || node.elem.play.put == undefined || node.elem.play.put.color == "B") {
-					div.className = "TreeNode B";
+				if (node.elem.play != undefined && node.elem.play.put != undefined) {
+					if (node.elem.play.put.color == "B") {
+						div.className = "TreeNode B";
+					} else {
+						div.className = "TreeNode W";
+					}
 				} else {
-					div.className = "TreeNode W";
+					div.className = "TreeNode";
 				}
 				div.style.top = (max_lvl * 27 + 5) + "px";
 				div.style.left = (node.elem.turn_number * 27 + 5) + "px";

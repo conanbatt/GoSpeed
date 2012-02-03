@@ -201,6 +201,50 @@ var NODE_VARIATION = 8;
 		},
 	}
 
+// Tree shower
+	function GameTreeGraphic(game_tree, div_id_tree) {
+		if (game_tree == undefined) {
+			throw new Error("A tree is needed.");
+		}
+		this.game_tree = game_tree;
+		if (div_id_tree != undefined) {
+			this.div_tree = document.getElementById(div_id_tree);
+		}
+	}
+
+	GameTreeGraphic.prototype = {
+		draw: function() {
+			this.div_tree.innerHTML = "";
+			var max_lvl = 0;
+			var node;
+			var actual_node_lvl;
+			var stash = [];
+			stash.push({lvl: 0, elem: this.game_tree.root});
+			while(node = stash.pop()) {
+				for (var i = node.elem.next.length - 1; i >= 0; --i) {
+					stash.push({lvl: (i > 0 ? 1 : 0), elem: node.elem.next[i]});
+				}
+				max_lvl += node.lvl;
+				var div = document.createElement("div");
+				if (node.elem.play == undefined || node.elem.play.put == undefined || node.elem.play.put.color == "B") {
+					div.className = "TreeNode B";
+				} else {
+					div.className = "TreeNode W";
+				}
+				div.style.top = (max_lvl * 27 + 5) + "px";
+				div.style.left = (node.elem.turn_number * 27 + 5) + "px";
+				div.innerHTML = node.elem.turn_number;
+				if (node.elem == this.game_tree.actual_move) {
+					div.style.backgroundColor = "#ACA";
+					actual_node_lvl = max_lvl;
+				}
+				this.div_tree.appendChild(div);
+			}
+			this.div_tree.scrollTop = (actual_node_lvl - 2) * 27 + 5;
+			this.div_tree.scrollLeft = (this.game_tree.actual_move.turn_number - 5) * 27 + 5;
+		}
+	};
+
 // Game node
 	function GameNode(play, source, comments) {
 		this.play = play;

@@ -82,10 +82,8 @@ GoSpeed.prototype = {
 		}
 
 	// GameTree
-		this.game_tree = new GameTree();
-		if (args.div_id_tree != undefined) {
-			this.tree_div = document.getElementById(args.div_id_tree);
-		}
+		this.game_tree = new GameTree(args.div_id_tree);
+		this.div_id_tree = args.div_id_tree;
 
 	// Online
 		if (args.my_colour != undefined) {
@@ -859,9 +857,7 @@ GoSpeed.prototype = {
 	},
 
 	render_tree: function() {
-		if (this.tree_div) {
-			this.tree_div.innerHTML = this.game_tree.toString();
-		}
+		this.game_tree.graphic.draw();
 	},
 
 	get_next_track_id: function(force_id) {
@@ -1184,7 +1180,7 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
-		this.game_tree = new GameTree();
+		this.game_tree = new GameTree(this.div_id_tree);
 
 		// Tracks
 		this.tracks = [];

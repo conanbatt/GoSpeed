@@ -93,19 +93,23 @@ var NODE_VARIATION = 8;
 	}
 
 // Game tree
-	function GameTree() {
+	function GameTree(div_id_tree) {
 		this.root = new GameNode(null);
 		this.root.root = true;
 		this.actual_move = this.root;
+		this.graphic = new GameTreeGraphic(this, div_id_tree);
 	}
 
 	GameTree.prototype = {
-		append: function(node) {
+		append: function(node, follow) {
 			node.prev = this.actual_move;
 			node.turn_number = this.actual_move.turn_number + 1;
 			this.actual_move.next.push(node);
-			if (node.source != NODE_VARIATION || this.actual_move.source == NODE_VARIATION) {
+			// TODO XXX FIXME: here might be the origin of the govar bug.
+			if (follow) {
 				this.actual_move.last_next = node;
+			} else {
+				this.actual_move.last_next = this.actual_move.next[0];
 			}
 			this.actual_move = node;
 		},

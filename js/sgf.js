@@ -168,6 +168,8 @@ SGFParser.prototype = {
 		while (!end) {
 			cur_char = buffer[buf_end];
 			switch (cur_char) {
+				case '\r':
+				break;
 				case '\n':
 				break;
 				case ' ':

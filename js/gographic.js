@@ -492,33 +492,33 @@ GoGraphic.prototype = {
 				this.div_clock_b.innerHTML = formatTime(remain["B"]);
 			break;
 			case "Byoyomi":
-				if(remain[BLACK].period == 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99) + ' SD';
-				} else if (remain[BLACK].periods < timer.system.periods) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99) + ' (' + remain[BLACK].periods + ')';
+				if (remain[BLACK].main_time > 0) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
+				} else if (remain[BLACK].periods == 0) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99);
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
 				}
 
-				if (remain[WHITE].period == 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99) + ' SD';
-				} else if (remain[WHITE].periods < timer.system.periods) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99) + ' (' + remain[WHITE].periods + ')';
+				if (remain[WHITE].main_time > 0) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
+				} else if (remain[WHITE].periods == 0) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99);
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
 				}
 			break;
 			case "Canadian":
-				if(remain[BLACK].stone > 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time) + ' / ' + remain[BLACK].stone;
+				if (remain[BLACK].main_time > 0) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
 				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time);
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' / ' + remain[BLACK].period_stones;
 				}
 
-				if(remain[WHITE].stone > 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time) + ' / ' + remain[WHITE].stone;
+				if (remain[WHITE].main_time > 0) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
 				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time);
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' / ' + remain[WHITE].period_stones;
 				}
 			break;
 

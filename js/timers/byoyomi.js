@@ -4,9 +4,9 @@ var ST_COUNTING = 2;
 var BLACK = 'B';
 var WHITE = 'W';
 
-function ByoyomiTimer(game, time, periods, period_time) {
+function ByoyomiTimer(game, main_time, periods, period_time) {
 	// Validation
-	if (!this.validate(time, periods, period_time)) {
+	if (!this.validate(main_time, periods, period_time)) {
 		return false;
 	}
 
@@ -16,12 +16,14 @@ function ByoyomiTimer(game, time, periods, period_time) {
 	// Remaining time and period
 	this.remain = {};
 	this.remain[BLACK] = {
-		'time': time,
-		'periods': periods
+		'main_time': main_time,
+		'period_time': period_time,
+		'periods': periods,
 	};
 	this.remain[WHITE] = {
-		'time': time,
-		'periods': periods
+		'main_time': main_time,
+		'period_time': period_time,
+		'periods': periods,
 	};
 
 	// Stats
@@ -33,19 +35,19 @@ function ByoyomiTimer(game, time, periods, period_time) {
 	// System
 	this.system = {};
 	this.system.name = "Byoyomi";
-	this.system.time = time;
+	this.system.main_time = main_time;
 	this.system.periods = periods;
 	this.system.period_time = period_time;
 }
 
 ByoyomiTimer.prototype = {
 	// Validation
-	validate: function(time, periods, period_time) {
-		if (time == undefined) {
+	validate: function(main_time, periods, period_time) {
+		if (main_time == undefined) {
 			throw new Error("Must configure a main time.");
 			return false;
 		} else {
-			if (typeof time != "number" || parseInt(time, 10) != time || time < 0) {
+			if (typeof main_time != "number" || parseInt(main_time, 10) != main_time || main_time < 0) {
 				throw new Error("Main time parameter must be a non-negative integer indicating seconds.");
 				return false;
 			}
@@ -55,7 +57,7 @@ ByoyomiTimer.prototype = {
 			throw new Error("Must configure a period_time.");
 			return false;
 		} else {
-			if (typeof period_time != "number" || parseInt(period_time, 10) != period_time || time < 0) {
+			if (typeof period_time != "number" || parseInt(period_time, 10) != period_time || period_time < 0) {
 				throw new Error("Period time parameter must be a non-negative integer indicating seconds per period.");
 				return false;
 			}
@@ -65,7 +67,7 @@ ByoyomiTimer.prototype = {
 			throw new Error("Must configure number of periods.");
 			return false;
 		} else {
-			if (typeof periods != "number" || parseInt(periods, 10) != periods || time < 0) {
+			if (typeof periods != "number" || parseInt(periods, 10) != periods || periods < 0) {
 				throw new Error("Periods parameter must be a non-negative integer indicating number of periods.");
 				return false;
 			}
@@ -75,27 +77,14 @@ ByoyomiTimer.prototype = {
 	},
 
 	// Force a remaining time for a player.
-	set_remain: function(color, time) {
+	set_remain: function(color, main_time, periods, period_time) {
 		if (color != "B" && color != "W") {
 			throw new Error("Wrong color");
 		} else {
 			var remain_color = this.remain[color];
-			remain_color.time = time;
-
-			// Need to consider time with regard to byoyomi periods
-			while(remain_color.time > this.system.period_time && remain_color.periods < this.system.periods) {
-				remain_color.periods++;
-				remain_color.time -= this.system.period_time;
-			}
-		}
-	},
-
-	// Force a remaining period for a player.
-	set_periods: function(color, periods) {
-		if (color != "B" && color != "W") {
-			throw new Error("Wrong color");
-		} else {
-			this.remain[color].periods = periods;
+			remain_color.main_time = main_time;
+			remain_color.periods = periods;
+			remain_color.period_time = period_time;
 		}
 	},
 
@@ -103,10 +92,12 @@ ByoyomiTimer.prototype = {
 	resume: function(color, remain_b, remain_w) {
 		if (this.status == ST_PAUSED) {
 			if (remain_b && remain_w) {
-				this.remain[BLACK].time = remain_b.time;
+				this.remain[BLACK].main_time = remain_b.main_time;
 				this.remain[BLACK].periods = remain_b.periods;
-				this.remain[WHITE].time = remain_w.time;
+				this.remain[BLACK].period_time = remain_b.period_time;
+				this.remain[WHITE].main_time = remain_w.main_time;
 				this.remain[WHITE].periods = remain_w.periods;
+				this.remain[WHITE].period_time = remain_b.period_time;
 			}
 			this.actual_color = color;
 			this.status = ST_COUNTING;
@@ -123,17 +114,23 @@ ByoyomiTimer.prototype = {
 			this.last_pause = new Date();
 			window.clearInterval(this.clock);
 			this.status = ST_PAUSED;
-			remain_color.time -= ((this.last_pause - this.last_resume) / 1000);
+			remain_color.main_time -= ((this.last_pause - this.last_resume) / 1000);
+
+			// Delegate extra removed time from main_time to period_time.
+			if (remain_color.main_time < 0) {
+				remain_color.period_time += remain_color.main_time;
+				remain_color.main_time = 0;
+			}
 
 			// If the time is less than zeor, attempt to add periods
-			while(remain_color.time <= 0 && this.remain[this.actual_color].periods > 0) {
+			while(remain_color.period_time <= 0 && this.remain[this.actual_color].periods > 0) {
 				remain_color.periods--;
-				remain_color.time += this.system.period_time;
+				remain_color.period_time += this.system.period_time;
 			}
 
 			// If remain time is greater than zero, but we've used periods, force to the period time.
-			if (remain_color.time > 0 && remain_color.periods < this.system.periods && reset_period_time) {
-				remain_color.time = this.system.period_time;
+			if (remain_color.period_time > 0 && remain_color.periods < this.system.periods && reset_period_time) {
+				remain_color.period_time = this.system.period_time;
 			}
 
 			return this.remain;
@@ -145,10 +142,12 @@ ByoyomiTimer.prototype = {
 	stop: function(remain) {
 		window.clearInterval(this.clock);
 		if (remain) {
-			this.remain[BLACK].time = remain[BLACK].time;
+			this.remain[BLACK].main_time = remain[BLACK].main_time;
 			this.remain[BLACK].periods = remain[BLACK].periods;
-			this.remain[WHITE].time = remain[WHITE].time;
+			this.remain[BLACK].period_time = remain[BLACK].period_time;
+			this.remain[WHITE].main_time = remain[WHITE].main_time;
 			this.remain[WHITE].periods = remain[WHITE].periods;
+			this.remain[WHITE].period_time = remain[WHITE].period_time;
 		}
 		this.actual_color = null;
 		this.last_resume = null;
@@ -159,13 +158,7 @@ ByoyomiTimer.prototype = {
 	adjust: function(adjustment) {
 		if (this.status != ST_STOPED) {
 			var remain_color = this.remain[this.actual_color];
-			remain_color.time -= Number(adjustment);
-
-			// Need to consider time with regard to byoyomi periods
-			while(remain_color.time <= 0 && this.remain[this.actual_color].period > 0) {
-				remain_color.period--;
-				remain_color.time += this.system.period_time;
-			}
+			remain_color.main_time -= Number(adjustment);
 		}
 	},
 
@@ -176,38 +169,37 @@ ByoyomiTimer.prototype = {
 
 		var tmp_remain = {};
 		tmp_remain[BLACK] = {
-			'time': this.remain[BLACK].time,
+			'main_time': this.remain[BLACK].main_time,
 			'periods': this.remain[BLACK].periods,
+			'period_time': this.remain[BLACK].period_time,
 		};
 		tmp_remain[WHITE] = {
-			'time': this.remain[WHITE].time,
+			'main_time': this.remain[WHITE].main_time,
 			'periods': this.remain[WHITE].periods,
+			'period_time': this.remain[WHITE].period_time,
 		};
 
 		var tmp_remain_color = tmp_remain[this.actual_color];
 
-		tmp_remain_color.time = remain_color.time - (new Date() - this.last_resume) / 1000;
+		tmp_remain_color.main_time = remain_color.main_time - (new Date() - this.last_resume) / 1000;
+
+		// Delegate extra removed time from main_time to period_time.
+		if (tmp_remain_color.main_time < 0) {
+			tmp_remain_color.period_time += tmp_remain_color.main_time;
+			tmp_remain_color.main_time = 0;
+		}
 
 		// If the time <= 0, attempt to add a period
-		while (tmp_remain_color.time <= 0 && tmp_remain_color.periods > 0) {
-			tmp_remain_color.time += this.system.period_time;
+		while (tmp_remain_color.period_time <= 0 && tmp_remain_color.periods > 0) {
+			tmp_remain_color.period_time += this.system.period_time;
 			tmp_remain_color.periods--;
 		}
 
-		/*
-		// Don't diplay periods if we are still in main time
-		if (tmp_remain[BLACK].period == this.system.period) {
-			tmp_remain[BLACK].period = null;
-		}
-		if (tmp_remain[WHITE].period == this.system.period) {
-			tmp_remain[WHITE].period = null;
-		}
-		*/
-
 		this.game.update_clocks(tmp_remain);
-		if (tmp_remain_color.time <= 0) {
-			remain_color.time = 0;
+		if (tmp_remain_color.period_time <= 0) {
+			remain_color.main_time = 0;
 			remain_color.periods = 0;
+			remain_color.period_time = 0;
 			this.stop();
 			this.game.announce_time_loss(this.remain);
 		}

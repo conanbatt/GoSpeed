@@ -26,6 +26,7 @@ set ruler
 set runtimepath=~/.vim,~/.vim-addons/taglist,~/.vim-addons/pythoncomplete,/var/lib/vim/addons,/usr/share/vim/vimfiles,/usr/share/vim/vim73,/usr/share/vim/vimfiles/after,/var/lib/vim/addons/after,~/.vim/after,~/.vim-addons/vim-addon-manager
 set shiftwidth=4
 set smartindent
+set softtabstop=4
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
 set tabstop=4
 set termencoding=utf-8
@@ -39,14 +40,14 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
 endif
 set shortmess=aoO
 badd +1 ~/git-root/gospeed/css/style.css
-badd +59 ~/git-root/gospeed/js/gospeed.js
+badd +1047 ~/git-root/gospeed/js/gospeed.js
 badd +1 ~/git-root/gospeed/test/js/board-init.js
 badd +1 ~/git-root/gospeed/test/js/board-play.js
 badd +1 ~/git-root/gospeed/test/board-init.html
 badd +1 ~/git-root/gospeed/test/index.html
 badd +1 ~/git-root/gospeed/test/board-play.html
-badd +196 ~/git-root/gospeed/index.html
-badd +183 ~/git-root/gospeed/js/gographic.js
+badd +313 ~/git-root/gospeed/index.html
+badd +515 ~/git-root/gospeed/js/gographic.js
 badd +169 ~/git-root/gospeed/js/utils.js
 badd +1 ~/git-root/gospeed/js/stone.js
 badd +1 ~/git-root/gospeed/js/sgf.js
@@ -59,6 +60,13 @@ badd +1 ~/git-root/gospeed/test/board-online.html
 badd +1 ~/git-root/gospeed/test/js/helpers.js
 badd +1 ~/git-root/gospeed/test/js/server_emulator.js
 badd +13 ~/git-root/gospeed/js/score.js
+badd +1 ~/git-root/gospeed/js/timers/absolute.js
+badd +97 ~/git-root/gospeed/js/govalidate.js
+badd +133 ~/git-root/gospeed/js/timers/canadian.js
+badd +181 ~/git-root/gospeed/js/timers/byoyomi.js
+badd +70 ~/git-root/gospeed/js/timers/bronstein.js
+badd +1 ~/git-root/gospeed/js/timers/hourglass.js
+badd +1 ~/git-root/gospeed/js/timers/fischer.js
 args gospeed.js
 edit ~/git-root/gospeed/index.html
 set splitbelow splitright
@@ -176,11 +184,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 196 - ((39 * winheight(0) + 27) / 54)
+let s:l = 1 - ((0 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-196
+1
 normal! 0
 wincmd w
 argglobal
@@ -288,11 +296,11 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 618 - ((26 * winheight(0) + 27) / 54)
+let s:l = 1 - ((0 * winheight(0) + 27) / 54)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-618
+1
 normal! 0
 wincmd w
 2wincmd w

@@ -1020,6 +1020,18 @@ GoSpeed.prototype = {
 			case "Fischer":
 				this.timer = new FischerTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
+			case "Canadian":
+				this.timer = new CanadianTimer(this, time_settings.settings.main_time, time_settings.settings.period_time, time_settings.settings.period_stone);
+			break;
+			case "Byoyomi":
+				this.timer = new ByoyomiTimer(this, time_settings.settings.main_time, time_settings.settings.periods, time_settings.settings.period_time);
+			break;
+			case "Bronstein":
+				this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
+			break;
+			case "Hourglass":
+				this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+			break;
 		}
 	},
 

@@ -81,7 +81,7 @@ GoValidate.prototype = {
 					if (typeof time_settings.name != "string") {
 						throw new Error("The 'time_settings.name' parameter must be a string");
 					} else {
-						options = ["Absolute", "Fischer", "Free", ];
+						options = ["Absolute", "Fischer", "Canadian", "Byoyomi", "Bronstein", "Hourglass", "Free", ];
 						if (!inArray(time_settings.name, options)) {
 							throw new Error("The 'time_settings.name' parameter must be in (" + options + ").");
 						}

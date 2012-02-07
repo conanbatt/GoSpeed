@@ -481,8 +481,48 @@ GoGraphic.prototype = {
 			return tmp_min + ":" + tmp_sec;
 		}
 
-		this.div_clock_w.innerHTML = formatTime(remain["W"]);
-		this.div_clock_b.innerHTML = formatTime(remain["B"]);
+		var timer = this.game.timer;
+
+		switch (timer.system.name) {
+			case "Absolute":
+			case "Fischer":
+			case "Bronstein":
+			case "Hourglass":
+				this.div_clock_w.innerHTML = formatTime(remain["W"]);
+				this.div_clock_b.innerHTML = formatTime(remain["B"]);
+			break;
+			case "Byoyomi":
+				if(remain[BLACK].period == 0) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99) + ' SD';
+				} else if (remain[BLACK].periods < timer.system.periods) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99) + ' (' + remain[BLACK].periods + ')';
+				} else {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time + 0.99);
+				}
+
+				if (remain[WHITE].period == 0) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99) + ' SD';
+				} else if (remain[WHITE].periods < timer.system.periods) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99) + ' (' + remain[WHITE].periods + ')';
+				} else {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time + 0.99);
+				}
+			break;
+			case "Canadian":
+				if(remain[BLACK].stone > 0) {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time) + ' / ' + remain[BLACK].stone;
+				} else {
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].time);
+				}
+
+				if(remain[WHITE].stone > 0) {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time) + ' / ' + remain[WHITE].stone;
+				} else {
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].time);
+				}
+			break;
+
+		}
 	},
 
 	render: function() {

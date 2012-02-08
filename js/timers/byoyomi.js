@@ -129,7 +129,7 @@ ByoyomiTimer.prototype = {
 			}
 
 			// If remain time is greater than zero, but we've used periods, force to the period time.
-			if (remain_color.period_time > 0 && remain_color.periods < this.system.periods && reset_period_time) {
+			if (remain_color.period_time > 0 && remain_color.periods <= this.system.periods && reset_period_time) {
 				remain_color.period_time = this.system.period_time;
 			}
 

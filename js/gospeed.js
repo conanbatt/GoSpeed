@@ -82,10 +82,8 @@ GoSpeed.prototype = {
 		}
 
 	// GameTree
-		this.game_tree = new GameTree();
-		if (args.div_id_tree != undefined) {
-			this.tree_div = document.getElementById(args.div_id_tree);
-		}
+		this.game_tree = new GameTree(args.div_id_tree);
+		this.div_id_tree = args.div_id_tree;
 
 	// Online
 		if (args.my_colour != undefined) {
@@ -287,7 +285,7 @@ GoSpeed.prototype = {
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
 	commit_play: function(play, node_source, wait) {
-		this.game_tree.append(new GameNode(play, node_source));
+		this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
 		this.make_play(play);
 		if (this.shower) {
 			this.shower.draw_play(play, wait);
@@ -523,16 +521,16 @@ GoSpeed.prototype = {
 				// Cases in which a free play makes a new node in the tree.
 				if (this.game_tree.actual_move == null) {
 					// Make a new node in case there is no actual move
-					this.game_tree.append(new GameNode(new FreePlay()))
+					this.game_tree.append(new GameNode(new FreePlay()), true)
 				} else {
  					if (this.game_tree.actual_move.play instanceof FreePlay) {
 						if (this.game_tree.actual_move.next.length > 0) {
 							// Make a new node in case the actual move is free but there is a node next to it
-							this.game_tree.append(new GameNode(new FreePlay()))
+							this.game_tree.append(new GameNode(new FreePlay()), true)
 						}
 					} else {
 						// Make a new node in case the actual move is not free
-						this.game_tree.append(new GameNode(new FreePlay()))
+						this.game_tree.append(new GameNode(new FreePlay()), true)
 					}
 				}
 
@@ -697,7 +695,7 @@ GoSpeed.prototype = {
 				var tmp_play = new Pass(color);
 				tmp_play.time_left = time_left;
 				this.update_play_captures(tmp_play);
-				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE));
+				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE), true);
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();
@@ -732,7 +730,7 @@ GoSpeed.prototype = {
 				var tmp_play = new Pass(color)
 				tmp_play.time_left = time_left;
 				this.update_play_captures(tmp_play);
-				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE);
+				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE, true);
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();
@@ -859,9 +857,7 @@ GoSpeed.prototype = {
 	},
 
 	render_tree: function() {
-		if (this.tree_div) {
-			this.tree_div.innerHTML = this.game_tree.toString();
-		}
+		this.game_tree.render_tree();
 	},
 
 	get_next_track_id: function(force_id) {
@@ -1196,7 +1192,7 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
-		this.game_tree = new GameTree();
+		this.game_tree = new GameTree(this.div_id_tree);
 
 		// Tracks
 		this.tracks = [];

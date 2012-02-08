@@ -494,7 +494,7 @@ GoGraphic.prototype = {
 			case "Byoyomi":
 				if (remain[BLACK].main_time > 0) {
 					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
-				} else if (remain[BLACK].periods == 0) {
+				} else if (remain[BLACK].periods <= 1) {
 					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' SD';
 				} else {
 					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
@@ -502,7 +502,7 @@ GoGraphic.prototype = {
 
 				if (remain[WHITE].main_time > 0) {
 					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
-				} else if (remain[WHITE].periods == 0) {
+				} else if (remain[WHITE].periods <= 1) {
 					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' SD';
 				} else {
 					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';

@@ -114,6 +114,8 @@ ByoyomiTimer.prototype = {
 			this.last_pause = new Date();
 			window.clearInterval(this.clock);
 			this.status = ST_PAUSED;
+
+			// Always remove time from main_time, even if it would be negative afterwards
 			remain_color.main_time -= ((this.last_pause - this.last_resume) / 1000);
 
 			// Delegate extra removed time from main_time to period_time.
@@ -123,7 +125,7 @@ ByoyomiTimer.prototype = {
 			}
 
 			// If the time is less than zeor, attempt to add periods
-			while(remain_color.period_time <= 0 && this.remain[this.actual_color].periods > 0) {
+			while(remain_color.period_time <= 0 && this.remain[this.actual_color].periods > 1) {
 				remain_color.periods--;
 				remain_color.period_time += this.system.period_time;
 			}
@@ -181,6 +183,7 @@ ByoyomiTimer.prototype = {
 
 		var tmp_remain_color = tmp_remain[this.actual_color];
 
+		// Always remove time from main_time, even if it would be negative afterwards
 		tmp_remain_color.main_time = remain_color.main_time - (new Date() - this.last_resume) / 1000;
 
 		// Delegate extra removed time from main_time to period_time.
@@ -190,7 +193,7 @@ ByoyomiTimer.prototype = {
 		}
 
 		// If the time <= 0, attempt to add a period
-		while (tmp_remain_color.period_time <= 0 && tmp_remain_color.periods > 0) {
+		while (tmp_remain_color.period_time <= 0 && tmp_remain_color.periods > 1) {
 			tmp_remain_color.period_time += this.system.period_time;
 			tmp_remain_color.periods--;
 		}

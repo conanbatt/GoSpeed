@@ -332,10 +332,10 @@ SGFParser.prototype = {
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
 				if (board.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
-					time_left = sgf_node.BL;
+					time_left = this.get_time_from_node(board.timer.system.name, sgf_node.BL, sgf_node.OB);
 				} else if (board.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
-					time_left = sgf_node.WL;
+					time_left = this.get_time_from_node(board.timer.system.name, sgf_node.WL, sgf_node.OW);
 				} else {
 					this.status = SGFPARSER_ST_ERROR;
 					this.error = "Turn and Play mismatch";
@@ -483,6 +483,46 @@ SGFParser.prototype = {
 			}
 		}
 		return sRes;
-	}
+	},
+
+	get_time_from_node(system_name, time_left, overtime_periods) {
+		switch(system_name) {
+			case "Free":
+			case "Absolute":
+			case "Fischer":
+				return time_left;
+			break;
+			case "Byoyomi":
+				var res;
+				if (overtime_periods != undefined) {
+					res = {
+						'main_time': 0,
+						'periods': overtime_periods,
+						'period_time': time_left,
+					};
+				} else {
+					res = {
+						'main_time': time_left,
+					};
+				}
+				return res;
+			break;
+			case "Canadian":
+				var res;
+				if (overtime_periods != undefined) {
+					res = {
+						'main_time': 0,
+						'period_time': time_left,
+						'period_stones': overtime_periods,
+					};
+				} else {
+					res = {
+						'main_time': time_left,
+					};
+				}
+				return res;
+			break;
+		}
+	},
 }
 

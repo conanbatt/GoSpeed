@@ -1403,39 +1403,62 @@ GoSpeed.prototype = {
 			var last_remain_black;
 			var last_remain_white;
 			var node = this.game_tree.actual_move;
+
+			// Fetch last remain for black and white.
+			while(!end) {
+				play = node.play;
+				if (play instanceof Play || play instanceof Pass) {
+					color = play.put.color;
+					if (color == "B" && last_remain_black == undefined) {
+						last_remain_black = play.time_left;
+					}
+					if (color == "W" && last_remain_white == undefined) {
+						last_remain_white = play.time_left;
+					}
+				}
+				if (last_remain_white != undefined && last_remain_black != undefined) {
+					end = true;
+				} else {
+					node = node.prev;
+					if (node == undefined) {
+						end = true;
+					}
+				}
+			}
+
+			// Configure default time depending on time system.
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":
-					while(!end) {
-						play = node.play;
-						if (play instanceof Play || play instanceof Pass) {
-							color = play.put.color;
-							if (color == "B" && last_remain_black == undefined) {
-								last_remain_black = play.time_left;
-							}
-							if (color == "W" && last_remain_white == undefined) {
-								last_remain_white = play.time_left;
-							}
-						}
-						if (last_remain_white != undefined && last_remain_black != undefined) {
-							end = true;
-						} else {
-							node = node.prev;
-							if (node == undefined) {
-								end = true;
-							}
-						}
-					}
 					if (last_remain_white == undefined) {
-						last_remain_white = this.timer.system.time;
+						last_remain_white = this.timer.system.time);
 					}
 					if (last_remain_black == undefined) {
-						last_remain_black = this.timer.system.time;
+						last_remain_black = Number(this.timer.system.time);
 					}
-					this.timer.set_remain("B", Number(last_remain_black));
-					this.timer.set_remain("W", Number(last_remain_white));
+				break;
+				case "Byoyomi":
+					if (last_remain_white == undefined) {
+						last_remain_white = {
+							'main_time': this.timer.system.main_time,
+							'period_time': this.timer.system.period_time,
+							'periods': this.timer.system.periods,
+						};
+					}
+					if (last_remain_black == undefined) {
+						last_remain_black = {
+							'main_time': this.timer.system.main_time,
+							'period_time': this.timer.system.period_time,
+							'periods': this.timer.system.periods,
+						};
+					}
 				break;
 			}
+
+			// Finally setup clocks.
+			this.timer.set_remain("B", last_remain_black);
+			this.timer.set_remain("W", last_remain_white);
+
 			this.timer.resume(this.get_next_move());
 			if (time_adjustment != undefined) {
 				this.timer.adjust(time_adjustment);

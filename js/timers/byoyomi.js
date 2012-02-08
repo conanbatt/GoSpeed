@@ -77,14 +77,14 @@ ByoyomiTimer.prototype = {
 	},
 
 	// Force a remaining time for a player.
-	set_remain: function(color, main_time, periods, period_time) {
+	set_remain: function(color, remain) {
 		if (color != "B" && color != "W") {
 			throw new Error("Wrong color");
 		} else {
 			var remain_color = this.remain[color];
-			remain_color.main_time = main_time;
-			remain_color.periods = periods;
-			remain_color.period_time = period_time;
+			remain_color.main_time = remain.main_time;
+			remain_color.periods = remain.periods;
+			remain_color.period_time = remain.period_time;
 		}
 	},
 

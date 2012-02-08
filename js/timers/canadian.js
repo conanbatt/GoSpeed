@@ -96,7 +96,7 @@ CanadianTimer.prototype = {
 				this.remain[BLACK].period_time = remain_b.period_time;
 				this.remain[BLACK].period_stones = remain_b.period_stones;
 				this.remain[WHITE].main_time = remain_w.main_time;
-				this.remain[WHITE].period_time = remain_b.period_time;
+				this.remain[WHITE].period_time = remain_w.period_time;
 				this.remain[WHITE].period_stones = remain_w.period_stones;
 			}
 			this.actual_color = color;

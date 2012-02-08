@@ -82,9 +82,15 @@ ByoyomiTimer.prototype = {
 			throw new Error("Wrong color");
 		} else {
 			var remain_color = this.remain[color];
-			remain_color.main_time = remain.main_time;
-			remain_color.periods = remain.periods;
-			remain_color.period_time = remain.period_time;
+			if (remain.main_time != undefined) {
+				remain_color.main_time = remain.main_time;
+			}
+			if (remain.periods != undefined) {
+				remain_color.periods = remain.periods;
+			}
+			if (remain.period_time != undefined) {
+				remain_color.period_time = remain.period_time;
+			}
 		}
 	},
 

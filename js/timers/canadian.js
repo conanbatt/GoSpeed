@@ -77,14 +77,14 @@ CanadianTimer.prototype = {
 	},
 
 	// Force a remaining time for a player.
-	set_remain: function(color, main_time, period_time, period_stones) {
+	set_remain: function(color, remain) {
 		if (color != "B" && color != "W") {
 			throw new Error("Wrong color");
 		} else {
 			var remain_color = this.remain[color];
-			remain_color.main_time = main_time;
-			remain_color.period_time = period_time;
-			remain_color.period_stones = period_stones;
+			remain_color.main_time = remain.main_time;
+			remain_color.period_time = remain.period_time;
+			remain_color.period_stones = remain.period_stones;
 		}
 	},
 

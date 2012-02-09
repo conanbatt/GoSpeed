@@ -1290,8 +1290,20 @@ GoSpeed.prototype = {
 		}
 
 		// Time left property
-		if (remain) {
-			res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
+		if (remain != undefined) {
+			switch(this.timer.system.name) {
+				case "Absolute":
+				case "Fischer":
+					res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
+				break;
+				case "Byoyomi":
+					if (remain[play.put.color].main_time > 0) {
+						res += play.put.color + "L[" + Number(remain[play.put.color].main_time).toFixed(3) + "]";
+					} else {
+						res += play.put.color + "L[" + Number(remain[play.put.color].period_time).toFixed(3) + "]O" + play.put.color + "[" + remain[play.put.colo].periods + "]";
+					}
+				break;
+			}
 		}
 
 		return res;

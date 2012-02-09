@@ -495,6 +495,7 @@ SGFParser.prototype = {
 	},
 
 	get_time_from_node: function(timer, time_left, overtime_periods) {
+		// XXX TODO FIXME Maybe this validation is way too hard.
 		if (timer != undefined && timer.system != undefined && timer.system.name != undefined) {
 			switch(timer.system.name) {
 				case "Free":
@@ -507,12 +508,12 @@ SGFParser.prototype = {
 					if (overtime_periods != undefined) {
 						res = {
 							'main_time': 0,
-							'periods': overtime_periods,
-							'period_time': time_left,
+							'periods': parseInt(overtime_periods, 10),
+							'period_time': parseFloat(time_left),
 						};
 					} else {
 						res = {
-							'main_time': time_left,
+							'main_time': parseFloat(time_left),
 						};
 					}
 					return res;
@@ -522,18 +523,19 @@ SGFParser.prototype = {
 					if (overtime_periods != undefined) {
 						res = {
 							'main_time': 0,
-							'period_time': time_left,
-							'period_stones': overtime_periods,
+							'period_time': parseFloat(time_left),
+							'period_stones': parseInt(overtime_periods, 10),
 						};
 					} else {
 						res = {
-							'main_time': time_left,
+							'main_time': parseFloat(time_left),
 						};
 					}
 					return res;
 				break;
 			}
 		} else {
+			// XXX TODO FIXME: is this ok?
 			return undefined;
 		}
 	},

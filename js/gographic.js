@@ -495,17 +495,17 @@ GoGraphic.prototype = {
 				if (remain[BLACK].main_time > 0) {
 					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
 				} else if (remain[BLACK].periods <= 1) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' SD';
+					this.div_clock_b.innerHTML = Math.floor(remain[BLACK].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
+					this.div_clock_b.innerHTML = Math.floor(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
 				}
 
 				if (remain[WHITE].main_time > 0) {
 					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
 				} else if (remain[WHITE].periods <= 1) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' SD';
+					this.div_clock_w.innerHTML = Math.floor(remain[WHITE].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
+					this.div_clock_w.innerHTML = Math.floor(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
 				}
 			break;
 			case "Canadian":

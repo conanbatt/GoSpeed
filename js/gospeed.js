@@ -1300,7 +1300,7 @@ GoSpeed.prototype = {
 					if (remain[play.put.color].main_time > 0) {
 						res += play.put.color + "L[" + Number(remain[play.put.color].main_time).toFixed(3) + "]";
 					} else {
-						res += play.put.color + "L[" + Number(remain[play.put.color].period_time).toFixed(3) + "]O" + play.put.color + "[" + remain[play.put.colo].periods + "]";
+						res += play.put.color + "L[" + Number(remain[play.put.color].period_time).toFixed(3) + "]O" + play.put.color + "[" + remain[play.put.color].periods + "]";
 					}
 				break;
 			}

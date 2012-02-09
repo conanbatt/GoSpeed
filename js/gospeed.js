@@ -1427,7 +1427,7 @@ GoSpeed.prototype = {
 				case "Absolute":
 				case "Fischer":
 					if (last_remain_white == undefined) {
-						last_remain_white = this.timer.system.time);
+						last_remain_white = Number(this.timer.system.time);
 					}
 					if (last_remain_black == undefined) {
 						last_remain_black = Number(this.timer.system.time);

@@ -262,8 +262,8 @@ SGFParser.prototype = {
 				if (match[1] && match[2]) {
 					time_settings.name = "Byoyomi";
 					time_settings.settings = {
-						periods = parseInt(match[1], 10),
-						period_time = parseInt(match[2], 10),
+						periods: parseInt(match[1], 10),
+						period_time: parseInt(match[2], 10),
 					};
 				}
 			}
@@ -494,7 +494,7 @@ SGFParser.prototype = {
 		return sRes;
 	},
 
-	get_time_from_node(system_name, time_left, overtime_periods) {
+	get_time_from_node: function(system_name, time_left, overtime_periods) {
 		switch(system_name) {
 			case "Free":
 			case "Absolute":

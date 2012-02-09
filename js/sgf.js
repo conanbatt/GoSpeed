@@ -250,12 +250,21 @@ SGFParser.prototype = {
 		var time_settings = {};
 		if (sgf_node.OT != undefined) {
 			if (/fischer/i.test(sgf_node.OT)) {
-				var bonus = sgf_node.OT.match(/\d+(.\d+)?/)
+				var bonus = sgf_node.OT.match(/\d+(\.\d+)?/);
 				if (bonus) {
 					time_settings.name = "Fischer";
 					time_settings.settings = {
 						bonus: parseFloat(bonus[0]),
 					}
+				}
+			} else if (/byo-?yomi/i.test(sgf_node.OT)) {
+				var match = sgf_node.OT.match(/(\d+)[x\/](\d+)/i);
+				if (match[1] && match[2]) {
+					time_settings.name = "Byoyomi";
+					time_settings.settings = {
+						periods = parseInt(match[1], 10),
+						period_time = parseInt(match[2], 10),
+					};
 				}
 			}
 		}

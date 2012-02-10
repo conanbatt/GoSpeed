@@ -462,23 +462,35 @@ GoGraphic.prototype = {
 	},
 
 	update_clocks: function(remain) {
-		function formatTime(seconds) {
+		function formatTime(seconds, show_mins) {
 			var tmp_min;
 			var tmp_sec;
-			if (seconds > 0) {
-				tmp_min = Math.floor(seconds / 60);
-				tmp_sec = Math.floor(seconds - tmp_min * 60);
-				if (tmp_min < 10) {
-					tmp_min = "0" + tmp_min;
+			if (show_mins) {
+				if (seconds > 0) {
+					tmp_min = Math.floor(seconds / 60);
+					tmp_sec = Math.floor(seconds - tmp_min * 60);
+					if (tmp_min < 10) {
+						tmp_min = "0" + tmp_min;
+					}
+					if (tmp_sec < 10) {
+						tmp_sec = "0" + tmp_sec;
+					}
+				} else {
+					tmp_min = "00";
+					tmp_sec = "00";
 				}
-				if (tmp_sec < 10) {
-					tmp_sec = "0" + tmp_sec;
-				}
+				return tmp_min + ":" + tmp_sec;
 			} else {
-				tmp_min = "00";
-				tmp_sec = "00";
+				if (seconds > 0) {
+					tmp_sec = Math.floor(seconds);
+					if (tmp_sec < 10) {
+						tmp_sec = "0" + tmp_sec;
+					}
+				} else {
+					tmp_sec = "00";
+				}
+				return tmp_sec;
 			}
-			return tmp_min + ":" + tmp_sec;
 		}
 
 		var timer = this.game.timer;
@@ -488,37 +500,37 @@ GoGraphic.prototype = {
 			case "Fischer":
 			case "Bronstein":
 			case "Hourglass":
-				this.div_clock_w.innerHTML = formatTime(remain["W"]);
-				this.div_clock_b.innerHTML = formatTime(remain["B"]);
+				this.div_clock_w.innerHTML = formatTime(remain["W"], true);
+				this.div_clock_b.innerHTML = formatTime(remain["B"], true);
 			break;
 			case "Byoyomi":
 				if (remain[BLACK].main_time > 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
 				} else if (remain[BLACK].periods <= 1) {
-					this.div_clock_b.innerHTML = Math.floor(remain[BLACK].period_time + 0.99) + ' SD';
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_b.innerHTML = Math.floor(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
 				}
 
 				if (remain[WHITE].main_time > 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
 				} else if (remain[WHITE].periods <= 1) {
-					this.div_clock_w.innerHTML = Math.floor(remain[WHITE].period_time + 0.99) + ' SD';
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' SD';
 				} else {
-					this.div_clock_w.innerHTML = Math.floor(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
 				}
 			break;
 			case "Canadian":
 				if (remain[BLACK].main_time > 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99);
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
 				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' / ' + remain[BLACK].period_stones;
+					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99, true) + ' / ' + remain[BLACK].period_stones;
 				}
 
 				if (remain[WHITE].main_time > 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99);
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
 				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' / ' + remain[WHITE].period_stones;
+					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99, true) + ' / ' + remain[WHITE].period_stones;
 				}
 			break;
 

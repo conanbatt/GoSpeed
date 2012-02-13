@@ -493,44 +493,64 @@ GoGraphic.prototype = {
 			}
 		}
 
+		function formatDiv(remain, div, color_turn) {
+			if (color_turn) {
+				if (remain > 0 && Math.floor(remain) <= 10) {
+					if (Math.floor(remain) % 2 == 0) {
+						div.style.color = "#EEE";
+					} else {
+						div.style.color = "";
+					}
+				} else {
+					div.style.color = "";
+				}
+			} else {
+				div.style.color = "";
+			}
+		}
+
 		var timer = this.game.timer;
+		var color_arr = [BLACK, WHITE];
 
 		switch (timer.system.name) {
 			case "Absolute":
 			case "Fischer":
 			case "Bronstein":
 			case "Hourglass":
-				this.div_clock_w.innerHTML = formatTime(remain["W"], true);
-				this.div_clock_b.innerHTML = formatTime(remain["B"], true);
+				for (var color in color_arr) {
+					color = color_arr[color];
+
+					formatDiv(remain[color], this.div_clocks[color], (this.game.get_next_move() == color));
+					this.div_clocks[color].innerHTML = formatTime(remain[color] + 0.99, true);
+				}
 			break;
 			case "Byoyomi":
-				if (remain[BLACK].main_time > 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
-				} else if (remain[BLACK].periods <= 1) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' SD';
-				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99) + ' (' + remain[BLACK].periods + ')';
-				}
+				for (var color in color_arr) {
+					color = color_arr[color];
 
-				if (remain[WHITE].main_time > 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
-				} else if (remain[WHITE].periods <= 1) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' SD';
-				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99) + ' (' + remain[WHITE].periods + ')';
+					if (remain[color].main_time > 0) {
+						formatDiv(remain[color].main_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.div_clocks[color].innerHTML = formatTime(remain[color].main_time + 0.99, true);
+					} else if (remain[color].periods <= 1) {
+						formatDiv(remain[color].period_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' SD';
+					} else {
+						formatDiv(remain[color].period_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')';
+					}
 				}
 			break;
 			case "Canadian":
 				if (remain[BLACK].main_time > 0) {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
+					this.div_clocks[BLACK].innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
 				} else {
-					this.div_clock_b.innerHTML = formatTime(remain[BLACK].period_time + 0.99, true) + ' / ' + remain[BLACK].period_stones;
+					this.div_clocks[BLACK].innerHTML = formatTime(remain[BLACK].period_time + 0.99, true) + ' / ' + remain[BLACK].period_stones;
 				}
 
 				if (remain[WHITE].main_time > 0) {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
+					this.div_clocks[WHITE].innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
 				} else {
-					this.div_clock_w.innerHTML = formatTime(remain[WHITE].period_time + 0.99, true) + ' / ' + remain[WHITE].period_stones;
+					this.div_clocks[WHITE].innerHTML = formatTime(remain[WHITE].period_time + 0.99, true) + ' / ' + remain[WHITE].period_stones;
 				}
 			break;
 
@@ -673,18 +693,19 @@ GoGraphic.prototype = {
 				throw new Error("GoGraphic: error finding board div.");
 			}
 		}
+		this.div_clocks = {};
 		if (this.game.div_id_clock_w != undefined) {
-			this.div_clock_w = document.getElementById(this.game.div_id_clock_w);
-			if (this.div_clock_w) {
-				this.div_clock_w.innerHTML = "";
+			this.div_clocks[WHITE] = document.getElementById(this.game.div_id_clock_w);
+			if (this.div_clocks[WHITE]) {
+				this.div_clocks[WHITE].innerHTML = "";
 			} else {
 				throw new Error("GoGraphic: error finding white clock div.");
 			}
 		}
 		if (this.game.div_id_clock_b != undefined) {
-			this.div_clock_b = document.getElementById(this.game.div_id_clock_b);
-			if (this.div_clock_b) {
-				this.div_clock_b.innerHTML = "";
+			this.div_clocks[BLACK] = document.getElementById(this.game.div_id_clock_b);
+			if (this.div_clocks[BLACK]) {
+				this.div_clocks[BLACK].innerHTML = "";
 			} else {
 				throw new Error("GoGraphic: error finding black clock div.");
 			}

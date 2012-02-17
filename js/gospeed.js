@@ -1039,19 +1039,21 @@ GoSpeed.prototype = {
 
 	announce_time_loss: function(remain) {
 		var i_lose = false;
-		switch(this.timer.system.name) {
-			case "Absolute":
-			case "Fischer":
-				i_lose = (remain[this.my_colour] == 0);
-			break;
-			case "Byoyomi":
-				var my_remain = remain[this.my_colour];
-				i_lose = (my_remain.main_time <= 0 && my_remain.periods <= 1 && my_remain.period_time <= 0);
-			break;
-		}
-		if (i_lose) {
-			if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
-				$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"});
+		if (this.is_my_turn()) {
+			switch(this.timer.system.name) {
+				case "Absolute":
+				case "Fischer":
+					i_lose = (remain[this.get_next_move()] == 0);
+				break;
+				case "Byoyomi":
+					var my_remain = remain[this.get_next_move()];
+					i_lose = (my_remain.main_time <= 0 && my_remain.periods <= 1 && my_remain.period_time <= 0);
+				break;
+			}
+			if (i_lose) {
+				if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
+					$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"});
+				}
 			}
 		}
 	},

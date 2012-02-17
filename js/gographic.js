@@ -507,6 +507,7 @@ GoGraphic.prototype = {
 
 					this.format_clock_div(remain[color], color);
 					this.div_clocks[color].innerHTML = formatTime(remain[color] + 0.99, true);
+					this.draw_t_stone_number(remain[color], color);
 				}
 			break;
 			case "Byoyomi":
@@ -516,12 +517,15 @@ GoGraphic.prototype = {
 					if (remain[color].main_time > 0) {
 						this.format_clock_div(remain[color].main_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].main_time + 0.99, true);
+						this.draw_t_stone_number(remain[color].main_time, color);
 					} else if (remain[color].periods <= 1) {
 						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' SD';
+						this.draw_t_stone_number(remain[color].period_time, color);
 					} else {
 						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')';
+						this.draw_t_stone_number(remain[color].period_time, color);
 					}
 				}
 			break;
@@ -539,6 +543,27 @@ GoGraphic.prototype = {
 				}
 			break;
 
+		}
+	},
+
+	draw_t_stone_number: function(remain, color) {
+		var rc = Math.floor(remain + 0.99);
+		if (this.my_colour != "O") {
+			if (color == this.game.get_next_move()) {
+				if (Math.floor(rc) > 0 && Math.floor(rc) <= 10) {
+					if (color == BLACK) {
+						this.t_black.innerHTML = Math.floor(rc);
+					} else {
+						this.t_white.innerHTML = Math.floor(rc);
+					}
+				} else {
+					if (color == BLACK) {
+						this.t_black.innerHTML = "";
+					} else {
+						this.t_white.innerHTML = "";
+					}
+				}
+			}
 		}
 	},
 

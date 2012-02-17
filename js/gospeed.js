@@ -65,6 +65,10 @@ GoSpeed.prototype = {
 		if (args.div_id_comments != undefined) {
 			this.div_id_comments = args.div_id_comments;
 		}
+		// Move Number
+		if (args.div_id_move_number != undefined) {
+			this.div_id_move_number = args.div_id_move_number;
+		}
 
 	// Shower
 		// Define the showing engine
@@ -290,6 +294,7 @@ GoSpeed.prototype = {
 		if (this.shower) {
 			this.shower.draw_play(play, wait);
 			this.shower.update_captures(play);
+			this.shower.update_move_number(this.game_tree.actual_move);
 		}
 	},
 
@@ -320,66 +325,63 @@ GoSpeed.prototype = {
 			// TODO: what if we're playing offline?
 			this.detach_head();
 		}
-		var play = this.game_tree.prev();
-		if (play) {
-			this.undo_play(play);
+		var node = this.game_tree.prev();
+		if (node) {
+			this.undo_play(node.play);
 			if (!no_redraw) {
 				if (this.shower) {
-					this.shower.undraw_play(play);
+					this.shower.undraw_play(node.play);
 					// Place last stone marker
 					if (this.game_tree.actual_move.play instanceof Play) {
 						this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
 					}
 				}
 			}
-		} else {
-			return false;
-		}
 
-		play = this.game_tree.actual_move.play;
-		if (play) {
-			if (!no_redraw) {
-				if (this.shower != undefined) {
-					this.shower.refresh_ko(play);
-					this.shower.update_captures(play);
+			node = this.game_tree.actual_move;
+			if (node.play) {
+				if (!no_redraw) {
+					if (this.shower != undefined) {
+						this.shower.refresh_ko(node.play);
+						this.shower.update_captures(node.play);
+					}
 				}
 			}
-		} else {
-			return false;
 		}
 
 		if (!no_redraw) {
 			if (this.shower) {
 				this.shower.clean_t_stones();
 				this.shower.update_comments();
+				this.shower.update_move_number(node);
 			}
 			this.render_tree();
 		}
-		return true;
+		return !!node;
 	},
 
 	next: function(index, no_redraw) {
-		var play = this.game_tree.next(index);
-		if (play) {
-			this.make_play(play);
+		var node = this.game_tree.next(index);
+		if (node) {
+			this.make_play(node.play);
 			if (!no_redraw) {
 				if (this.shower) {
-					this.shower.draw_play(play);
-					this.shower.update_captures(play);
+					this.shower.draw_play(node.play);
+					this.shower.update_captures(node.play);
 				}
 			}
-		} else {
-			return false;
 		}
 
 		if (!no_redraw) {
 			if (this.shower) {
 				this.shower.clean_t_stones();
 				this.shower.update_comments();
+				this.shower.update_move_number(node);
 			}
 			this.render_tree();
 		}
-		return true;
+
+		return !!node;
 	},
 
 	up: function() {

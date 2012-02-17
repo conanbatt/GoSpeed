@@ -154,6 +154,15 @@ GoValidate.prototype = {
 				}
 			}
 
+		// Move Number Div
+			if (typeof div_id_move_number != "undefined") {
+				if (typeof div_id_move_number != "string") {
+					throw new Error("The 'div_id_move_number' parameter must be a string");
+				} else if (!document.getElementById(div_id_move_number)) {
+					throw new Error("The 'div_id_move_number' parameter points to no existing div.");
+				}
+			}
+
 		// Komi
 			if (typeof komi != "undefined") {
 				if (typeof komi != "number") {

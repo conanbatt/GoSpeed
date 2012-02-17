@@ -199,6 +199,12 @@ GoGraphic.prototype = {
 		}
 	},
 
+	update_move_number: function(node) {
+		if (node != undefined && node.turn_number != undefined) {
+			this.div_move_number.innerHTML = node.turn_number;
+		}
+	},
+
 	// Pick score result and write it in corresponding divs
 	update_score: function(score) {
 		if (score != undefined) {
@@ -659,6 +665,9 @@ GoGraphic.prototype = {
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
+
+		// Move Number
+		this.update_move_number(this.game.game_tree.actual_move);
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {
@@ -706,11 +715,12 @@ GoGraphic.prototype = {
 				}
 			}
 		}
-		var play = this.game.game_tree.actual_move.play;
-		this.refresh_ko(play);
-		this.update_captures(play);
-		if (play instanceof Play) {
-			this.place_last_stone_marker(play.put);
+		var node = this.game.game_tree.actual_move;
+		this.refresh_ko(node.play);
+		this.update_captures(node.play);
+		this.update_move_number(node);
+		if (node.play instanceof Play) {
+			this.place_last_stone_marker(node.play.put);
 		}
 	},
 
@@ -778,6 +788,12 @@ GoGraphic.prototype = {
 			this.div_comments = document.getElementById(this.game.div_id_comments);
 			if (!this.div_comments) {
 				throw new Error("GoGraphic: error finding comments div.");
+			}
+		}
+		if (this.game.div_id_move_number != undefined) {
+			this.div_move_number = document.getElementById(this.game.div_id_move_number);
+			if (!this.div_move_number) {
+				throw new Error("GoGraphic: error finding move_number div.");
 			}
 		}
 	},

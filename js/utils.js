@@ -96,6 +96,7 @@ var NODE_VARIATION = 8;
 	function GameTree(div_id_tree) {
 		this.root = new GameNode(null);
 		this.root.root = true;
+		this.root.turn_number = 0;
 		this.actual_move = this.root;
 		if (div_id_tree != undefined) {
 			this.graphic = new GameTreeGraphic(this, div_id_tree);
@@ -131,17 +132,17 @@ var NODE_VARIATION = 8;
 					}
 				}
 			}
-			return this.actual_move.play;
+			return this.actual_move;
 		},
 
 		prev: function() {
-			var tmp_play;
+			var tmp_node;
 			if (this.actual_move.play == null || this.actual_move.prev == null) {
 				return false;
 			} else {
-				tmp_play = this.actual_move.play;
+				tmp_node = this.actual_move;
 				this.actual_move = this.actual_move.prev;
-				return tmp_play;
+				return tmp_node;
 			}
 		},
 
@@ -263,7 +264,6 @@ var NODE_VARIATION = 8;
 		this.next = [];
 		this.last_next = undefined;
 		this.source = source;
-		this.turn_number = 0;
 		this.comments = comments;
 	}
 

@@ -501,7 +501,7 @@ SGFParser.prototype = {
 				case "Free":
 				case "Absolute":
 				case "Fischer":
-					return time_left;
+					return parseFloat(time_left);
 				break;
 				case "Byoyomi":
 					var res;

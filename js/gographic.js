@@ -3,6 +3,7 @@ var BOARD_BOUND = 10;
 var SHADOW_LEFT = 3;
 var SHADOW_TOP = 1;
 var SHADOW_SIDE = -1; // 1 for right, -1 for left
+var MOUSE_ADJUST_Y = 0;
 
 function GoGraphic(game) {
 	this.init.call(this, game);
@@ -314,10 +315,10 @@ GoGraphic.prototype = {
 		}
 		if ('pageX' in event) { // all browsers except IE before version 9
 			var pageX = event.pageX;
-			var pageY = event.pageY;
+			var pageY = event.pageY + MOUSE_ADJUST_Y;
 		} else {  // IE before version 9
 			var pageX = event.clientX + document.documentElement.scrollLeft;
-			var pageY = event.clientY + document.documentElement.scrollTop;
+			var pageY = event.clientY + document.documentElement.scrollTop + MOUSE_ADJUST_Y;
 		}
 
 		var boundedX = pageX - this.div_board.offsetLeft + 1;
@@ -339,10 +340,10 @@ GoGraphic.prototype = {
 		}
 		if ('pageX' in event) { // all browsers except IE before version 9
 			var pageX = event.pageX;
-			var pageY = event.pageY;
+			var pageY = event.pageY + MOUSE_ADJUST_Y;
 		} else {  // IE before version 9
 			var pageX = event.clientX + document.documentElement.scrollLeft;
-			var pageY = event.clientY + document.documentElement.scrollTop;
+			var pageY = event.clientY + document.documentElement.scrollTop + MOUSE_ADJUST_Y;
 		}
 
 		var t_stone;

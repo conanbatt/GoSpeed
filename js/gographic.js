@@ -496,8 +496,10 @@ GoGraphic.prototype = {
 
 		function formatDiv(remain, div, color_turn) {
 			if (color_turn) {
-				if (remain > 0 && Math.floor(remain) <= 10) {
-					if (Math.floor(remain) % 2 == 0) {
+				if (remain <= 0) {
+					div.style.color = "#800";
+				}else if (remain > 0 && Math.floor(remain + 0.99) <= 10) {
+					if (Math.floor(remain + 0.99) % 2 == 0) {
 						div.style.color = "#EEE";
 					} else {
 						div.style.color = "";

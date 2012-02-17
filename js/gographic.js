@@ -494,24 +494,6 @@ GoGraphic.prototype = {
 			}
 		}
 
-		function formatDiv(remain, div, color_turn) {
-			if (color_turn) {
-				if (remain <= 0) {
-					div.style.color = "#800";
-				}else if (remain > 0 && Math.floor(remain + 0.99) <= 10) {
-					if (Math.floor(remain + 0.99) % 2 == 0) {
-						div.style.color = "#EEE";
-					} else {
-						div.style.color = "";
-					}
-				} else {
-					div.style.color = "";
-				}
-			} else {
-				div.style.color = "";
-			}
-		}
-
 		var timer = this.game.timer;
 		var color_arr = [BLACK, WHITE];
 
@@ -523,7 +505,7 @@ GoGraphic.prototype = {
 				for (var color in color_arr) {
 					color = color_arr[color];
 
-					formatDiv(remain[color], this.div_clocks[color], (this.game.get_next_move() == color));
+					this.format_clock_div(remain[color], color);
 					this.div_clocks[color].innerHTML = formatTime(remain[color] + 0.99, true);
 				}
 			break;
@@ -532,13 +514,13 @@ GoGraphic.prototype = {
 					color = color_arr[color];
 
 					if (remain[color].main_time > 0) {
-						formatDiv(remain[color].main_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.format_clock_div(remain[color].main_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].main_time + 0.99, true);
 					} else if (remain[color].periods <= 1) {
-						formatDiv(remain[color].period_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' SD';
 					} else {
-						formatDiv(remain[color].period_time, this.div_clocks[color], (this.game.get_next_move() == color));
+						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')';
 					}
 				}
@@ -557,6 +539,26 @@ GoGraphic.prototype = {
 				}
 			break;
 
+		}
+	},
+
+	format_clock_div: function(remain, color) {
+		var rc = Math.floor(remain + 0.99);
+		var div = this.div_clocks[color];
+		if (color == this.game.get_next_move()) {
+			if (remain <= 0) {
+				div.style.color = "#800";
+			} else if (rc > 0 && rc <= 10) {
+				if (rc % 2 == 0) {
+					div.style.color = "#EEE";
+				} else {
+					div.style.color = "";
+				}
+			} else {
+				div.style.color = "";
+			}
+		} else {
+			div.style.color = "";
 		}
 	},
 

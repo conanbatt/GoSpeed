@@ -61,7 +61,7 @@ GoSpeed.prototype = {
 		if (args.div_id_result != undefined) {
 			this.div_id_result = args.div_id_result;
 		}
-		// Result
+		// Comments
 		if (args.div_id_comments != undefined) {
 			this.div_id_comments = args.div_id_comments;
 		}

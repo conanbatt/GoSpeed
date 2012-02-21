@@ -1346,54 +1346,54 @@ GoSpeed.prototype = {
 	},
 
 	diff_update_game: function(data) {
-		if (this.timer != undefined) {
-			if (data.result != undefined) {
-				this.timer.stop();
-			} else {
-				this.timer.pause();
-			}
-		}
-
-		// Clear and change size if required
-		if (data.size != undefined && data.size != this.size) {
-			this.change_size(Number(data.size));
-		}
-
-		// Check SGF status and load sgf if necesary TODO: this might be better at the begining of diff_update_game
+		// Check SGF status:
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
+			// Not loaded: load from scratch.
 			this.update_game(data);
-			return false;
-		}
+		} else {
+			// Loaded: diff update.
+			if (this.timer != undefined) {
+				if (data.result != undefined) {
+					this.timer.stop();
+				} else {
+					this.timer.pause();
+				}
+			}
 
+			// Clear and change size if required
+			if (data.size != undefined && data.size != this.size) {
+				this.change_size(Number(data.size));
+			}
 
-		// Compare SGF and add only new moves + update score state if not attached.
-		var move_added = false;
-		if (data.moves != undefined && data.moves != null) {
-			if (!this.is_attached()) {
-				this.attach_head(true);
-				move_added = this.sgf.add_moves(this, data.moves, true);
-				this.update_raw_score_state(data.raw_score_state);
+			// Compare SGF and add only new moves + update score state if not attached.
+			var move_added = false;
+			if (data.moves != undefined && data.moves != null) {
+				if (!this.is_attached()) {
+					this.attach_head(true);
+					move_added = this.sgf.add_moves(this, data.moves, true);
+					this.update_raw_score_state(data.raw_score_state);
+					this.update_timer(data.time_adjustment);
+					this.detach_head(true);
+				} else {
+					move_added = this.sgf.add_moves(this, data.moves);
+				}
+			}
+
+			// Play sound!
+			if (KAYAGLOBAL != undefined) {
+				if (move_added.play instanceof Play) {
+					KAYAGLOBAL.play_sound(move_added.play.put.color);
+				} else if (move_added.play instanceof Pass) {
+					KAYAGLOBAL.play_sound("pass");
+				}
+			}
+
+			if (this.is_attached()) {
+				// Fast forward
+				this.goto_end();
+				this.handle_score_agreement(data.raw_score_state);
 				this.update_timer(data.time_adjustment);
-				this.detach_head(true);
-			} else {
-				move_added = this.sgf.add_moves(this, data.moves);
 			}
-		}
-
-		// Play sound!
-		if (KAYAGLOBAL != undefined) {
-			if (move_added.play instanceof Play) {
-				KAYAGLOBAL.play_sound(move_added.play.put.color);
-			} else if (move_added.play instanceof Pass) {
-				KAYAGLOBAL.play_sound("pass");
-			}
-		}
-
-		if (this.is_attached()) {
-			// Fast forward
-			this.goto_end();
-			this.handle_score_agreement(data.raw_score_state);
-			this.update_timer(data.time_adjustment);
 		}
 	},
 

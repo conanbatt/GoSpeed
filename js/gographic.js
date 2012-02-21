@@ -200,8 +200,10 @@ GoGraphic.prototype = {
 	},
 
 	update_move_number: function(node) {
-		if (node != undefined && node.turn_number != undefined) {
-			this.div_move_number.innerHTML = node.turn_number;
+		if (this.div_move_number != undefined) {
+			if (node != undefined && node.turn_number != undefined) {
+				this.div_move_number.innerHTML = node.turn_number;
+			}
 		}
 	},
 

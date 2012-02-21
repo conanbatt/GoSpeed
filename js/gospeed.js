@@ -1345,22 +1345,6 @@ GoSpeed.prototype = {
 		}
 	},
 
-	update_my_colour: function(white_player, black_player) {
-		if (this.my_nick != undefined) {
-			if (black_player == this.my_nick && white_player == this.my_nick) {
-				this.change_my_colour("A");
-			} else if (black_player == this.my_nick) {
-				this.change_my_colour("B");
-			} else if (white_player == this.my_nick) {
-				this.change_my_colour("W");
-			} else {
-				this.change_my_colour("O");
-			}
-		} else {
-			this.change_my_colour("O");
-		}
-	},
-
 	diff_update_game: function(data) {
 		if (this.timer != undefined) {
 			if (data.result != undefined) {
@@ -1381,8 +1365,6 @@ GoSpeed.prototype = {
 			return false;
 		}
 
-		// Change my colour if player has changed
-		this.update_my_colour(data.white_player, data.black_player);
 
 		// Compare SGF and add only new moves + update score state if not attached.
 		var move_added = false;
@@ -1492,10 +1474,6 @@ GoSpeed.prototype = {
 
 	update_game: function(data) {
 		this.clear();
-
-		// Change my colour if player has changed
-		this.update_my_colour(data.white_player, data.black_player);
-
 
 		// Recreate sgf from info
 			var sSgf = "(;FF[4]";

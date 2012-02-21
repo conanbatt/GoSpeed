@@ -334,7 +334,7 @@ SGFParser.prototype = {
 		// do: rewind game until reaches board tree_node.
 			while (board.game_tree.actual_move != tree_node) {
 				tmp = board.game_tree.prev();
-				board.undo_play(tmp);
+				board.undo_play(tmp.play);
 			}
 		// do: play sgf_node contents at board point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
@@ -384,10 +384,10 @@ SGFParser.prototype = {
 	},
 
 	rewind_game: function(board, limit) {
-		var tmp;
+		var tmp_node;
 		while (board.game_tree.actual_move != board.game_tree.root) {
-			tmp = board.game_tree.prev();
-			board.undo_play(tmp);
+			tmp_node = board.game_tree.prev();
+			board.undo_play(tmp_node.play);
 			if (limit != undefined) {
 				limit--;
 				if (limit <= 0) {

@@ -1371,11 +1371,20 @@ GoSpeed.prototype = {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.add_moves(this, data.moves, true);
-					this.update_raw_score_state(data.raw_score_state);
-					this.update_timer(data.time_adjustment);
-					this.detach_head(true);
+					// XXX metodo cabeza para soportar UNDO.
+					if (move_added) {
+						this.update_raw_score_state(data.raw_score_state);
+						this.update_timer(data.time_adjustment);
+						this.detach_head(true);
+					} else {
+						return this.update_game(data);
+					}
 				} else {
 					move_added = this.sgf.add_moves(this, data.moves);
+					// XXX metodo cabeza para soportar UNDO.
+					if (!move_added) {
+						return this.update_game(data);
+					}
 				}
 			}
 

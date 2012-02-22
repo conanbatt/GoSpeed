@@ -404,9 +404,9 @@ SGFParser.prototype = {
 		if (only_moves.length == this.moves_loaded.length) {
 			if (only_moves[only_moves.length - 1] == this.moves_loaded[this.moves_loaded.length - 1]) {
 				game.confirm_play();
-				return false;
+				return true;
 			} else {
-				throw new Error("Same move count but different plays...");
+				//throw new Error("Same move count but different plays...");
 				return false;
 			}
 			// Here could be the script that confirms the stone positioning to the last player.
@@ -415,11 +415,11 @@ SGFParser.prototype = {
 			only_moves_loaded = only_moves.substring(0, this.moves_loaded.length);
 			only_moves = only_moves.substring(this.moves_loaded.length);
 		} else {
-			throw new Error("WTF, less info than loaded!");
+			//throw new Error("WTF, less info than loaded!");
 			return false;
 		}
 		if (only_moves_loaded != this.moves_loaded) {
-			throw new Error("Loaded data mismatch!");
+			//throw new Error("Loaded data mismatch!");
 			return false;
 		}
 		var new_moves_count = only_moves.match(/;/g).length;

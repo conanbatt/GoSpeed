@@ -181,6 +181,18 @@ GoGraphic.prototype = {
 		this.clear_last_stone_markers();
 	},
 
+	draw_number: function(play, num) {
+		this.clear_last_stone_markers();
+		if (play instanceof Play) {
+			if (play.put) {
+				var pos = this.grid[play.put.row][play.put.col];
+				if (pos != undefined && pos.stone != undefined) {
+					pos.stone.innerHTML = num;
+				}
+			}
+		}
+	},
+
 	update_captures: function(play) {
 		if (play != undefined && play.captured != undefined) {
 			if (this.div_captured_w != undefined) {

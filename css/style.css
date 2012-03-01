@@ -72,16 +72,28 @@
 		position: absolute;
 		background-image: url("../img/black.png");
 		width: 25px;
-		height: 25px;
+		height: 22px;
 		z-index: 2;
+
+		padding-top: 4px;
+		text-align: center;
+		font-family: monospace;
+		color: #FFF;
+		font-size: 12px;
 	}
 
 	div.StoneW {
 		position: absolute;
 		background-image: url("../img/white.png");
 		width: 25px;
-		height: 25px;
+		height: 22px;
 		z-index: 2;
+
+		padding-top: 4px;
+		text-align: center;
+		font-family: monospace;
+		color: #000;
+		font-size: 12px;
 	}
 
 	div.StoneTB {

@@ -968,6 +968,29 @@ GoSpeed.prototype = {
 		return true;
 	},
 
+	draw_variation_numbers: function() {
+		var node = this.game_tree.actual_move;
+		if (node.source == NODE_VARIATION) {
+			while(node.prev && node.prev.source == NODE_VARIATION) {
+				node = node.prev;
+			}
+			if (this.shower != undefined) {
+				var num = 1;
+				// XXX TODO FIXME: UGLY HARDCODED [0] -> i dont have last_next on variations...
+				while(node.next[0]) {
+					if (node.play) {
+						this.shower.draw_number(node.play, num);
+					}
+					node = node.next[0];
+					num++;
+				}
+				if (node.play) {
+					this.shower.draw_number(node.play, num);
+				}
+			}
+		}
+	},
+
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;

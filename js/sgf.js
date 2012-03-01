@@ -365,7 +365,7 @@ SGFParser.prototype = {
 				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
 				board.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
 				board.make_play(tmp);
-				if (time_left != undefined && board.timer != undefined) {
+				if (time_left != undefined && !isNaN(time_left) && board.timer != undefined) {
 					board.timer.set_remain(tmp.put.color, time_left);
 				}
 				if (tmp instanceof Play || tmp instanceof Pass) {

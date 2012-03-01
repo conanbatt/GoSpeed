@@ -112,7 +112,14 @@ var NODE_VARIATION = 8;
 			if (follow) {
 				this.actual_move.last_next = node;
 			} else {
-				this.actual_move.last_next = this.actual_move.next[0];
+				var l_next = null;
+				for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
+					if (this.actual_move.next[i].source != NODE_VARIATION) {
+						l_next = this.actual_move.next[i];
+						break;
+					}
+				}
+				this.actual_move.last_next = l_next;
 			}
 			this.actual_move = node;
 		},

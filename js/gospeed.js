@@ -1056,6 +1056,9 @@ GoSpeed.prototype = {
 				if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
 					$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"});
 				}
+				if (KAYAGLOBAL != undefined) {
+					KAYAGLOBAL.play_sound("outoftime");
+				}
 			}
 		}
 	},

@@ -513,6 +513,7 @@ GoGraphic.prototype = {
 				for (var color in color_arr) {
 					color = color_arr[color];
 
+					this.handle_clock_sound(remain[color], color);
 					this.format_clock_div(remain[color], color);
 					this.div_clocks[color].innerHTML = formatTime(remain[color] + 0.99, true);
 					this.draw_t_stone_number(remain[color], color);
@@ -522,15 +523,20 @@ GoGraphic.prototype = {
 				for (var color in color_arr) {
 					color = color_arr[color];
 
+					// FIXME: this should be divided in two cases: main_time > 0 and main_time <= 0, periods must be a parameter and the handler should decide when to put "SD" as a label
+					// To make that possible we may need to upgrade main_time timers to support a complete remain object.
 					if (remain[color].main_time > 0) {
+						this.handle_clock_sound(remain[color].main_time, color);
 						this.format_clock_div(remain[color].main_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].main_time + 0.99, true);
 						this.draw_t_stone_number(remain[color].main_time, color);
 					} else if (remain[color].periods <= 1) {
+						this.handle_clock_sound(remain[color].period_time, color);
 						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' SD';
 						this.draw_t_stone_number(remain[color].period_time, color);
 					} else {
+						this.handle_clock_sound(remain[color].period_time, color);
 						this.format_clock_div(remain[color].period_time, color);
 						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')';
 						this.draw_t_stone_number(remain[color].period_time, color);
@@ -552,6 +558,33 @@ GoGraphic.prototype = {
 			break;
 
 		}
+	},
+
+	handle_clock_sound: function(remain, color) {
+		if (KAYAGLOBAL != undefined) {
+			if (this.game.is_my_turn()) {
+				var rc = Math.floor(remain);
+				if (!KAYAGLOBAL.is_playing) {
+					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...
+					//if (this.game.timer.system.name != "Byoyomi" && this.game.timer.system.name != "Canadian") {
+						if (remain > 0 && remain < 11) {
+							var start = 10 - rc;
+							var delay = (remain - rc) * 1000;
+							return KAYAGLOBAL.delayed_play_sound("countdown", start, delay);
+						}
+					//}
+					if (remain > 60 && remain < 61) {
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("oneminute", 0, delay);
+					}
+					if (remain > 300 && remain < 301) {
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("fiveminutes", 0, delay);
+					}
+				}
+			}
+		}
+		return false;
 	},
 
 	draw_t_stone_number: function(remain, color) {

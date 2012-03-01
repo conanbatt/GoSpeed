@@ -562,7 +562,7 @@ GoGraphic.prototype = {
 
 	handle_clock_sound: function(remain, color) {
 		if (KAYAGLOBAL != undefined) {
-			if (this.game.is_my_turn()) {
+			if (this.game.get_next_move() == color) {
 				var rc = Math.floor(remain);
 				if (!KAYAGLOBAL.is_playing) {
 					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...

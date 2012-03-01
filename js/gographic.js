@@ -562,17 +562,15 @@ GoGraphic.prototype = {
 
 	handle_clock_sound: function(remain, color) {
 		if (KAYAGLOBAL != undefined) {
-			if (this.game.get_next_move() == color) {
+			if (this.game.my_colour != undefined && (this.game.my_colour == "A" || this.game.my_colour == color)) {
 				var rc = Math.floor(remain);
 				if (!KAYAGLOBAL.is_playing) {
 					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...
-					//if (this.game.timer.system.name != "Byoyomi" && this.game.timer.system.name != "Canadian") {
-						if (remain > 0 && remain < 11) {
-							var start = 10 - rc;
-							var delay = (remain - rc) * 1000;
-							return KAYAGLOBAL.delayed_play_sound("countdown", start, delay);
-						}
-					//}
+					if (remain > 0 && remain < 11) {
+						var start = 10 - rc;
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("countdown", start, delay);
+					}
 					if (remain > 60 && remain < 61) {
 						var delay = (remain - rc) * 1000;
 						return KAYAGLOBAL.delayed_play_sound("oneminute", 0, delay);

@@ -573,7 +573,7 @@ GoGraphic.prototype = {
 	},
 
 	handle_clock_sound: function(remain, color) {
-		if (KAYAGLOBAL != undefined) {
+		if (typeof KAYAGLOBAL !== 'undefined') {
 			if (this.game.is_my_turn() && this.game.my_colour == color) {
 				var rc = Math.floor(remain);
 				if (!KAYAGLOBAL.is_playing) {

@@ -416,14 +416,16 @@ GoSpeed.prototype = {
 		this.render_tree();
 	},
 
-	goto_start: function() {
+	goto_start: function(no_redraw) {
 		while (this.prev(true)) {
 			continue;
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
+		if (!no_redraw) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
 		}
-		this.render_tree();
 	},
 
 	goto_end: function() {
@@ -434,6 +436,28 @@ GoSpeed.prototype = {
 			this.shower.redraw();
 		}
 		this.render_tree();
+	},
+
+	goto_path: function(path) {
+		if (this.game_tree.test_path(path)) {
+			this.goto_start(true);
+			for (var i = 0, li = path.length; i < li; ++i) {
+				this.next(path[i], true);
+			}
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	get_path: function() {
+		if (this.game_tree != undefined && this.game_tree.actual_move != undefined) {
+			return this.game_tree.actual_move.get_path();
+		}
 	},
 
 //	Gameplay

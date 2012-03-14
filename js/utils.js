@@ -183,6 +183,18 @@ var NODE_VARIATION = 8;
 			}
 		},
 
+		test_path: function(path) {
+			var test_node = this.root;
+			for (var i = 0, li = path.length; i < li; ++i) {
+				if (test_node.next.hasOwnProperty(path[i])) {
+					test_node = test_node.next[path[i]];
+				} else {
+					return false;
+				}
+			}
+			return true;
+		},
+
 		recRunTree: function(arbol, cadena, nivel, sel) {
 			function completarAncho(nivel) {
 				if (nivel < 10) {
@@ -272,6 +284,32 @@ var NODE_VARIATION = 8;
 		this.last_next = undefined;
 		this.source = source;
 		this.comments = comments;
+	}
+
+	GameNode.prototype.get_pos = function() {
+		if (this.prev) {
+			var siblings = this.prev.next;
+			for (var i = 0, li = siblings.length; i < li; i++) {
+				if (siblings[i] === this) {
+					return i;
+				}
+			}
+		}
+		return false;
+	}
+
+	GameNode.prototype.get_path = function() {
+		var pos,
+			res = [],
+			tmp_node = this;
+		while (tmp_node) {
+			pos = tmp_node.get_pos();
+			if (pos !== false) {
+				res.push(pos);
+			}
+			tmp_node = tmp_node.prev;
+		}
+		return res.reverse();
 	}
 
 // Track

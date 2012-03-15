@@ -1694,3 +1694,4 @@ GoSpeed.prototype = {
 	},
 }
 
+// ~ <3

@@ -346,6 +346,23 @@ GoGraphic.prototype = {
 		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
 			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+
+			// XXX TODO FIXME RGF WTF IS THIS DOING HERE?!!?
+			if (this.game.callbacks.rgf_board_click != undefined) {
+				var bOK = true;
+				bOK = bOK && (this.game.mode == "play");
+				bOK = bOK && !event.shiftKey && !event.ctrlKey;
+				bOK = bOK && this.game.setup_play(gridY, gridX);
+				if (bOK) {
+					if (!this.game.callbacks.rgf_board_click(gridY, gridX)) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			}
+			// WOHAAAAAAA
+
 			this.game.play(gridY, gridX, event.shiftKey, event.ctrlKey);
 		}
 	},

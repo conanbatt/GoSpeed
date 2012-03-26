@@ -182,15 +182,15 @@ GoSpeed.prototype = {
 	// Takes a play and spreads it's content to the grid (updates gospeed.ko)
 	make_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (var stone in play.remove) {
+			for (var stone =0;stone< play.remove.length;stone++) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			for (var stone in play.put) {
+			for (var stone =0;stone< play.put.length;stone++) {
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
-			for (var stone in play.remove) {
+			for (var stone =0;stone< play.remove.length;stone++) {
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
 		}
@@ -199,15 +199,18 @@ GoSpeed.prototype = {
 	// Takes a play and undoes it's content to the grid (updates gospeed.ko)
 	undo_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (var stone in play.put) {
+			for (var stone =0;stone< play.put.length; stone++) {
+        if(!play.put[stone]){ continue };
 				this.remove_stone(play.put[stone].row, play.put[stone].col);
 			}
-			for (var stone in play.remove) {
+			for (var stone =0;stone< play.remove.length;stone++) {
+        if(!play.remove[stone]){ continue };
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		} else if (play instanceof Play) {
 			this.remove_stone(play.put.row, play.put.col);
-			for (var stone in play.remove) {
+			for (var stone =0;stone< play.remove.length;stone++) {
+        if(!play.remove[stone]){ continue };
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		}
@@ -416,16 +419,14 @@ GoSpeed.prototype = {
 		this.render_tree();
 	},
 
-	goto_start: function(no_redraw) {
+	goto_start: function() {
 		while (this.prev(true)) {
 			continue;
 		}
-		if (!no_redraw) {
-			if (this.shower != undefined) {
-				this.shower.redraw();
-			}
-			this.render_tree();
+		if (this.shower != undefined) {
+			this.shower.redraw();
 		}
+		this.render_tree();
 	},
 
 	goto_end: function() {
@@ -436,28 +437,6 @@ GoSpeed.prototype = {
 			this.shower.redraw();
 		}
 		this.render_tree();
-	},
-
-	goto_path: function(path) {
-		if (this.game_tree.test_path(path)) {
-			this.goto_start(true);
-			for (var i = 0, li = path.length; i < li; ++i) {
-				this.next(path[i], true);
-			}
-			if (this.shower != undefined) {
-				this.shower.redraw();
-			}
-			this.render_tree();
-			return true;
-		} else {
-			return false;
-		}
-	},
-
-	get_path: function() {
-		if (this.game_tree != undefined && this.game_tree.actual_move != undefined) {
-			return this.game_tree.actual_move.get_path();
-		}
 	},
 
 //	Gameplay
@@ -695,7 +674,8 @@ GoSpeed.prototype = {
 			var previous_play_captured = actual_move.play.captured;
 			play.captured = {"B": previous_play_captured["B"], "W": previous_play_captured["W"],};
 		}
-		for (var stone in play.remove) {
+		for (var stone=0;stone<play.remove.length; stone++) {
+      if(!play.remove[stone]){ continue };
 			play.captured[play.remove[stone].color]++;
 		}
 	},
@@ -782,7 +762,8 @@ GoSpeed.prototype = {
 
 //	Auxiliar functions
 	chain_is_restricted: function(chain) {
-		for (var stone in chain) {
+		for (var stone=0; stone < chain.length; stone++) {
+      if (!chain[stone]){ continue };
 			if (this.count_stone_liberties(chain[stone]) > 0) {
 				return false;
 			}
@@ -850,30 +831,31 @@ GoSpeed.prototype = {
 		var chains_pend = [];
 		var stone;
 		var touched;
-		for (stone in stones) {
-			chains.push([stones[stone]]);
-			chains_pend.push([stones[stone]]);
+		for (var s =0;s< stones;s++) {
+			chains.push([stones[s]]);
+			chains_pend.push([stones[s]]);
 		}
 
 		granloop:
-		for (var chain in chains_pend) {
-			while (chains_pend[chain].length > 0) {
+		for (var c =0;c< chains_pend;c++) {
+			while (chains_pend[c].length > 0) {
 				touched = [];
-				stone = chains_pend[chain].pop();
+				stone = chains_pend[c].pop();
 				touched = this.get_touched(stone.color, stone.row, stone.col);
-				for (stone in touched) {
-					if (this.list_has_stone(chains[chain], touched[stone])) {
+				for (var stone =0;stone<touched.length;stone++) {
+					if (this.list_has_stone(chains[c], touched[stone])) {
 						continue;
 					} else {
-						for (var ch in chains) {
+						for (var ch =0;ch<chains.length;ch++) {
+              if(!chains[ch]){ continue };
 							if (this.list_has_stone(chains[ch], touched[stone])) {
-								delete chains[chain];
-								delete chains_pend[chain];
+								delete chains[c];
+								delete chains_pend[c];
 								continue granloop;
 							}
 						}
-						chains[chain].push(touched[stone]);
-						chains_pend[chain].push(touched[stone]);
+						chains[c].push(touched[stone]);
+						chains_pend[c].push(touched[stone]);
 					}
 				}
 			}
@@ -1694,4 +1676,3 @@ GoSpeed.prototype = {
 	},
 }
 
-// ~ <3

@@ -142,10 +142,12 @@ GoGraphic.prototype = {
 	draw_play: function(play, wait) {
 		this.clear_last_stone_markers();
 		if (play instanceof FreePlay) {
-			for (var stone in play.remove) {
+			for (var stone=0;stone<play.remove.length;stone++) {
+        if(!play.remove[stone]){ continue };
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
-			for (var stone in play.put) {
+			for (var stone=0;stone<play.put.length;stone++) {
+        if(!play.put[stone]){ continue };
 				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
 			}
 		} else if (play instanceof Play) {
@@ -155,7 +157,8 @@ GoGraphic.prototype = {
 			} else {
 				this.place_last_stone_marker(play.put);
 			}
-			for (var stone in play.remove) {
+			for (var stone =0;stone<play.remove.length;stone++) {
+        if(!play.remove[stone]){ continue };
 				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
 			}
 			this.refresh_ko(play);
@@ -166,15 +169,18 @@ GoGraphic.prototype = {
 
 	undraw_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (var stone in play.put) {
+			for (var stone=0; stone<play.put.length;stone ++) {
+        if(!play.put[stone]){ continue };
 				this.remove_stone(play.put[stone].row, play.put[stone].col);
 			}
-			for (var stone in play.remove) {
+			for (var stone=0; stone < play.remove.length; stone++) {
+        if(!play.remove[stone]){ continue };
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		} else if (play instanceof Play) {
 			this.remove_stone(play.put.row, play.put.col);
-			for (var stone in play.remove) {
+			for (var stone=0;stone < play.remove.length; stone++) {
+        if(!play.remove[stone]){ continue };
 				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
 			}
 		}
@@ -573,7 +579,7 @@ GoGraphic.prototype = {
 	},
 
 	handle_clock_sound: function(remain, color) {
-		if (typeof KAYAGLOBAL !== 'undefined') {
+		if (KAYAGLOBAL != undefined) {
 			if (this.game.is_my_turn() && this.game.my_colour == color) {
 				var rc = Math.floor(remain);
 				if (!KAYAGLOBAL.is_playing) {

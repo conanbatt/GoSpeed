@@ -63,6 +63,12 @@ RGFPlayer.prototype.addProperty = function(name, arg) {
 				throw new Error("New node's first property must be \"W\" or \"B\".");
 			}
 		break;
+		case "PL":
+			if (this.gospeed.game_tree.actual_move.root && this.gospeed.game_tree.root.next.length == 0) {
+				this.gospeed.game_tree.root.next_move = arg;
+				bRes = true;
+			}
+		break;
 	}
 	return bRes;
 };

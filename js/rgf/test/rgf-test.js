@@ -113,6 +113,29 @@ test("addProperty", function() {
 	equal(this.rgf_player.gospeed.get_pos(9, 9), "W", "A white stone has been placed.");
 });
 
+test("The PL property", function() {
+	var res;
+	// Set PL to W at the root node
+	res = this.rgf_player.addProperty("PL", "W");
+	equal(res, true, "As the game is empty and we are at the root node, we can set the first play to W.");
+
+	// Play white
+	res = this.rgf_player.addProperty("W", "jj");
+	equal(res, true, "Added the W property.");
+	equal(this.rgf_player.new_node, false, "The new_node property is false.");
+	equal(this.rgf_player.gospeed.get_pos(9, 9), "W", "A white stone has been placed.");
+
+	// Try to set the PL property of the new node
+	res = this.rgf_player.addProperty("PL", "W");
+	equal(res, false, "The PL property can only be added to the root node.");
+
+	// Ok.. let's go back to root then...
+	res = this.rgf_player.goTo([]);
+	equal(res, true, "No prob, back to root.");
+	res = this.rgf_player.addProperty("PL", "B");
+	equal(res, false, "Nope, you can't set the PL property to root if you added a stone, this might bring inconsistency.");
+});
+
 test("goTo", function() {
 	var res;
 	var path;

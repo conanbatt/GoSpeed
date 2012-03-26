@@ -74,7 +74,7 @@ var BOARD_TREE_DIV_ID = "gametree_div";
 var BOARD_SHOWER = "graphic";
 var BOARD_MY_COLOUR = "B";
 var BOARD_SERVER_PATH_GAME_MOVE = "21/play";
-var BOARD_SERVER_PATH_GOSPEED_ROOT = "/resources/gospeed";
+var BOARD_SERVER_PATH_GOSPEED_ROOT = "../";
 var BOARD_DIV_ORIGINAL_CONTENT = "(;FF[4];B[bc];W[ff];B[fb];W[bf])";
 
 module("Board Init Full", {
@@ -148,7 +148,7 @@ test("GameTree", function() {
 	equal(this.gospeed.game_tree.root.next.length, 0, "There must not be any nodes next to the root.");
 	equal(this.gospeed.game_tree.root.last_next, null, "No last_next either");
 	equal(this.gospeed.game_tree.actual_move, this.gospeed.game_tree.root, "Actual move should be the root node, ie no move.");
-	equal(this.gospeed.tree_div, document.getElementById(BOARD_TREE_DIV_ID), "The div which holds the graphic representation of the game tree should be the result of document.getElementById() with the tree_div_id argument.");
+	equal(this.gospeed.game_tree.graphic.div_tree, document.getElementById(BOARD_TREE_DIV_ID), "The div which holds the graphic representation of the game tree should be the result of document.getElementById() with the tree_div_id argument.");
 });
 
 test("Online", function() {

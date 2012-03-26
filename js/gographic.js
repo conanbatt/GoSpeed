@@ -142,13 +142,11 @@ GoGraphic.prototype = {
 	draw_play: function(play, wait) {
 		this.clear_last_stone_markers();
 		if (play instanceof FreePlay) {
-			for (var stone=0;stone<play.remove.length;stone++) {
-        if(!play.remove[stone]){ continue };
-				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.remove_stone(play.remove[s].row, play.remove[s].col);
 			}
-			for (var stone=0;stone<play.put.length;stone++) {
-        if(!play.put[stone]){ continue };
-				this.put_stone(play.put[stone].color, play.put[stone].row, play.put[stone].col);
+			for (var s = 0, ls = play.put.length; s < ls; ++s) {
+				this.put_stone(play.put[s].color, play.put[s].row, play.put[s].col);
 			}
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
@@ -157,9 +155,8 @@ GoGraphic.prototype = {
 			} else {
 				this.place_last_stone_marker(play.put);
 			}
-			for (var stone =0;stone<play.remove.length;stone++) {
-        if(!play.remove[stone]){ continue };
-				this.remove_stone(play.remove[stone].row, play.remove[stone].col);
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.remove_stone(play.remove[s].row, play.remove[s].col);
 			}
 			this.refresh_ko(play);
 		} else if (play instanceof Pass) {
@@ -169,19 +166,16 @@ GoGraphic.prototype = {
 
 	undraw_play: function(play) {
 		if (play instanceof FreePlay) {
-			for (var stone=0; stone<play.put.length;stone ++) {
-        if(!play.put[stone]){ continue };
-				this.remove_stone(play.put[stone].row, play.put[stone].col);
+			for (var s = 0, ls = play.put.length; s < ls; ++s) {
+				this.remove_stone(play.put[s].row, play.put[s].col);
 			}
-			for (var stone=0; stone < play.remove.length; stone++) {
-        if(!play.remove[stone]){ continue };
-				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
 			}
 		} else if (play instanceof Play) {
 			this.remove_stone(play.put.row, play.put.col);
-			for (var stone=0;stone < play.remove.length; stone++) {
-        if(!play.remove[stone]){ continue };
-				this.put_stone(play.remove[stone].color, play.remove[stone].row, play.remove[stone].col);
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
 			}
 		}
 		this.clear_last_stone_markers();

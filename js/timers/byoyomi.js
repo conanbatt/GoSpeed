@@ -140,10 +140,8 @@ ByoyomiTimer.prototype = {
 			if (remain_color.period_time > 0 && remain_color.periods <= this.system.periods && reset_period_time) {
 				remain_color.period_time = this.system.period_time;
 			}
-
-			return this.remain;
 		}
-		return false;
+		return this.remain;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

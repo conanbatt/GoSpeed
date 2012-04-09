@@ -94,9 +94,8 @@ BronsteinTimer.prototype = {
 			if (elapsed > bonus) {
 				this.remain[this.actual_color] -= (elapsed - bonus);
 			}
-			return this.remain;
 		}
-		return false;
+		return this.remain;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

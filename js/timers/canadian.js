@@ -133,10 +133,8 @@ CanadianTimer.prototype = {
 					}
 				}
 			}
-
-			return this.remain;
 		}
-		return false;
+		return this.remain;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

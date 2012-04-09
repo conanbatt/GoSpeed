@@ -120,7 +120,6 @@ FischerTimer.prototype = {
 		this.game.update_clocks(tmp_remain);
 		if (tmp_remain[this.actual_color] <= 0) {
 			this.remain[this.actual_color] = 0;
-			this.stop();
 			this.game.announce_time_loss(this.remain);
 		}
 	},

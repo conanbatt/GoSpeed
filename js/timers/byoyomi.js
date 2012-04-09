@@ -207,7 +207,6 @@ ByoyomiTimer.prototype = {
 			remain_color.main_time = 0;
 			remain_color.periods = 0;
 			remain_color.period_time = 0;
-			this.stop();
 			this.game.announce_time_loss(this.remain);
 		}
 	},

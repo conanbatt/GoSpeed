@@ -1103,14 +1103,20 @@ GoSpeed.prototype = {
 				break;
 			}
 			if (i_lose) {
+				var that = this;
 				if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
-					$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"});
-				}
-				if (KAYAGLOBAL != undefined) {
-					KAYAGLOBAL.play_sound("outoftime");
+					$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"}, function(data, textStatus) {
+						if (textStatus == "success") {
+							if (KAYAGLOBAL != undefined) {
+								KAYAGLOBAL.play_sound("outoftime");
+							}
+							that.timer.stop();
+						}
+					});
 				}
 			}
 		}
+		return i_lose;
 	},
 
 	resign: function() {

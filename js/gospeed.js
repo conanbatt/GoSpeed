@@ -481,14 +481,18 @@ GoSpeed.prototype = {
 				tmp_play = this.setup_play(row, col);
 
 				if (tmp_play) {
-					// Timer
-					var time_left;
+					// Pause timer and get remain
+					var time_left = false;
 					if (this.timer != undefined) {
-						time_left = this.timer.pause(true)[this.get_next_move()];
+						time_left = this.timer.pause(true);
+					}
+
+					// Try to add time to play
+					if (time_left !== false) {
+						tmp_play.time_left = time_left[this.get_next_move()];
 					}
 
 					// Commit
-					tmp_play.time_left = time_left;
 					this.commit_play(tmp_play, NODE_OFFLINE);
 
 					if (this.timer != undefined) {
@@ -511,15 +515,15 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Time
-					var tmp_remain;
-					var time_left;
+					var tmp_remain = false;
 					if (this.timer != undefined) {
 						tmp_remain = this.timer.pause(true);
-						time_left = tmp_remain[this.get_next_move()];
 					}
 
 					// Commit
-					tmp_play.time_left = time_left;
+					if (tmp_remain !== false) {
+						tmp_play.time_left = tmp_remain[this.get_next_move()];
+					}
 					this.commit_play(tmp_play, NODE_ONLINE, true);
 					if (this.sgf != undefined) {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
@@ -717,14 +721,16 @@ GoSpeed.prototype = {
 				var color = this.get_next_move();
 
 				// Time
-				var time_left;
+				var time_left = false;
 				if (this.timer != undefined) {
-					time_left = this.timer.pause(true)[color]
+					time_left = this.timer.pause(true);
 				}
 
 				// Play
 				var tmp_play = new Pass(color);
-				tmp_play.time_left = time_left;
+				if (time_left !== false) {
+					tmp_play.time_left = time_left[color];
+				}
 				this.update_play_captures(tmp_play);
 				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE), true);
 				if (this.shower != undefined) {
@@ -750,16 +756,16 @@ GoSpeed.prototype = {
 				var color = this.get_next_move();
 
 				// Time
-				var tmp_remain;
-				var time_left;
+				var tmp_remain = false;
 				if (this.timer != undefined) {
 					tmp_remain = this.timer.pause(true);
-					time_left = tmp_remain[color]
 				}
 
 				// Play
 				var tmp_play = new Pass(color)
-				tmp_play.time_left = time_left;
+				if (tmp_remain !== false) {
+					tmp_play.time_left = tmp_remain[color]
+				}
 				this.update_play_captures(tmp_play);
 				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE, true);
 				if (this.shower != undefined) {
@@ -1374,7 +1380,7 @@ GoSpeed.prototype = {
 		}
 
 		// Time left property
-		if (remain != undefined) {
+		if (remain != undefined && remain !== false) {
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":

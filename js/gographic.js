@@ -542,47 +542,51 @@ GoGraphic.prototype = {
 				for (var color in color_arr) {
 					color = color_arr[color];
 
-					this.handle_clock_sound(remain[color], color);
-					this.format_clock_div(remain[color], color);
-					this.div_clocks[color].innerHTML = formatTime(remain[color] + 0.99, true);
-					this.draw_t_stone_number(remain[color], color);
+					if (remain[color] != undefined) {
+						this.handle_clock_sound(remain[color], color);
+						this.format_clock_div(remain[color], color);
+						this.write_clock_value(formatTime(remain[color] + 0.99, true), color);
+						this.draw_t_stone_number(remain[color], color);
+					}
 				}
 			break;
 			case "Byoyomi":
 				for (var color in color_arr) {
 					color = color_arr[color];
 
-					// FIXME: this should be divided in two cases: main_time > 0 and main_time <= 0, periods must be a parameter and the handler should decide when to put "SD" as a label
-					// To make that possible we may need to upgrade main_time timers to support a complete remain object.
-					if (remain[color].main_time > 0) {
-						this.handle_clock_sound(remain[color].main_time, color);
-						this.format_clock_div(remain[color].main_time, color);
-						this.div_clocks[color].innerHTML = formatTime(remain[color].main_time + 0.99, true);
-						this.draw_t_stone_number(remain[color].main_time, color);
-					} else if (remain[color].periods <= 1) {
-						this.handle_clock_sound(remain[color].period_time, color);
-						this.format_clock_div(remain[color].period_time, color);
-						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' SD';
-						this.draw_t_stone_number(remain[color].period_time, color);
-					} else {
-						this.handle_clock_sound(remain[color].period_time, color);
-						this.format_clock_div(remain[color].period_time, color);
-						this.div_clocks[color].innerHTML = formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')';
-						this.draw_t_stone_number(remain[color].period_time, color);
+					if (remain[color] != undefined) {
+						// FIXME: this should be divided in two cases: main_time > 0 and main_time <= 0, periods must be a parameter and the handler should decide when to put "SD" as a label
+						// To make that possible we may need to upgrade main_time timers to support a complete remain object.
+						if (remain[color].main_time > 0) {
+							this.handle_clock_sound(remain[color].main_time, color);
+							this.format_clock_div(remain[color].main_time, color);
+							this.write_clock_value(formatTime(remain[color].main_time + 0.99, true), color);
+							this.draw_t_stone_number(remain[color].main_time, color);
+						} else if (remain[color].periods <= 1) {
+							this.handle_clock_sound(remain[color].period_time, color);
+							this.format_clock_div(remain[color].period_time, color);
+							this.write_clock_value(formatTime(remain[color].period_time + 0.99) + ' SD', color);
+							this.draw_t_stone_number(remain[color].period_time, color);
+						} else {
+							this.handle_clock_sound(remain[color].period_time, color);
+							this.format_clock_div(remain[color].period_time, color);
+							this.write_clock_value(formatTime(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')', color);
+							this.draw_t_stone_number(remain[color].period_time, color);
+						}
 					}
 				}
 			break;
 			case "Canadian":
-				if (remain[BLACK].main_time > 0) {
-					this.div_clocks[BLACK].innerHTML = formatTime(remain[BLACK].main_time + 0.99, true);
-				} else {
-					this.div_clocks[BLACK].innerHTML = formatTime(remain[BLACK].period_time + 0.99, true) + ' / ' + remain[BLACK].period_stones;
-				}
+				for (var color in color_arr) {
+					color = color_arr[color];
 
-				if (remain[WHITE].main_time > 0) {
-					this.div_clocks[WHITE].innerHTML = formatTime(remain[WHITE].main_time + 0.99, true);
-				} else {
-					this.div_clocks[WHITE].innerHTML = formatTime(remain[WHITE].period_time + 0.99, true) + ' / ' + remain[WHITE].period_stones;
+					if (remain[color] != undefined) {
+						if (remain[color].main_time > 0) {
+							this.write_clock_value(formatTime(remain[color].main_time + 0.99, true), color);
+						} else {
+							this.write_clock_value(formatTime(remain[color].period_time + 0.99, true) + ' / ' + remain[color].period_stones, color);
+						}
+					}
 				}
 			break;
 
@@ -636,22 +640,32 @@ GoGraphic.prototype = {
 	},
 
 	format_clock_div: function(remain, color) {
-		var rc = Math.floor(remain + 0.99);
-		var div = this.div_clocks[color];
-		if (color == this.game.get_next_move()) {
-			if (remain <= 0) {
-				div.style.color = "#800";
-			} else if (rc > 0 && rc <= 10) {
-				if (rc % 2 == 0) {
-					div.style.color = "#EEE";
+		if (color != undefined && remain != undefined) {
+			var rc = Math.floor(remain + 0.99);
+			var div = this.div_clocks[color];
+			if (div != undefined) {
+				if (color == this.game.get_next_move()) {
+					if (remain <= 0) {
+						div.style.color = "#800";
+					} else if (rc > 0 && rc <= 10) {
+						if (rc % 2 == 0) {
+							div.style.color = "#EEE";
+						} else {
+							div.style.color = "";
+						}
+					} else {
+						div.style.color = "";
+					}
 				} else {
 					div.style.color = "";
 				}
-			} else {
-				div.style.color = "";
 			}
-		} else {
-			div.style.color = "";
+		}
+	},
+
+	write_clock_value: function(value, color) {
+		if (color != undefined && this.div_clocks[color] != undefined) {
+			this.div_clocks[color].innerHTML = value;
 		}
 	},
 

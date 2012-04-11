@@ -218,11 +218,6 @@ SGFParser.prototype = {
 
 			// Fills the tree with the info from the sgf, starting from each node.
 			if (!this.sgf_to_tree(board, this.root, board.game_tree.root, NODE_SGF)) {
-				if (this.status == SGFPARSER_ST_ERROR) {
-					throw new Error(this.error);
-				} else {
-					throw new Error("Unknown error no 001");
-				}
 				return false;
 			}
 

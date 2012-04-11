@@ -62,6 +62,7 @@ SGFParser.prototype = {
 		var prop_val;
 		var propsFound = [];
 		var rex_pos = /^[a-z]{2}$/;
+		var tmp;
 
 		while (i < file_len) {
 			chr = this.sgf[i];
@@ -78,7 +79,12 @@ SGFParser.prototype = {
 				case ";":
 					if (!esc_next) {
 						// New node
-						i += this.sgf_handle_node(this.sgf, i + 1);
+						tmp = this.sgf_handle_node(this.sgf, i + 1);
+						if (tmp === false) {
+							return false;
+						} else {
+							i += tmp;
+						}
 					}
 				break;
 				default:
@@ -122,12 +128,21 @@ SGFParser.prototype = {
 					prop_ident += cur_char;
 				} else if (cur_char == '[') {
 					prop_end = true;
+				} else {
+					this.status = SGFPARSER_ST_ERROR;
+					this.error = "Error parsing node property name.\nWrong SGF syntax.";
+					return false;
 				}
 				buf_end++;
 			}
 			prop_end = false;
 			while (!prop_end) {
 				cur_char = buffer[buf_end];
+				if (cur_char == undefined) {
+					this.status = SGFPARSER_ST_ERROR;
+					this.error = "Error parsing node property value.\nWrong SGF syntax.";
+					return false;
+				}
 				if (cur_char == '\\') {
 					esc_next = true;
 				} else if (!esc_next && cur_char == ']') {

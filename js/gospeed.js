@@ -530,7 +530,12 @@ GoSpeed.prototype = {
 					}
 					// TODO: turn count sucks monkey ass
 					this.turn_count++;
-					this.send_play(tmp_play, tmp_remain);
+
+					// Send Play Callback
+					if (this.callbacks.send_play != undefined) {
+						this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
+					}
+
 					bRes = true;
 				}
 
@@ -771,7 +776,12 @@ GoSpeed.prototype = {
 				}
 				// TODO: turn count sucks monkey ass
 				this.turn_count++;
-				this.send_play(tmp_play, tmp_remain);
+
+				// Send Play Callback
+				if (this.callbacks.send_play != undefined) {
+					this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
+				}
+
 				bRes = true;
 
 			break;
@@ -1381,12 +1391,6 @@ GoSpeed.prototype = {
 		}
 
 		return res;
-	},
-
-	send_play: function(play, remain) {
-		if (this.server_path_absolute_url != undefined && this.server_path_game_move != undefined) {
-			$.post(this.server_path_absolute_url + this.server_path_game_move, {move: this.data_to_sgf_node(play, remain)});
-		}
 	},
 
 	send_score_state: function(row, col, alive) {

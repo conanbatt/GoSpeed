@@ -26,6 +26,11 @@ module("OnlineSuite", {
 			div_id_board: BOARD_DIV_ID,
 			shower: BOARD_SHOWER,
 			my_nick: "pocho",
+			callbacks: {
+				send_play: binder(function(move) {
+					this.play({move: move});
+				}, this.server),
+			},
 		};
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
@@ -33,9 +38,6 @@ module("OnlineSuite", {
 			this.diff_update_game(arguments[0]);
 		}, this.gospeed));
 		this.gospeed.connected = (this.gospeed.my_colour != undefined);
-		this.gospeed.send_play = binder(function(play) {
-			this.play({move: coord_converter(play)});
-		}, this.server);
 
 		// Board 2
 		var conf2 = {
@@ -45,6 +47,11 @@ module("OnlineSuite", {
 			div_id_board: BOARD_DIV_ID_2,
 			shower: BOARD_SHOWER,
 			my_nick: "cacho",
+			callbacks: {
+				send_play: binder(function(move) {
+					this.play({move: move});
+				}, this.server),
+			},
 		};
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
@@ -52,9 +59,6 @@ module("OnlineSuite", {
 			this.diff_update_game(arguments[0]);
 		}, this.gospeed2));
 		this.gospeed2.connected = (this.gospeed2.my_colour != undefined);
-		this.gospeed2.send_play = binder(function(play) {
-			this.play({move: coord_converter(play)});
-		}, this.server);
 
 		// Board 3
 		var conf3 = {
@@ -64,6 +68,11 @@ module("OnlineSuite", {
 			div_id_board: BOARD_DIV_ID_3,
 			shower: BOARD_SHOWER,
 			my_nick: "juancho",
+			callbacks: {
+				send_play: binder(function(move) {
+					this.play({move: move});
+				}, this.server),
+			},
 		};
 		document.getElementById(BOARD_DIV_ID_3).innerHTML = "";
 		this.gospeed3 = new GoSpeed(conf3);
@@ -71,9 +80,6 @@ module("OnlineSuite", {
 			this.diff_update_game(arguments[0]);
 		}, this.gospeed3));
 		this.gospeed3.connected = (this.gospeed3.my_colour != undefined);
-		this.gospeed3.send_play = binder(function(play) {
-			this.play({move: coord_converter(play)});
-		}, this.server);
 
 	},
 	teardown: function() {

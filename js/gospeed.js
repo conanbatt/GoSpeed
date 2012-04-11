@@ -1099,6 +1099,32 @@ GoSpeed.prototype = {
 		}
 	},
 
+	timer_settings_to_sgf: function(time_settings) {
+		switch(time_settings.name) {
+			case "Absolute":
+				return "TM[" + time_settings.settings.main_time + "]";
+			break;
+			case "Fischer":
+				return "OT[Fischer " + time_settings.settings.bonus + "]TM[" + time_settings.settings.main_time + "]";
+			break;
+			case "Canadian":
+				return "UNSUPPORTED"; // TODO
+				//this.timer = new CanadianTimer(this, time_settings.settings.main_time, time_settings.settings.period_time, time_settings.settings.period_stones);
+			break;
+			case "Byoyomi":
+				return "OT[Byoyomi " + time_settings.settings.periods + "x" + time_settings.settings.period_time + "]TM[" + time_settings.settings.main_time + "]";
+			break;
+			case "Bronstein":
+				return "UNSUPPORTED"; // TODO
+				//this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
+			break;
+			case "Hourglass":
+				return "UNSUPPORTED"; // TODO
+				//this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+			break;
+		}
+	},
+
 	update_clocks: function(remain) {
 		if (this.shower != undefined) {
 			this.shower.update_clocks(remain);
@@ -1562,7 +1588,7 @@ GoSpeed.prototype = {
 			}
 			// Timer config
 			if (data.time_settings != undefined) {
-				this.setup_timer(data.time_settings);
+				sSgf += this.timer_settings_to_sgf(data.time_settings);
 			}
 			// Moves
 			if (data.moves) {
@@ -1577,7 +1603,6 @@ GoSpeed.prototype = {
 			this.sgf = new SGFParser(sSgf);
 		}
 		this.sgf.load(this);
-		this.render();
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
 		this.update_timer(data.time_adjustment);

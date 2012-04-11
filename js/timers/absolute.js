@@ -76,8 +76,9 @@ AbsoluteTimer.prototype = {
 			window.clearInterval(this.clock);
 			this.status = ST_PAUSED;
 			this.remain[this.actual_color] -= (this.last_pause - this.last_resume) / 1000;
+			return this.remain;
 		}
-		return this.remain;
+		return false;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

@@ -88,8 +88,9 @@ FischerTimer.prototype = {
 			this.status = ST_PAUSED;
 			var bonus = (give_bonus ? this.system.bonus : 0);
 			this.remain[this.actual_color] -= (((this.last_pause - this.last_resume) / 1000) - bonus);
+			return this.remain;
 		}
-		return this.remain;
+		return false;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

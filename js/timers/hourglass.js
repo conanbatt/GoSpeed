@@ -85,8 +85,9 @@ HourglassTimer.prototype = {
 				this.remain[BLACK] += tmp_resume;
 				this.remain[WHITE] -= tmp_resume;
 			}
+			return this.remain;
 		}
-		return this.remain;
+		return false;
 	},
 
 	// Stop, clear everything up, update remain from arguments.

@@ -299,7 +299,7 @@
                             </tr>
                             <tr>
                                 <th colspan="3" style="text-align: center;">
-									<input type="button" value="Load!" onclick="gospeed.sgf = new SGFParser(document.getElementById('sgf_adhoc').value); gospeed.sgf.load(gospeed);" />
+									<input type="button" value="Load!" onclick="gospeed.sgf = new SGFParser(document.getElementById('sgf_adhoc').value); gospeed.sgf.load(gospeed); if (gospeed.sgf.status == SGFPARSER_ST_ERROR) { alert(gospeed.sgf.error);}" />
                                 </th>
                             </tr>
                             <tr>

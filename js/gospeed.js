@@ -1606,6 +1606,9 @@ GoSpeed.prototype = {
 			this.sgf = new SGFParser(sSgf);
 		}
 		this.sgf.load(this);
+		if (this.sgf.status == SGFPARSER_ST_ERROR) {
+			throw new Error("Could not load SGF.\n" + this.sgf.error + "\n" + sSgf);
+		}
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
 		this.update_timer(data.time_adjustment);

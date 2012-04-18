@@ -457,7 +457,9 @@ SGFParser.prototype = {
 		*/
 
 		// Copy the new sgf tree branch to the game tree.
-		this.sgf_to_tree(game, this.pointer, game.game_tree.actual_move, NODE_ONLINE);
+		if (!this.sgf_to_tree(game, this.pointer, game.game_tree.actual_move, NODE_ONLINE)) {
+			return false;
+		}
 		var res = game.game_tree.actual_move;
 
 		// Rewind game so goto_end method can draw it.

@@ -1582,22 +1582,7 @@ GoSpeed.prototype = {
 	update_game: function(data) {
 		this.clear();
 
-		// Recreate sgf from info
-			var sSgf = "(;FF[4]";
-
-			// Size
-			if (data.size) {
-				sSgf += "SZ[" + data.size + "]";
-			}
-			// Timer config
-			if (data.time_settings != undefined) {
-				sSgf += this.timer_settings_to_sgf(data.time_settings);
-			}
-			// Moves
-			if (data.moves) {
-				sSgf += data.moves;
-			}
-			sSgf += ")";
+		var sSgf = this.juggernaut_data_to_sgf(data);
 
 		// Load sgf
 		if (this.sgf != undefined) {
@@ -1619,6 +1604,29 @@ GoSpeed.prototype = {
 				this.timer.stop();
 			}
 		}
+	},
+
+	juggernaut_data_to_sgf: function(data) {
+		var sSgf = "(;FF[4]";
+		// Size
+		if (data.size) {
+			sSgf += "SZ[" + data.size + "]";
+		}
+		// Timer config
+		if (data.time_settings != undefined) {
+			sSgf += this.timer_settings_to_sgf(data.time_settings);
+		}
+		// Handicap
+		if (data.handicap_sgf_node != undefined) {
+			sgf += data.handicap_sgf_node;
+		}
+		// Moves
+		if (data.moves) {
+			sSgf += data.moves;
+		}
+		sSgf += ")";
+
+		return sSgf;
 	},
 
 	place_coord_marker: function(row, col) {

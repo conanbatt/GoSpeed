@@ -1112,7 +1112,7 @@ GoSpeed.prototype = {
 				//this.timer = new CanadianTimer(this, time_settings.settings.main_time, time_settings.settings.period_time, time_settings.settings.period_stones);
 			break;
 			case "Byoyomi":
-				return "OT[Byoyomi " + time_settings.settings.periods + "x" + time_settings.settings.period_time + "]TM[" + time_settings.settings.main_time + "]";
+				return "OT[" + time_settings.settings.periods + "x" + time_settings.settings.period_time + " byo-yomi]TM[" + time_settings.settings.main_time + "]";
 			break;
 			case "Bronstein":
 				return "UNSUPPORTED"; // TODO
@@ -1121,6 +1121,9 @@ GoSpeed.prototype = {
 			case "Hourglass":
 				return "UNSUPPORTED"; // TODO
 				//this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+			break;
+			default:
+				return "";
 			break;
 		}
 	},

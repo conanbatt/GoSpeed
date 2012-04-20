@@ -113,10 +113,14 @@ var NODE_VARIATION = 8;
 				this.actual_move.last_next = node;
 			} else {
 				var l_next = null;
-				for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
-					if (this.actual_move.next[i].source != NODE_VARIATION) {
-						l_next = this.actual_move.next[i];
-						break;
+				if (this.actual_move.source == NODE_VARIATION) {
+					l_next = node;
+				} else {
+					for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
+						if (this.actual_move.next[i].source != NODE_VARIATION) {
+							l_next = this.actual_move.next[i];
+							break;
+						}
 					}
 				}
 				this.actual_move.last_next = l_next;

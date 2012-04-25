@@ -87,6 +87,7 @@ var NODE_VARIATION = 8;
 	function Pass(color) {
 		if (color == "W" || color == "B") {
 			this.put = {"color": color};
+			this.remove = [];
 		} else {
 			throw new Error("Pass requires a color.");
 		}

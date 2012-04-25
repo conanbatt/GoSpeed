@@ -704,8 +704,10 @@ GoSpeed.prototype = {
 			var previous_play_captured = actual_move.play.captured;
 			play.captured = {"B": previous_play_captured["B"], "W": previous_play_captured["W"],};
 		}
-		for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-			play.captured[play.remove[s].color]++;
+		if (play.remove != undefined) {
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				play.captured[play.remove[s].color]++;
+			}
 		}
 	},
 

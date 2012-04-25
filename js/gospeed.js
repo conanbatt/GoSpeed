@@ -100,8 +100,8 @@ GoSpeed.prototype = {
 
 	// Tracks
 		this.tracks = [];
-		this.tracks[0] = new Track(this.grid, this.game_tree.actual_move);
-		this.actual_track = 0;
+		this.tracks[TRACK_ONLINE] = new Track(this.grid, this.game_tree.actual_move);
+		this.actual_track = TRACK_ONLINE;
 
 	// Game
 		// TODO: turn count sucks monkey ass

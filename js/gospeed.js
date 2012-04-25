@@ -9,8 +9,8 @@ function GoSpeed(args) {
 GoSpeed.prototype = {
 	init: function() {
 	// Validation
-		this.validator = new GoValidate(arguments);
-		var args = this.validator.clean_args;
+		var validator = new GoValidate(arguments);
+		var args = validator.args;
 
 	// Setup
 		this.size = args.size;

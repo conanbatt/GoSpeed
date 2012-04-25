@@ -8,6 +8,50 @@ GoValidate.prototype = {
 		this.validate(arguments);
 	},
 
+	// Main testing function
+	test: function(elem, name, type, values, default_value) {
+		if (typeof elem[name] === "undefined") {
+			if (typeof default_value !== "undefined") {
+				elem[name] = default_value;
+			}
+		} else {
+			if (typeof elem[name] !== type) {
+				throw new Error("The '" + name + "' parameter type must be '" + type + "'.");
+			} else {
+				if (typeof values === "object" && values instanceof Array) {
+					if (!inArray(elem[name], values)) {
+						throw new Error("The '" + name + "' parameter must be in (" + values + ").");
+					}
+				} else if (values === true) {
+					if (type === "string") {
+						if (elem[name] === "") {
+							throw new Error("The '" + name + "' parameter must not be empty.");
+						}
+					}
+				}
+			}
+		}
+	},
+
+	// Checks if the div exists in DOM
+	test_div: function(name, div_id) {
+		if (typeof div_id !== "undefined") {
+			if (!document.getElementById(div_id)) {
+				throw new Error("The '" + name + "' parameter points to no existing div.");
+			}
+		}
+	},
+
+	// Adds slash to the path provided
+	complete_path: function(elem, name) {
+		if (typeof elem[name] === "string") {
+			if (elem[name].charAt(elem[name].length - 1) != '/') {
+				elem[name] += '/';
+			}
+		}
+	},
+
+
 //	Validation
 	validate: function(rgmnts) {
 		// Check for my "arguments" value.
@@ -15,262 +59,109 @@ GoValidate.prototype = {
 		// Check for GoSpeed's "arguments" value.
 		rgmnts[0][0] = rgmnts[0][0] || {};
 		// Shortcut
-		var args = rgmnts[0][0];
+		this.args = rgmnts[0][0];
 
 		var options;
+		var target;
 
-		with (args) {
 		// Size
-			if (typeof size == "undefined") {
-				args.size = 19;
-			} else if (typeof size == "number") {
-				options = [9, 13, 19,];
-				if (!inArray(size, options)) {
-					throw new Error("The 'size' parameter must be in (" + options + ").");
-				}
-			} else {
-				throw new Error("The 'size' parameter must be a number");
-			}
+			this.test(this.args, "size", "number", [9, 13, 19], 19);
 
 		// Mode
-			if (typeof mode == "undefined") {
-				args.mode = "play";
-			} else if (typeof mode == "string") {
-				options = ["play", "play_online", "free", "variation", "count", "count_online",];
-				if (!inArray(mode, options)) {
-					throw new Error("The 'mode' parameter must be in (" + options + ").");
-				}
-			} else {
-				throw new Error("The 'mode' parameter must be a string");
-			}
+			this.test(this.args, "mode", "string", ["play", "play_online", "free", "variation", "count", "count_online"], "play");
 
 		// Ruleset
-			if (typeof ruleset == "undefined") {
-				args.ruleset = "Japanese";
-			} else if (typeof ruleset == "string") {
-				options = ["Japanese", "Chinese",];
-				if (!inArray(ruleset, options)) {
-					throw new Error("The 'ruleset' parameter must be in (" + options + ").");
-				}
-			} else {
-				throw new Error("The 'ruleset' parameter must be a string");
-			}
+			this.test(this.args, "ruleset", "string", ["Japanese", "Chinese"], "Japanese");
 
 		// DivID
-			if (typeof div_id_board != "undefined") {
-				if (typeof div_id_board != "string") {
-					throw new Error("The 'div_id_board' parameter must be a string");
-				} else if (!document.getElementById(div_id_board)) {
-					throw new Error("The 'div_id_board' parameter points to no existing div.");
-				}
-			}
+			var target = "div_id_board";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// TreeDivID
-			if (typeof div_id_tree != "undefined") {
-				if (typeof div_id_tree != "string") {
-					throw new Error("The 'div_id_tree' parameter must be a string");
-				} else if (!document.getElementById(div_id_tree)) {
-					throw new Error("The 'div_id_tree' parameter points to no existing div.");
-				}
-			}
+			var target = "div_id_tree";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Time config
-			if (typeof time_settings != "undefined") {
+			if (typeof this.args["time_settings"] !== "undefined") {
 				// Time system
-				if (typeof time_settings.name != "undefined") {
-					if (typeof time_settings.name != "string") {
-						throw new Error("The 'time_settings.name' parameter must be a string");
-					} else {
-						options = ["Absolute", "Fischer", "Canadian", "Byoyomi", "Bronstein", "Hourglass", "Free", ];
-						if (!inArray(time_settings.name, options)) {
-							throw new Error("The 'time_settings.name' parameter must be in (" + options + ").");
-						}
-					}
-				}
+				this.test(this.args["time_settings"], "name", "string", ["Absolute", "Fischer", "Canadian", "Byoyomi", "Bronstein", "Hourglass", "Free"]);
 				// Clocks Div IDs
-				if (typeof time_settings.div_id_clock_w != "undefined") {
-					if (typeof time_settings.div_id_clock_w != "string") {
-						throw new Error("The 'div_id_clock_w' parameter must be a string");
-					} else if (!document.getElementById(time_settings.div_id_clock_w)) {
-						throw new Error("The 'div_id_clock_w' parameter points to no existing div.");
-					}
-				}
-				if (typeof time_settings.div_id_clock_b != "undefined") {
-					if (typeof time_settings.div_id_clock_b != "string") {
-						throw new Error("The 'div_id_clock_b' parameter must be a string");
-					} else if (!document.getElementById(time_settings.div_id_clock_b)) {
-						throw new Error("The 'div_id_clock_b' parameter points to no existing div.");
-					}
-				}
+				target = "div_id_clock_w";
+				this.test(this.args["time_settings"], target, "string");
+				this.test_div(target, this.args["time_settings"][target]);
+				target = "div_id_clock_b";
+				this.test(this.args["time_settings"], target, "string");
+				this.test_div(target, this.args["time_settings"][target]);
 			}
 
 		// Capture Divs
-			if (typeof div_id_captured_w != "undefined") {
-				if (typeof div_id_captured_w != "string") {
-					throw new Error("The 'div_id_captured_w' parameter must be a string");
-				} else if (!document.getElementById(div_id_captured_w)) {
-					throw new Error("The 'div_id_captured_w' parameter points to no existing div.");
-				}
-			}
-			if (typeof div_id_captured_b != "undefined") {
-				if (typeof div_id_captured_b != "string") {
-					throw new Error("The 'div_id_captured_b' parameter must be a string");
-				} else if (!document.getElementById(div_id_captured_b)) {
-					throw new Error("The 'div_id_captured_b' parameter points to no existing div.");
-				}
-			}
+			target = "div_id_captured_w";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
+			target = "div_id_captured_b";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Score Divs
-			if (typeof div_id_score_w != "undefined") {
-				if (typeof div_id_score_w != "string") {
-					throw new Error("The 'div_id_score_w' parameter must be a string");
-				} else if (!document.getElementById(div_id_score_w)) {
-					throw new Error("The 'div_id_score_w' parameter points to no existing div.");
-				}
-			}
-			if (typeof div_id_score_b != "undefined") {
-				if (typeof div_id_score_b != "string") {
-					throw new Error("The 'div_id_score_b' parameter must be a string");
-				} else if (!document.getElementById(div_id_score_b)) {
-					throw new Error("The 'div_id_score_b' parameter points to no existing div.");
-				}
-			}
+			target = "div_id_score_w";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
+			target = "div_id_score_b";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Result Div
-			if (typeof div_id_result != "undefined") {
-				if (typeof div_id_result != "string") {
-					throw new Error("The 'div_id_result' parameter must be a string");
-				} else if (!document.getElementById(div_id_result)) {
-					throw new Error("The 'div_id_result' parameter points to no existing div.");
-				}
-			}
+			target = "div_id_result";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Comments Div
-			if (typeof div_id_comments != "undefined") {
-				if (typeof div_id_comments != "string") {
-					throw new Error("The 'div_id_comments' parameter must be a string");
-				} else if (!document.getElementById(div_id_comments)) {
-					throw new Error("The 'div_id_comments' parameter points to no existing div.");
-				}
-			}
+			target = "div_id_comments";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Move Number Div
-			if (typeof div_id_move_number != "undefined") {
-				if (typeof div_id_move_number != "string") {
-					throw new Error("The 'div_id_move_number' parameter must be a string");
-				} else if (!document.getElementById(div_id_move_number)) {
-					throw new Error("The 'div_id_move_number' parameter points to no existing div.");
-				}
-			}
+			target = "div_id_move_number";
+			this.test(this.args, target, "string");
+			this.test_div(target, this.args[target]);
 
 		// Komi
-			if (typeof komi != "undefined") {
-				if (typeof komi != "number") {
-					throw new Error("The 'komi' parameter must be a number");
-				}
-			}
-
+			this.test(this.args, "komi", "number");
 
 		// Shower
-			if (typeof shower != "undefined") {
-				if (typeof shower != "string") {
-					throw new Error("The 'shower' parameter must be a string");
-				} else {
-					options = ["shower", "graphic",];
-					if (!inArray(shower, options)) {
-						throw new Error("The 'shower' parameter must be in (" + options + ").");
-					}
-				}
-			}
+			this.test(this.args, "shower", "string", ["shower", "graphic"]);
 
 		// Colour
-			if (typeof my_colour != "undefined") {
-				if (typeof my_colour != "string") {
-					throw new Error("The 'my_colour' parameter must be a string");
-				} else {
-					options = ["B", "W", "A", "O",];
-					if (!inArray(my_colour, options)) {
-						throw new Error("The 'my_colour' parameter must be in (" + options + ").");
-					}
-				}
-			}
+			this.test(this.args, "my_colour", "string", ["B", "W", "A", "O",]);
 
 		// Nickname
-			if (typeof my_nick != "undefined") {
-				if (typeof my_nick != "string") {
-					throw new Error("The 'my_nick' parameter must be a string");
-				} else {
-					if (my_nick == "") {
-						throw new Error("The 'my_nick' parameter must not be empty");
-					}
-				}
-			}
+			this.test(this.args, "my_nick", "string", true);
 
 		// Callbacks
-			if (typeof callbacks != "undefined") {
+			if (typeof this.args["callbacks"] !== "undefined") {
 				var id;
-				for (id in callbacks) {
-					if (typeof callbacks[id] != "function") {
-						throw new Error("The callback '" + id + "' must be a function");
-					}
+				for (id in this.args["callbacks"]) {
+					this.test(this.args["callbacks"], id, "function");
 				}
 			}
 
 		// Server Paths
 			// Server Resources Path
-			if (typeof server_path_gospeed_root != "undefined") {
-				if (typeof server_path_gospeed_root != "string") {
-					throw new Error("The 'server_path_gospeed_root' parameter must be a string");
-				} else {
-					if (server_path_gospeed_root == "") {
-						throw new Error("The 'server_path_gospeed_root' parameter must not be empty");
-					} else {
-						if (server_path_gospeed_root.charAt(server_path_gospeed_root.length - 1) != '/') {
-							args.server_path_gospeed_root += '/';
-						}
-					}
-				}
-			}
+			this.test(this.args, "server_path_gospeed_root", "string", true);
+			this.complete_path(this.args, "server_path_gospeed_root");
 
 			// Absolute URL
-			if (typeof server_path_absolute_url != "undefined") {
-				if (typeof server_path_absolute_url != "string") {
-					throw new Error("The 'server_path_absolute_url' parameter must be a string");
-				} else {
-					if (server_path_absolute_url == "") {
-						throw new Error("The 'server_path_absolute_url' parameter must not be empty");
-					} else {
-						if (server_path_absolute_url.charAt(server_path_absolute_url.length - 1) != '/') {
-							args.server_path_absolute_url += '/';
-						}
-					}
-				}
-			}
+			this.test(this.args, "server_path_absolute_url", "string", true);
+			this.complete_path(this.args, "server_path_absolute_url");
 
 			// Game Move
-			if (typeof server_path_game_move != "undefined") {
-				if (typeof server_path_game_move != "string") {
-					throw new Error("The 'server_path_game_move' parameter must be a string");
-				} else {
-					if (server_path_game_move == "") {
-						throw new Error("The 'server_path_game_move' parameter must not be empty");
-					}
-				}
-			}
+			this.test(this.args, "server_path_game_move", "string", true);
 
 			// Game End
-			if (typeof server_path_game_end != "undefined") {
-				if (typeof server_path_game_end != "string") {
-					throw new Error("The 'server_path_game_end' parameter must be a string");
-				} else {
-					if (server_path_game_end == "") {
-						throw new Error("The 'server_path_game_end' parameter must not be empty");
-					}
-				}
-			}
-		}
-		// Save GoSpeed cleaned arguments;
-		this.clean_args = args;
+			this.test(this.args, "server_path_game_end", "string", true);
+
 	},
 }
 

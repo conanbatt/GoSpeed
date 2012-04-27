@@ -744,6 +744,9 @@ GoGraphic.prototype = {
 
 		// Move Number
 		this.update_move_number(this.game.game_tree.actual_move);
+
+		// Comments
+		this.update_comments();
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {
@@ -795,6 +798,7 @@ GoGraphic.prototype = {
 		this.refresh_ko(node.play);
 		this.update_captures(node.play);
 		this.update_move_number(node);
+		this.update_comments();
 		if (node.play instanceof Play) {
 			this.place_last_stone_marker(node.play.put);
 		}

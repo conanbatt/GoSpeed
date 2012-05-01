@@ -5,18 +5,25 @@ var SHADOW_TOP = 1;
 var SHADOW_SIDE = -1; // 1 for right, -1 for left
 var MOUSE_ADJUST_Y = 0;
 
-function GoGraphic(game) {
-	this.init.call(this, game);
+function GoGraphic(game, args) {
+	this.init.call(this, game, args);
 }
 
 GoGraphic.prototype = {
-	init: function(game) {
+	init: function(game, args) {
+		// Setup
 		this.game = game;
-		this.validate_and_load_divs();
+
+		// Validation
+		this.validate_and_load_divs(args);
+
+		// Grid
 		this.grid = Array(this.game.size);
 		for (var row = 0, size = this.game.size; row < size ; row++) {
 			this.grid[row] = Array(size);
 		}
+
+		// Board Bound
 		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
 	},
 
@@ -800,78 +807,35 @@ GoGraphic.prototype = {
 		}
 	},
 
-	validate_and_load_divs: function() {
-		if (this.game.div_id_board != undefined) {
-			this.div_board = document.getElementById(this.game.div_id_board);
-			if (this.div_board) {
-				this.div_board.innerHTML = "";
+	test_and_store_div: function(source, source_name, target, target_name, empty) {
+		var tmp;
+		if (source[source_name] !== undefined) {
+			tmp = document.getElementById(source[source_name]);
+			if (tmp) {
+				if (empty === true) {
+					tmp.innerHTML = "";
+				}
+				target[target_name] = tmp;
 			} else {
-				throw new Error("GoGraphic: error finding board div.");
+				throw new Error("GoGraphic: error finding '" + source_name + "' with id '" + source[source_name] + "'.");
 			}
 		}
+	},
+
+	validate_and_load_divs: function(args) {
+		this.test_and_store_div(args, "div_id_board", this, "div_board", true);
 		this.div_clocks = {};
-		if (this.game.div_id_clock_w != undefined) {
-			this.div_clocks[WHITE] = document.getElementById(this.game.div_id_clock_w);
-			if (this.div_clocks[WHITE]) {
-				this.div_clocks[WHITE].innerHTML = "";
-			} else {
-				throw new Error("GoGraphic: error finding white clock div.");
-			}
+		if (args.time_settings != undefined) {
+			this.test_and_store_div(args.time_settings, "div_id_clock_w", this.div_clocks, WHITE, true);
+			this.test_and_store_div(args.time_settings, "div_id_clock_b", this.div_clocks, BLACK, true);
 		}
-		if (this.game.div_id_clock_b != undefined) {
-			this.div_clocks[BLACK] = document.getElementById(this.game.div_id_clock_b);
-			if (this.div_clocks[BLACK]) {
-				this.div_clocks[BLACK].innerHTML = "";
-			} else {
-				throw new Error("GoGraphic: error finding black clock div.");
-			}
-		}
-		if (this.game.div_id_captured_w != undefined) {
-			this.div_captured_w = document.getElementById(this.game.div_id_captured_w);
-			if (this.div_captured_w) {
-				this.div_captured_w.innerHTML = "";
-			} else {
-				throw new Error("GoGraphic: error finding white captured div.");
-			}
-		}
-		if (this.game.div_id_captured_b != undefined) {
-			this.div_captured_b = document.getElementById(this.game.div_id_captured_b);
-			if (this.div_captured_b) {
-				this.div_captured_b.innerHTML = "";
-			} else {
-				throw new Error("GoGraphic: error finding black captured div.");
-			}
-		}
-		if (this.game.div_id_score_w != undefined) {
-			this.div_score_w = document.getElementById(this.game.div_id_score_w);
-			if (!this.div_score_w) {
-				throw new Error("GoGraphic: error finding white score div.");
-			}
-		}
-		if (this.game.div_id_score_b != undefined) {
-			this.div_score_b = document.getElementById(this.game.div_id_score_b);
-			if (!this.div_score_b) {
-				throw new Error("GoGraphic: error finding black score div.");
-			}
-		}
-		if (this.game.div_id_result != undefined) {
-			this.div_result = document.getElementById(this.game.div_id_result);
-			if (!this.div_result) {
-				throw new Error("GoGraphic: error finding result div.");
-			}
-		}
-		if (this.game.div_id_comments != undefined) {
-			this.div_comments = document.getElementById(this.game.div_id_comments);
-			if (!this.div_comments) {
-				throw new Error("GoGraphic: error finding comments div.");
-			}
-		}
-		if (this.game.div_id_move_number != undefined) {
-			this.div_move_number = document.getElementById(this.game.div_id_move_number);
-			if (!this.div_move_number) {
-				throw new Error("GoGraphic: error finding move_number div.");
-			}
-		}
+		this.test_and_store_div(args, "div_id_captured_w", this, "div_captured_w", true);
+		this.test_and_store_div(args, "div_id_captured_b", this, "div_captured_b", true);
+		this.test_and_store_div(args, "div_id_score_w", this, "div_score_w");
+		this.test_and_store_div(args, "div_id_score_b", this, "div_score_b");
+		this.test_and_store_div(args, "div_id_result", this, "div_result");
+		this.test_and_store_div(args, "div_id_comments", this, "div_comments");
+		this.test_and_store_div(args, "div_id_move_number", this, "div_move_number");
 	},
 
 };

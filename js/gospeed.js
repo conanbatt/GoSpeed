@@ -24,59 +24,13 @@ GoSpeed.prototype = {
 			this.grid[row] = Array(this.size);
 		}
 
-	// Divs
-		// Board
-		if (args.div_id_board != undefined) {
-			this.div_id_board = args.div_id_board;
-			// Read div contents
-			var tmp_div = document.getElementById(args.div_id_board);
-			if (tmp_div && tmp_div.innerHTML != "") {
-				this.sgf = new SGFParser(tmp_div.innerHTML);
-			}
-		}
-		// Time
-		if (args.time_settings != undefined) {
-			if (args.time_settings.div_id_clock_w != undefined) {
-				this.div_id_clock_w = args.time_settings.div_id_clock_w;
-			}
-			if (args.time_settings.div_id_clock_b != undefined) {
-				this.div_id_clock_b = args.time_settings.div_id_clock_b;
-			}
-		}
-		// Captured
-		if (args.div_id_captured_w != undefined) {
-			this.div_id_captured_w = args.div_id_captured_w;
-		}
-		if (args.div_id_captured_b != undefined) {
-			this.div_id_captured_b = args.div_id_captured_b;
-		}
-		// Score
-		if (args.div_id_score_w != undefined) {
-			this.div_id_score_w = args.div_id_score_w;
-		}
-		if (args.div_id_score_b != undefined) {
-			this.div_id_score_b = args.div_id_score_b;
-		}
-		// Result
-		if (args.div_id_result != undefined) {
-			this.div_id_result = args.div_id_result;
-		}
-		// Comments
-		if (args.div_id_comments != undefined) {
-			this.div_id_comments = args.div_id_comments;
-		}
-		// Move Number
-		if (args.div_id_move_number != undefined) {
-			this.div_id_move_number = args.div_id_move_number;
-		}
-
 	// Shower
 		// Define the showing engine
 		if (args.shower != undefined) {
 			if (args.shower == "basic") {
-				this.shower = new GoShower(this);
+				this.shower = new GoShower(this, args);
 			} else if (args.shower == "graphic") {
-				this.shower = new GoGraphic(this);
+				this.shower = new GoGraphic(this, args);
 			}
 		}
 
@@ -1313,7 +1267,10 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
-		this.game_tree = new GameTree(this.div_id_tree);
+		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
+			var div_id_tree = this.game_tree.graphic.div_tree.id;
+		}
+		this.game_tree = new GameTree(div_id_tree);
 
 		// Tracks
 		this.tracks = [];

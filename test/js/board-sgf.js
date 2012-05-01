@@ -26,8 +26,9 @@ module("Board Init Full", {
 			//server_path_game_move: BOARD_SERVER_PATH_GAME_MOVE,
 			//server_path_gospeed_root: BOARD_SERVER_PATH_GOSPEED_ROOT
 		};
-		document.getElementById(BOARD_DIV_ID).innerHTML = BOARD_DIV_ORIGINAL_CONTENT;
+		//document.getElementById(BOARD_DIV_ID).innerHTML = BOARD_DIV_ORIGINAL_CONTENT;
 		this.gospeed = new GoSpeed(conf);
+		this.gospeed.sgf = new SGFParser(BOARD_DIV_ORIGINAL_CONTENT);
 		this.gospeed.sgf.load(this.gospeed);
 	},
 	teardown: function() {

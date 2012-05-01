@@ -70,13 +70,13 @@ module("OnlineSuite", {
 });
 
 test("Initialization", function() {
-	equal(this.gospeed.size, this.gospeed2.size, "Board sizes are equal.");
-	equal(this.gospeed.shower.grid.length, this.gospeed.size, "Board 1: shower grid row count equals game size.");
-	equal(this.gospeed2.shower.grid.length, this.gospeed2.size, "Board 2: shower grid row count equals game size.");
-	for (var row = 0; row < this.gospeed.size; row++) {
-		equal(this.gospeed.shower.grid[row].length, this.gospeed.size, "Board 1: shower grid row "+row+" col count equals game size.");
-		equal(this.gospeed2.shower.grid[row].length, this.gospeed2.size, "Board 2: shower grid row "+row+" col count equals game size.");
-		for (var col = 0; col < this.gospeed.size; col++) {
+	equal(this.gospeed.board.size, this.gospeed2.board.size, "Board sizes are equal.");
+	equal(this.gospeed.shower.grid.length, this.gospeed.board.size, "Board 1: shower grid row count equals game size.");
+	equal(this.gospeed2.shower.grid.length, this.gospeed2.board.size, "Board 2: shower grid row count equals game size.");
+	for (var row = 0; row < this.gospeed.board.size; row++) {
+		equal(this.gospeed.shower.grid[row].length, this.gospeed.board.size, "Board 1: shower grid row "+row+" col count equals game size.");
+		equal(this.gospeed2.shower.grid[row].length, this.gospeed2.board.size, "Board 2: shower grid row "+row+" col count equals game size.");
+		for (var col = 0; col < this.gospeed.board.size; col++) {
 			equal(this.gospeed.shower.grid[row][col], undefined, "Board 1: at startup grid["+row+"]["+col+"] is undefined.");
 			equal(this.gospeed.shower.grid[row][col], this.gospeed2.shower.grid[row][col], "Board 2: at startup grid["+row+"]["+col+"] is equal to Board 1.");
 		}
@@ -98,7 +98,7 @@ test("GamePlay", function() {
 	this.gospeed2.play(1, 1);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
+			equal(this.gospeed.shower.max_bound, this.gospeed.board.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[1][1], undefined, "Board 1: shower grid position [1][1] must not be undefined.");
 			equal(this.gospeed.shower.grid[1][1].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
@@ -122,7 +122,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
+			equal(this.gospeed2.shower.max_bound, this.gospeed2.board.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[1][1], undefined, "Board 2: shower grid position [1][1] must not be undefined.");
 			equal(this.gospeed2.shower.grid[1][1].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
@@ -149,7 +149,7 @@ test("GamePlay", function() {
 	this.gospeed.play(1, 0);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
+			equal(this.gospeed.shower.max_bound, this.gospeed.board.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[1][0], undefined, "Board 1: shower grid position [1][0] must not be undefined.");
 			equal(this.gospeed.shower.grid[1][0].stone.className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
@@ -173,7 +173,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but it's not my turn. White transparent stone must not be displayed.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
+			equal(this.gospeed2.shower.max_bound, this.gospeed2.board.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[1][0], undefined, "Board 2: shower grid position [1][0] must not be undefined.");
 			equal(this.gospeed2.shower.grid[1][0].stone.className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
@@ -200,7 +200,7 @@ test("GamePlay", function() {
 	this.gospeed2.play(0, 2);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
+			equal(this.gospeed.shower.max_bound, this.gospeed.board.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][2], undefined, "Board 1: shower grid position [0][2] must not be undefined.");
 			equal(this.gospeed.shower.grid[0][2].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
@@ -224,7 +224,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
+			equal(this.gospeed2.shower.max_bound, this.gospeed2.board.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][2], undefined, "Board 2: shower grid position [0][2] must not be undefined.");
 			equal(this.gospeed2.shower.grid[0][2].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");
@@ -251,7 +251,7 @@ test("GamePlay", function() {
 	this.gospeed.play(0, 1);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
+			equal(this.gospeed.shower.max_bound, this.gospeed.board.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][1], undefined, "Board 1: shower grid position [0][1] must not be undefined.");
 			equal(this.gospeed.shower.grid[0][1].stone.className, "StoneW", "Board 1: current stone class name must be 'StoneW'.");
@@ -275,7 +275,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_white.style.display, "none", "Board 1: position (2, 0) is empty, but it's not my turn. White transparent stone must not be displayed.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
+			equal(this.gospeed2.shower.max_bound, this.gospeed2.board.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][1], undefined, "Board 2: shower grid position [0][1] must not be undefined.");
 			equal(this.gospeed2.shower.grid[0][1].stone.className, "StoneW", "Board 2: current stone class name must be 'StoneW'.");
@@ -302,7 +302,7 @@ test("GamePlay", function() {
 	this.gospeed2.play(0, 0);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.shower.max_bound, this.gospeed.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
+			equal(this.gospeed.shower.max_bound, this.gospeed.board.size * STONE_SIZE + BOARD_BOUND, "Board 1: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed.shower.grid[0][0], undefined, "Board 1: shower grid position [0][0] must not be undefined.");
 			equal(this.gospeed.shower.grid[0][0].stone.className, "StoneB", "Board 1: current stone class name must be 'StoneB'.");
@@ -328,7 +328,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.shower.t_white.style.display, "block", "Board 1: position (2, 0) is empty and it's my turn. White transparent stone must be displayed.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.shower.max_bound, this.gospeed2.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
+			equal(this.gospeed2.shower.max_bound, this.gospeed2.board.size * STONE_SIZE + BOARD_BOUND, "Board 2: max_bound remained untouched.");
 			// These are for gographic test swite
 			notEqual(this.gospeed2.shower.grid[0][0], undefined, "Board 2: shower grid position [0][0] must not be undefined.");
 			equal(this.gospeed2.shower.grid[0][0].stone.className, "StoneB", "Board 2: current stone class name must be 'StoneB'.");

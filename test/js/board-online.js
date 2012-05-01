@@ -106,7 +106,7 @@ test("Initialization", function() {
 });
 
 test("Size", function() {
-	equal(this.gospeed.size, BOARD_SIZE, "As configured, board size should be " + BOARD_SIZE + ".");
+	equal(this.gospeed.board.size, BOARD_SIZE, "As configured, board size should be " + BOARD_SIZE + ".");
 });
 
 test("Mode", function() {
@@ -126,10 +126,10 @@ test("Ko", function() {
 });
 
 test("Grid", function() {
-	equal(this.gospeed.grid.length, this.gospeed.size, "The grid's row count should be equal to it's size value.");
-	var count = this.gospeed.size;
+	equal(this.gospeed.board.grid.length, this.gospeed.board.size, "The grid's row count should be equal to it's size value.");
+	var count = this.gospeed.board.size;
 	for (var i = 0 ; i < count ; i++) {
-		equal(this.gospeed.grid[i].length, this.gospeed.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
+		equal(this.gospeed.board.grid[i].length, this.gospeed.board.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
 	}
 });
 
@@ -171,13 +171,13 @@ test("GamePlay", function() {
 	this.gospeed2.play(1, 1);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(1, 1), "B", "Board 1: get_pos(1, 1) returns 'B'.");
-			equal(this.gospeed.grid[1][1], "B", "Board 1: grid position [1][1] has 'B'.");
+			equal(this.gospeed.board.get_pos(1, 1), "B", "Board 1: get_pos(1, 1) returns 'B'.");
+			equal(this.gospeed.board.grid[1][1], "B", "Board 1: grid position [1][1] has 'B'.");
 			equal(this.gospeed.get_ko(), undefined, "Board 1: ko is undefined.");
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
@@ -185,13 +185,13 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 1, "Board 1: we have had only one turn.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(1, 1), "B", "Board 2: get_pos(1, 1) returns 'B'.");
-			equal(this.gospeed2.grid[1][1], "B", "Board 2: grid position [1][1] has 'B'.");
+			equal(this.gospeed2.board.get_pos(1, 1), "B", "Board 2: get_pos(1, 1) returns 'B'.");
+			equal(this.gospeed2.board.grid[1][1], "B", "Board 2: grid position [1][1] has 'B'.");
 			equal(this.gospeed2.get_ko(), undefined, "Board 2: ko is undefined.");
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
@@ -202,13 +202,13 @@ test("GamePlay", function() {
 	this.gospeed.play(1, 0);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(1, 0), "W", "Board 1: get_pos(1, 0) returns 'B'.");
-			equal(this.gospeed.grid[1][0], "W", "Board 1: grid position [1][0] has 'B'.");
+			equal(this.gospeed.board.get_pos(1, 0), "W", "Board 1: get_pos(1, 0) returns 'B'.");
+			equal(this.gospeed.board.grid[1][0], "W", "Board 1: grid position [1][0] has 'B'.");
 			equal(this.gospeed.get_ko(), undefined, "Board 1: ko is undefined.");
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
@@ -216,13 +216,13 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 2, "Board 1: we have had 2 turns.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(1, 0), "W", "Board 2: get_pos(1, 0) returns 'B'.");
-			equal(this.gospeed2.grid[1][0], "W", "Board 2: grid position [1][0] has 'B'.");
+			equal(this.gospeed2.board.get_pos(1, 0), "W", "Board 2: get_pos(1, 0) returns 'B'.");
+			equal(this.gospeed2.board.grid[1][0], "W", "Board 2: grid position [1][0] has 'B'.");
 			equal(this.gospeed2.get_ko(), undefined, "Board 2: ko is undefined.");
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
@@ -233,13 +233,13 @@ test("GamePlay", function() {
 	this.gospeed2.play(0, 2);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(0, 2), "B", "Board 1: get_pos(0, 2) returns 'B'.");
-			equal(this.gospeed.grid[0][2], "B", "Board 1: grid position [0][2] has 'B'.");
+			equal(this.gospeed.board.get_pos(0, 2), "B", "Board 1: get_pos(0, 2) returns 'B'.");
+			equal(this.gospeed.board.grid[0][2], "B", "Board 1: grid position [0][2] has 'B'.");
 			equal(this.gospeed.get_ko(), undefined, "Board 1: ko is undefined.");
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
@@ -247,13 +247,13 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 3, "Board 1: we have had 3 turns.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(0, 2), "B", "Board 2: get_pos(0, 2) returns 'B'.");
-			equal(this.gospeed2.grid[0][2], "B", "Board 2: grid position [0][2] has 'B'.");
+			equal(this.gospeed2.board.get_pos(0, 2), "B", "Board 2: get_pos(0, 2) returns 'B'.");
+			equal(this.gospeed2.board.grid[0][2], "B", "Board 2: grid position [0][2] has 'B'.");
 			equal(this.gospeed2.get_ko(), undefined, "Board 2: ko is undefined.");
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
@@ -264,13 +264,13 @@ test("GamePlay", function() {
 	this.gospeed.play(0, 1);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(0, 1), "W", "Board 1: get_pos(0, 1) returns 'B'.");
-			equal(this.gospeed.grid[0][1], "W", "Board 1: grid position [0][1] has 'B'.");
+			equal(this.gospeed.board.get_pos(0, 1), "W", "Board 1: get_pos(0, 1) returns 'B'.");
+			equal(this.gospeed.board.grid[0][1], "W", "Board 1: grid position [0][1] has 'B'.");
 			equal(this.gospeed.get_ko(), undefined, "Board 1: ko is undefined.");
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
@@ -278,13 +278,13 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 4, "Board 1: we have had 4 turns.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(1, 0), "W", "Board 2: get_pos(0, 1) returns 'B'.");
-			equal(this.gospeed2.grid[0][1], "W", "Board 2: grid position [0][1] has 'B'.");
+			equal(this.gospeed2.board.get_pos(1, 0), "W", "Board 2: get_pos(0, 1) returns 'B'.");
+			equal(this.gospeed2.board.grid[0][1], "W", "Board 2: grid position [0][1] has 'B'.");
 			equal(this.gospeed2.get_ko(), undefined, "Board 2: ko is undefined.");
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
@@ -295,15 +295,15 @@ test("GamePlay", function() {
 	this.gospeed2.play(0, 0);
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(0, 0), "B", "Board 1: get_pos(0, 0) returns 'B'.");
-			equal(this.gospeed.grid[0][0], "B", "Board 1: grid position [0][0] has 'B'.");
-			equal(this.gospeed.get_pos(0, 1), undefined, "Board 1: get_pos(0, 1) returns undefined.");
-			equal(this.gospeed.grid[0][1], undefined, "Board 1: grid position [0][1] has undefined.");
+			equal(this.gospeed.board.get_pos(0, 0), "B", "Board 1: get_pos(0, 0) returns 'B'.");
+			equal(this.gospeed.board.grid[0][0], "B", "Board 1: grid position [0][0] has 'B'.");
+			equal(this.gospeed.board.get_pos(0, 1), undefined, "Board 1: get_pos(0, 1) returns undefined.");
+			equal(this.gospeed.board.grid[0][1], undefined, "Board 1: grid position [0][1] has undefined.");
 			deepEqual(this.gospeed.get_ko(), {row: 0, col: 1}, "Board 1: position (0, 1) is ko.");
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
@@ -311,15 +311,15 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 5, "Board 1: we have had 5 turns.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(0, 0), "B", "Board 2: get_pos(0, 0) returns 'B'.");
-			equal(this.gospeed2.grid[0][0], "B", "Board 2: grid position [0][0] has 'B'.");
-			equal(this.gospeed2.get_pos(0, 1), undefined, "Board 2: get_pos(0, 1) returns undefined.");
-			equal(this.gospeed2.grid[0][1], undefined, "Board 2: grid position [0][1] has undefined.");
+			equal(this.gospeed2.board.get_pos(0, 0), "B", "Board 2: get_pos(0, 0) returns 'B'.");
+			equal(this.gospeed2.board.grid[0][0], "B", "Board 2: grid position [0][0] has 'B'.");
+			equal(this.gospeed2.board.get_pos(0, 1), undefined, "Board 2: get_pos(0, 1) returns undefined.");
+			equal(this.gospeed2.board.grid[0][1], undefined, "Board 2: grid position [0][1] has undefined.");
 			deepEqual(this.gospeed2.get_ko(), {row: 0, col: 1}, "Board 2: position (0, 1) is ko.");
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
@@ -345,13 +345,13 @@ test("GamePlay", function() {
 
 		// Board 1
 			// Things that must remain untouched
-			equal(this.gospeed.size, BOARD_SIZE, "Board 1: size unmodified.");
+			equal(this.gospeed.board.size, BOARD_SIZE, "Board 1: size unmodified.");
 			equal(this.gospeed.mode, BOARD_MODE, "Board 1: mode unmodified.");
 			equal(this.gospeed.ruleset, BOARD_RULESET, "Board 1: ruleset unmodified.");
 			equal(this.gospeed.my_colour, my_colour, "Board 1: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed.get_pos(0, 0), undefined, "Board 1: get_pos(0, 0) returns undefined.");
-			equal(this.gospeed.grid[0][0], undefined, "Board 1: grid position [0][0] has undefined.");
+			equal(this.gospeed.board.get_pos(0, 0), undefined, "Board 1: get_pos(0, 0) returns undefined.");
+			equal(this.gospeed.board.grid[0][0], undefined, "Board 1: grid position [0][0] has undefined.");
 			deepEqual(this.gospeed.get_ko(), {row: 0, col: 0}, "Board 1: position (0, 0) is ko.");
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'B'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
@@ -359,13 +359,13 @@ test("GamePlay", function() {
 			equal(this.gospeed.turn_count, 16, "Board 1: we have had 16 turns.");
 		// Board 2
 			// Things that must remain untouched
-			equal(this.gospeed2.size, BOARD_SIZE, "Board 2: size unmodified.");
+			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
 			equal(this.gospeed2.mode, BOARD_MODE, "Board 2: mode unmodified.");
 			equal(this.gospeed2.ruleset, BOARD_RULESET, "Board 2: ruleset unmodified.");
 			equal(this.gospeed2.my_colour, my_colour2, "Board 2: my_colour remained untouched.");
 			// Test new game state after play
-			equal(this.gospeed2.get_pos(0, 0), undefined, "Board 2: get_pos(0, 0) returns undefined.");
-			equal(this.gospeed2.grid[0][0], undefined, "Board 2: grid position [0][0] has undefined.");
+			equal(this.gospeed2.board.get_pos(0, 0), undefined, "Board 2: get_pos(0, 0) returns undefined.");
+			equal(this.gospeed2.board.grid[0][0], undefined, "Board 2: grid position [0][0] has undefined.");
 			deepEqual(this.gospeed2.get_ko(), {row: 0, col: 0}, "Board 2: position (0, 0) is ko.");
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'B'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");

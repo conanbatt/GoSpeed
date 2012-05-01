@@ -12,17 +12,13 @@ GoSpeed.prototype = {
 		var validator = new GoValidate(arguments);
 		var args = validator.args;
 
+	// Board
+		this.board = new GoBan(this, args);
+
 	// Setup
-		this.size = args.size;
 		this.mode = args.mode;
 		this.ruleset = args.ruleset;
 		this.komi = args.komi;
-
-	// Grids
-		this.grid = Array(this.size);
-		for (var row = 0 ; row < this.size ; row++) {
-			this.grid[row] = Array(this.size);
-		}
 
 	// Shower
 		// Define the showing engine
@@ -54,7 +50,7 @@ GoSpeed.prototype = {
 
 	// Tracks
 		this.tracks = [];
-		this.tracks[TRACK_ONLINE] = new Track(this.grid, this.game_tree.actual_move);
+		this.tracks[TRACK_ONLINE] = new Track(this.board.grid, this.game_tree.actual_move);
 		this.actual_track = TRACK_ONLINE;
 
 	// Game
@@ -80,198 +76,7 @@ GoSpeed.prototype = {
 
 	// Render
 		this.render();
-
-	// Load SGF
-		//this.load_sgf();
 	},
-
-//	Manage Board
-	put_stone: function(color, row, col) {
-		if (typeof color != "string") {
-			throw new Error("Wrong type of color");
-		}
-		if (color != "B" && color != "W") {
-			throw new Error("Wrong color");
-		}
-		if (row >= this.size || col >= this.size) {
-			throw new Error("Stone out of board");
-		}
-		this.grid[row][col] = color;
-	},
-
-	remove_stone: function(row, col) {
-		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
-			throw new Error("Position out of board");
-		}
-		this.grid[row][col] = undefined;
-	},
-
-	get_pos: function(row, col) {
-		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
-			throw new Error("Position out of board");
-		}
-		return this.grid[row][col];
-	},
-
-	safe_get_pos: function(row, col) {
-		if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
-			return "";
-		} else {
-			return this.grid[row][col];
-		}
-	},
-
-	pos_is_ko: function(row, col) {
-		var ret = false;
-		var ko = this.get_ko();
-		if (ko != undefined) {
-			if (ko.row == row && ko.col == col) {
-				ret = true;
-			}
-		}
-		return ret;
-	},
-
-//	Plays and Moves
-	// Takes a play and spreads it's content to the grid (updates gospeed.ko)
-	make_play: function(play) {
-		if (play instanceof FreePlay) {
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.remove_stone(play.remove[s].row, play.remove[s].col);
-			}
-			for (var s = 0, ls = play.put.length; s < ls; ++s) {
-				this.put_stone(play.put[s].color, play.put[s].row, play.put[s].col);
-			}
-		} else if (play instanceof Play) {
-			this.put_stone(play.put.color, play.put.row, play.put.col);
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.remove_stone(play.remove[s].row, play.remove[s].col);
-			}
-		}
-	},
-
-	// Takes a play and undoes it's content to the grid (updates gospeed.ko)
-	undo_play: function(play) {
-		if (play instanceof FreePlay) {
-			for (var s = 0, ls = play.put.length; s < ls; ++s) {
-				this.remove_stone(play.put[s].row, play.put[s].col);
-			}
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
-			}
-		} else if (play instanceof Play) {
-			this.remove_stone(play.put.row, play.put.col);
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
-			}
-		}
-	},
-
-	// Takes a play and completes it's 'remove' property with the stones that would eat from the board.
-	play_eat: function(play) {
-		this.put_stone(play.put.color, play.put.row, play.put.col);
-
-		var target_color = (play.put.color == "W" ? "B" : "W");
-		var adj = this.get_touched(target_color, play.put.row, play.put.col);
-		var chains = this.get_distinct_chains(adj);
-
-		for (var c = 0, lc = chains.length; c < lc; ++c) {
-			if (this.chain_is_restricted(chains[c])) {
-				for (var s = 0, ls = chains[c].length; s < ls; ++s) {
-					play.remove.push(new Stone(target_color, chains[c][s].row, chains[c][s].col));
-				}
-			}
-		}
-
-		this.remove_stone(play.put.row, play.put.col);
-	},
-
-	// Checks if the play triggers ko. Updates it's ko property.
-	play_check_ko: function(play) {
-		var is_ko = false;
-		var tmp_play;
-		this.make_play(play);
-		if (play.remove.length == 1) {
-			tmp_play = new Play(play.remove[0].color, play.remove[0].row, play.remove[0].col);
-			this.play_eat(tmp_play);
-			if (tmp_play.remove.length == 1) {
-				if (play.put.equals(tmp_play.remove[0]) && tmp_play.put.equals(play.remove[0])) {
-					is_ko = true;
-				}
-			}
-		}
-		this.undo_play(play);
-		if (is_ko) {
-			play.ko = {
-				row: tmp_play.put.row,
-				col: tmp_play.put.col,
-			};
-		} else {
-			play.ko = undefined;
-		}
-	},
-
-	get_ko: function() {
-		return this.game_tree.actual_move.play && this.game_tree.actual_move.play.ko;
-	},
-
-	get_captured_count: function() {
-		var play = this.game_tree.actual_move.play;
-		if (play == undefined || play == null) {
-			return {"B": 0, "W": 0};
-		} else {
-			return play.captured;
-		}
-	},
-
-	// Takes a play and checks if it's suicide.
-	// WARNING: use this after play_eat, otherwise you might be using an incomplete play, and fake truth might occur.
-	play_check_suicide: function(play) {
-		var res = false;
-		if (play.remove.length == 0) {
-			if (this.count_stone_liberties(play.put) == 0) {
-				this.put_stone(play.put.color, play.put.row, play.put.col);
-				var chain = this.get_distinct_chains([play.put])[0];
-				if (this.chain_is_restricted(chain)) {
-					res = true;
-				}
-				this.remove_stone(play.put.row, play.put.col);
-			}
-		}
-		return res;
-	},
-
-	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
-	commit_play: function(play, node_source, wait) {
-		this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
-		this.make_play(play);
-		if (this.shower) {
-			this.shower.draw_play(play, wait);
-			this.shower.update_captures(play);
-			this.shower.update_move_number(this.game_tree.actual_move);
-		}
-	},
-
-	// Next move method
-	get_next_move: function() {
-		var node = this.game_tree.actual_move;
-		// XXX Danger, while true;
-		while(true) {
-			if (node.root) {
-				if (node.next_move != undefined) {
-					return node.next_move;
-				} else {
-					return "B";
-				}
-			}
-			if (node.play instanceof FreePlay) {
-				node = node.prev;
-			} else {
-				return (node.play.put.color == "W" ? "B" : "W");
-			}
-		}
-	},
-
 
 //	Game Seek
 	prev: function(no_redraw) {
@@ -281,7 +86,7 @@ GoSpeed.prototype = {
 		}
 		var node = this.game_tree.prev();
 		if (node) {
-			this.undo_play(node.play);
+			this.board.undo_play(node.play);
 			if (!no_redraw) {
 				if (this.shower) {
 					this.shower.undraw_play(node.play);
@@ -317,7 +122,7 @@ GoSpeed.prototype = {
 	next: function(index, no_redraw) {
 		var node = this.game_tree.next(index);
 		if (node) {
-			this.make_play(node.play);
+			this.board.make_play(node.play);
 			if (!no_redraw) {
 				if (this.shower) {
 					this.shower.draw_play(node.play);
@@ -537,7 +342,7 @@ GoSpeed.prototype = {
 				var put = actual_play.get_put_by_pos(row, col);
 				var rem = actual_play.get_rem_by_pos(row, col);
 
-				switch(this.get_pos(row, col)) {
+				switch(this.board.get_pos(row, col)) {
 					case "W":
 						// Tree
 						if (!rem && !put) {
@@ -549,7 +354,7 @@ GoSpeed.prototype = {
 						}
 						// Grid
 						this.remove_stone(row, col);
-						this.put_stone("B", row, col);
+						this.board.put_stone("B", row, col);
 						// Draw
 						if (this.shower) {
 							this.shower.remove_stone(row, col);
@@ -574,7 +379,7 @@ GoSpeed.prototype = {
 						// Tree
 						actual_play.put.push(new Stone("W", row, col));
 						// Grid
-						this.put_stone("W", row, col);
+						this.board.put_stone("W", row, col);
 						// Draw
 						if (this.shower) {
 							this.shower.put_stone("W", row, col);
@@ -590,7 +395,7 @@ GoSpeed.prototype = {
 				if (this.mode == "count_online" && this.my_colour == "O") {
 					return false;
 				}
-				var target = this.get_pos(row, col);
+				var target = this.board_get_pos(row, col);
 				if (target == undefined) {
 					return false;
 				}
@@ -621,11 +426,11 @@ GoSpeed.prototype = {
 
 	setup_play: function(row, col) {
 		// Can't override a stone
-		if (this.get_pos(row, col) != undefined) {
+		if (this.board.get_pos(row, col) != undefined) {
 			return false;
 		}
 		// Can't place a stone on ko.
-		if (this.pos_is_ko(row, col)) {
+		if (this.board.pos_is_ko(row, col)) {
 			return false;
 		}
 
@@ -633,20 +438,31 @@ GoSpeed.prototype = {
 		var tmp_play = new Play(this.get_next_move(), row, col);
 
 		// Eat stones if surrounded
-		this.play_eat(tmp_play);
+		this.board.play_eat(tmp_play);
 
 		// Check suicide
-		if (this.play_check_suicide(tmp_play)) {
+		if (this.board.play_check_suicide(tmp_play)) {
 			return false;
 		}
 
 		// Update play's ko.
-		this.play_check_ko(tmp_play);
+		this.board.play_check_ko(tmp_play);
 
 		// Update play's captures
 		this.update_play_captures(tmp_play);
 
 		return tmp_play;
+	},
+
+	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
+	commit_play: function(play, node_source, wait) {
+		this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+		this.board.make_play(play);
+		if (this.shower) {
+			this.shower.draw_play(play, wait);
+			this.shower.update_captures(play);
+			this.shower.update_move_number(this.game_tree.actual_move);
+		}
 	},
 
 	update_play_captures: function(play) {
@@ -665,8 +481,33 @@ GoSpeed.prototype = {
 		}
 	},
 
-	is_my_turn: function() {
-		return (this.my_colour == "A" || this.my_colour == this.get_next_move());
+	get_captured_count: function() {
+		var play = this.game_tree.actual_move.play;
+		if (play == undefined || play == null) {
+			return {"B": 0, "W": 0};
+		} else {
+			return play.captured;
+		}
+	},
+
+	// Next move method
+	get_next_move: function() {
+		var node = this.game_tree.actual_move;
+		// XXX Danger, while true;
+		while(true) {
+			if (node.root) {
+				if (node.next_move != undefined) {
+					return node.next_move;
+				} else {
+					return "B";
+				}
+			}
+			if (node.play instanceof FreePlay) {
+				node = node.prev;
+			} else {
+				return (node.play.put.color == "W" ? "B" : "W");
+			}
+		}
 	},
 
 	pass: function() {
@@ -752,111 +593,16 @@ GoSpeed.prototype = {
 		return bRes;
 	},
 
-//	Auxiliar functions
-	chain_is_restricted: function(chain) {
-		for (var i = 0, li = chain.length; i < li; ++i) {
-			if (this.count_stone_liberties(chain[i]) > 0) {
-				return false;
-			}
-		}
-		return true;
+	get_ko: function() {
+		return this.game_tree.actual_move.play && this.game_tree.actual_move.play.ko;
 	},
 
-	get_adjacent: function(color, row, col) {
-		var res = [];
-		for (i = row - 1 ; i <= row + 1 ; i++) {
-			for (j = col - 1 ; j <= col + 1 ; j++) {
-				if (this.safe_get_pos(i, j) == color) {
-					res.push({color: color, row: i, col: j});
-				}
-			}
-		}
-		return res;
+	is_my_turn: function() {
+		return (this.my_colour == "A" || this.my_colour == this.get_next_move());
 	},
 
-	get_touched: function(color, row, col) {
-		var res = [];
-		if (this.safe_get_pos(row - 1, col) == color) {
-			res.push({color: color, row: row - 1, col: col});
-		}
-		if (this.safe_get_pos(row, col - 1) == color) {
-			res.push({color: color, row: row, col: col - 1});
-		}
-		if (this.safe_get_pos(row, col + 1) == color) {
-			res.push({color: color, row: row, col: col + 1});
-		}
-		if (this.safe_get_pos(row + 1, col) == color) {
-			res.push({color: color, row: row + 1, col: col});
-		}
-		return res;
-	},
 
-	count_stone_liberties: function(stone) {
-		var count = 0;
-		if (this.safe_get_pos(stone.row - 1, stone.col) == undefined) {
-			count++;
-		}
-		if (this.safe_get_pos(stone.row, stone.col - 1) == undefined) {
-			count++;
-		}
-		if (this.safe_get_pos(stone.row, stone.col + 1) == undefined) {
-			count++;
-		}
-		if (this.safe_get_pos(stone.row + 1, stone.col) == undefined) {
-			count++;
-		}
-		return count;
-	},
-
-	list_has_stone: function(list, stone) {
-		for (var i = 0, li = list.length; i < li; ++i) {
-			if (list[i].color == stone.color && list[i].row == stone.row && list[i].col == stone.col) {
-				return true;
-			}
-		}
-		return false;
-	},
-
-	get_distinct_chains: function(stones) {
-		var res = [];
-		var stone;
-		var touched;
-		var cur_chain;
-		var chains_pend;
-		var stone_touched = [];
-		for (var i = 0, li = stones.length; i < li; ++i) {
-			// Escape stones already added for being part of another chain.
-			if (stone_touched[i] === true) {
-				continue;
-			}
-			cur_chain = [];
-			chains_pend = [];
-			cur_chain.push(stones[i]);
-			chains_pend.push(stones[i]);
-			stone_touched[i] = true;
-			while (chains_pend.length > 0) {
-				stone = chains_pend.pop();
-				touched = this.get_touched(stone.color, stone.row, stone.col);
-				for (var j = 0, lj = touched.length; j < lj; ++j) {
-					// Check that the stone has not been added before.
-					if (this.list_has_stone(cur_chain, touched[j])) {
-						continue;
-					}
-					// Check if i'm including one of the original stones.
-					for (var k = i, lk = stones.length; k < lk; ++k) {
-						if (stones[k].color == touched[j].color && stones[k].row == touched[j].row && stones[k].col == touched[j].col) {
-							stone_touched[k] = true;
-						}
-					}
-					cur_chain.push(touched[j]);
-					chains_pend.push(touched[j]);
-				}
-			}
-			res.push(cur_chain);
-		}
-		return res;
-	},
-
+// Auxiliar functions
 	render_tree: function() {
 		this.game_tree.render_tree();
 	},
@@ -879,8 +625,8 @@ GoSpeed.prototype = {
 
 	create_empty_track: function(force_id) {
 		var id = this.get_next_track_id(force_id);
-		var new_grid = Array(this.size);
-		for (var i = 0, li = this.size; i < li; ++i) {
+		var new_grid = Array(this.board.size);
+		for (var i = 0, li = this.board.size; i < li; ++i) {
 			new_grid[i] = Array(li);
 		}
 		this.tracks[id] = new Track(new_grid, this.game_tree.root);
@@ -890,7 +636,7 @@ GoSpeed.prototype = {
 		var play = this.game_tree.root.play;
 		if (play) {
 			this.switch_to_track(id, true);
-			this.make_play(play);
+			this.board.make_play(play);
 			this.switch_to_track(prev_id, true);
 		}
 		return id;
@@ -899,8 +645,8 @@ GoSpeed.prototype = {
 	duplicate_actual_track: function(force_id) {
 		var id = this.get_next_track_id(force_id);
 		var new_grid = [];
-		for (var i = 0, li = this.size; i < li; ++i) {
-			new_grid.push(this.grid[i].slice());
+		for (var i = 0, li = this.board.size; i < li; ++i) {
+			new_grid.push(this.board.grid[i].slice());
 		}
 		this.tracks[id] = new Track(new_grid, this.game_tree.actual_move);
 		return id;
@@ -954,7 +700,7 @@ GoSpeed.prototype = {
 		if (!(this.tracks[id] instanceof Track)) {
 			return false;
 		}
-		this.grid = this.tracks[id].grid;
+		this.board.grid = this.tracks[id].grid;
 		this.tracks[this.actual_track].head = this.game_tree.actual_move;
 		this.game_tree.actual_move = this.tracks[id].head;
 		this.actual_track = id;
@@ -1191,7 +937,7 @@ GoSpeed.prototype = {
 
 	// Do the first calculation and draw territory.
 	start_territory_counting: function() {
-		this.score = new Score(this.ruleset, this.grid);
+		this.score = new Score(this.ruleset, this.board.grid);
 		var score = this.score.calculate_score();
 		this.score.calculate_result(this.get_captured_count(), this.komi);
 		if (this.shower != undefined) {
@@ -1236,8 +982,8 @@ GoSpeed.prototype = {
 		} else {
 			throw new Error("The 'size' parameter must be a number");
 		}
-		if (this.size != size) {
-			this.size = size;
+		if (this.board.size != size) {
+			this.board.size = size;
 			this.clear();
 			this.render();
 			this.render_tree();
@@ -1253,9 +999,9 @@ GoSpeed.prototype = {
 
 	clear: function() {
 		// Grid
-		this.grid = Array(this.size);
-		for (var row = 0 ; row < this.size ; row++) {
-			this.grid[row] = Array(this.size);
+		this.board.grid = Array(this.board.size);
+		for (var row = 0 ; row < this.board.size ; row++) {
+			this.board.grid[row] = Array(this.board.size);
 		}
 
 		// Timer
@@ -1274,8 +1020,8 @@ GoSpeed.prototype = {
 
 		// Tracks
 		this.tracks = [];
-		this.tracks[0] = new Track(this.grid, this.game_tree.actual_move);
-		this.actual_track = 0;
+		this.tracks[TRACK_ONLINE] = new Track(this.board.grid, this.game_tree.actual_move);
+		this.actual_track = TRACK_ONLINE;
 
 		// Game
 		// TODO: turn count sucks monkey ass
@@ -1418,7 +1164,7 @@ GoSpeed.prototype = {
 			}
 
 			// Clear and change size if required
-			if (data.size != undefined && data.size != this.size) {
+			if (data.size != undefined && data.size != this.board.size) {
 				this.change_size(Number(data.size));
 			}
 
@@ -1658,7 +1404,7 @@ GoSpeed.prototype = {
 			for (var i = 0, li = states.length; i < li; ++i) {
 				var alive = (states[i].charAt(1) == "A");
 				var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
-				var target = this.get_pos(pos.row, pos.col);
+				var target = this.board_get_pos(pos.row, pos.col);
 				if (target == undefined) {
 					continue;
 				}

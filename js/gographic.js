@@ -18,13 +18,13 @@ GoGraphic.prototype = {
 		this.validate_and_load_divs(args);
 
 		// Grid
-		this.grid = Array(this.game.size);
-		for (var row = 0, size = this.game.size; row < size ; row++) {
+		this.grid = Array(this.game.board.size);
+		for (var row = 0, size = this.game.board.size; row < size ; row++) {
 			this.grid[row] = Array(size);
 		}
 
 		// Board Bound
-		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
+		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
 	},
 
 	put_stone: function(color, row, col) {
@@ -325,7 +325,7 @@ GoGraphic.prototype = {
 	},
 
 	clear_score: function() {
-		for (var row = 0, size = this.game.size; row < size ; row++) {
+		for (var row = 0, size = this.game.board.size; row < size ; row++) {
 			for (var col = 0; col < size; col++) {
 				this.remove_little_stone(row, col);
 			}
@@ -403,7 +403,7 @@ GoGraphic.prototype = {
 			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
 
-			var tmp_color = this.game.get_pos(row, col);
+			var tmp_color = this.game.board.get_pos(row, col);
 			if (tmp_color == "B") {
 				if (event.shiftKey) {
 					t_stone = this.revive_b;
@@ -466,19 +466,19 @@ GoGraphic.prototype = {
 			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
 			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
 
-			if (this.game.get_pos(row, col) != undefined) {
+			if (this.game.board.get_pos(row, col) != undefined) {
 				t_stone.style.display = "none";
 				return false;
 			}
 
-			if (this.game.pos_is_ko(row, col)) {
+			if (this.game.board.pos_is_ko(row, col)) {
 				t_stone.style.display = "none";
 				return false;
 			}
 
 			var tmp_play = new Play(this.game.get_next_move(), row, col);
-			this.game.play_eat(tmp_play);
-			if (this.game.play_check_suicide(tmp_play)) {
+			this.game.board.play_eat(tmp_play);
+			if (this.game.board.play_check_suicide(tmp_play)) {
 				t_stone.style.display = "none";
 				return false;
 			}
@@ -677,7 +677,7 @@ GoGraphic.prototype = {
 	},
 
 	render: function() {
-		switch(this.game.size) {
+		switch(this.game.board.size) {
 			case 19:
 				this.div_board.style.width = "495px";
 				this.div_board.style.height = "495px";
@@ -773,11 +773,11 @@ GoGraphic.prototype = {
 	},
 
 	clear: function() {
-		this.grid = Array(this.game.size);
-		for (var row = 0 ; row < this.game.size ; row++) {
-			this.grid[row] = Array(this.game.size);
+		this.grid = Array(this.game.board.size);
+		for (var row = 0 ; row < this.game.board.size ; row++) {
+			this.grid[row] = Array(this.game.board.size);
 		}
-		this.max_bound = this.game.size * STONE_SIZE + BOARD_BOUND;
+		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
 		/*
 		this.t_white = undefined;
 		this.t_black = undefined;
@@ -790,9 +790,9 @@ GoGraphic.prototype = {
 		this.clear();
 		this.render();
 		var color;
-		for (var i = 0, li = this.game.size; i < li; ++i) {
+		for (var i = 0, li = this.game.board.size; i < li; ++i) {
 			for (var j = 0; j < li; ++j) {
-				color = this.game.grid[i][j];
+				color = this.game.board.grid[i][j];
 				if (color != undefined) {
 					this.put_stone(color, i, j);
 				}

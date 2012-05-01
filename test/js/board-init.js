@@ -10,7 +10,7 @@ module("Board Init Empty", {
 });
 
 test("Size", function() {
-	equal(this.gospeed.size, 19, "When not specified, board size should default to 19.");
+	equal(this.gospeed.board.size, 19, "When not specified, board size should default to 19.");
 });
 
 test("Mode", function() {
@@ -26,10 +26,10 @@ test("Komi", function() {
 });
 
 test("Grid", function() {
-	equal(this.gospeed.grid.length, this.gospeed.size, "The grid's row count should be equal to it's size value.");
-	var count = this.gospeed.size;
+	equal(this.gospeed.board.grid.length, this.gospeed.board.size, "The grid's row count should be equal to it's size value.");
+	var count = this.gospeed.board.size;
 	for (var i = 0 ; i < count ; i++) {
-		equal(this.gospeed.grid[i].length, this.gospeed.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
+		equal(this.gospeed.board.grid[i].length, this.gospeed.board.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
 	}
 });
 
@@ -166,7 +166,7 @@ module("Board Init Full", {
 });
 
 test("Size", function() {
-	equal(this.gospeed.size, BOARD_SIZE, "As configured, board size should be " + BOARD_SIZE + ".");
+	equal(this.gospeed.board.size, BOARD_SIZE, "As configured, board size should be " + BOARD_SIZE + ".");
 });
 
 test("Mode", function() {
@@ -182,15 +182,15 @@ test("Komi", function() {
 });
 
 test("Grid", function() {
-	equal(this.gospeed.grid.length, this.gospeed.size, "The grid's row count should be equal to it's size value.");
-	var count = this.gospeed.size;
+	equal(this.gospeed.board.grid.length, this.gospeed.board.size, "The grid's row count should be equal to it's size value.");
+	var count = this.gospeed.board.size;
 	for (var i = 0 ; i < count ; i++) {
-		equal(this.gospeed.grid[i].length, this.gospeed.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
+		equal(this.gospeed.board.grid[i].length, this.gospeed.board.size, "The grid's column count for row[" + i + "] should be equal to board's size value.");
 	}
 });
 
 test("Divs", function() {
-	equal(this.gospeed.div_id_board, BOARD_DIV_ID, "No divs at all");
+	equal(this.gospeed.div_id_board, undefined, "No divs at all");
 	equal(this.gospeed.div_id_clock_w, undefined, "No divs at all");
 	equal(this.gospeed.div_id_clock_b, undefined, "No divs at all");
 	equal(this.gospeed.div_id_captured_w, undefined, "No divs at all");

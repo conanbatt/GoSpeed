@@ -37,7 +37,7 @@ module("Board Init Full", {
 });
 
 test("Size", function() {
-	equal(this.gospeed.size, 9, "Board size is 9: root node property SZ[9].");
+	equal(this.gospeed.board.size, 9, "Board size is 9: root node property SZ[9].");
 });
 
 test("Mode", function() {
@@ -64,8 +64,8 @@ test("DivContent", function() {
 });
 
 test("Handicap", function() {
-	equal(this.gospeed.get_pos(2, 6), "B", "First handicap stone at (2, 6).")
-	equal(this.gospeed.get_pos(6, 2), "B", "Second handicap stone at (6, 2).")
+	equal(this.gospeed.board.get_pos(2, 6), "B", "First handicap stone at (2, 6).")
+	equal(this.gospeed.board.get_pos(6, 2), "B", "Second handicap stone at (6, 2).")
 });
 
 test("Game and Seek", function() {

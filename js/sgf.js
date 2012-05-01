@@ -201,32 +201,32 @@ SGFParser.prototype = {
 		return buf_end - buf_start - 1;
 	},
 
-	load: function(board) {
+	load: function(game) {
 		if (this.status == SGFPARSER_ST_PARSED) {
 			if (!this.root) {
 				return false;
 			}
 
-			// Clear the board
-			board.clear();
+			// Clear the game
+			game.clear();
 
 			// Clear moves_loaded
 			this.moves_loaded = "";
 
-			// Takes info from the root and configures the board.
-			this.process_root_node(board);
+			// Takes info from the root and configures the game.
+			this.process_root_node(game);
 
 			// Fills the tree with the info from the sgf, starting from each node.
-			if (!this.sgf_to_tree(board, this.root, board.game_tree.root, NODE_SGF)) {
+			if (!this.sgf_to_tree(game, this.root, game.game_tree.root, NODE_SGF)) {
 				return false;
 			}
 
 			// Go back to the begining.
-			this.rewind_game(board);
+			this.rewind_game(game);
 
-			board.render();
+			game.render();
 
-			board.render_tree();
+			game.render_tree();
 
 		} else {
 			//throw new Error("Empty / Wrong SGF");
@@ -237,21 +237,21 @@ SGFParser.prototype = {
 		return true;
 	},
 
-	process_root_node: function(board) {
+	process_root_node: function(game) {
 		// Setup based on root node properties.
 		var sgf_node = this.root;
 		if (sgf_node.RU != undefined) {
-			board.change_ruleset(sgf_node.RU);
+			game.change_ruleset(sgf_node.RU);
 		}
 		if (sgf_node.KM != undefined) {
-			board.change_komi(Number(sgf_node.KM));
+			game.change_komi(Number(sgf_node.KM));
 		}
 		if (sgf_node.SZ != undefined) {
-			board.change_size(Number(sgf_node.SZ));
+			game.change_size(Number(sgf_node.SZ));
 		}
 		if (sgf_node.C != undefined) {
-			if (board.game_tree != undefined && board.game_tree.root != undefined) {
-				board.game_tree.root.comments = sgf_node.C;
+			if (game.game_tree != undefined && game.game_tree.root != undefined) {
+				game.game_tree.root.comments = sgf_node.C;
 			}
 		}
 
@@ -296,12 +296,12 @@ SGFParser.prototype = {
 		}
 
 		// Finally apply config
-		board.setup_timer(time_settings);
+		game.setup_timer(time_settings);
 
 		if (sgf_node.AB != undefined || sgf_node.AW != undefined) {
 			var free = new FreePlay();
 			free.captured = {"B": 0, "W": 0};
-			board.game_tree.root.play = free;
+			game.game_tree.root.play = free;
 			if (sgf_node.AB != undefined) {
 				sgf_node.AB = [].concat(sgf_node.AB);
 				for (var key in sgf_node.AB) {
@@ -314,20 +314,20 @@ SGFParser.prototype = {
 					free.put.push(new Stone("W", sgf_node.AW[key].charCodeAt(1) - 97, sgf_node.AW[key].charCodeAt(0) - 97));
 				}
 			}
-			board.make_play(free);
-			if (board.shower != undefined) {
-				board.shower.draw_play(free);
+			game.board.make_play(free);
+			if (game.shower != undefined) {
+				game.shower.draw_play(free);
 			}
 		}
 		if (sgf_node.HA != undefined) {
-			board.game_tree.root.next_move = "W";
+			game.game_tree.root.next_move = "W";
 		}
 		if (sgf_node.PL != undefined) {
-			board.game_tree.root.next_move = sgf_node.PL;
+			game.game_tree.root.next_move = sgf_node.PL;
 		}
 	},
 
-	sgf_to_tree: function(board, sgf_node, tree_node, node_source) {
+	sgf_to_tree: function(game, sgf_node, tree_node, node_source) {
 		// Push roots to start "recursive-like" iteration.
 		var pend_sgf_node = [];
 		var pend_game_tree_node = [];
@@ -341,30 +341,30 @@ SGFParser.prototype = {
 		while(sgf_node = pend_sgf_node.pop()) {
 			tree_node = pend_game_tree_node.pop();
 			tree_node.last_next = tree_node.next[0]; // XXX WTF???
-		// do: rewind game until reaches board tree_node.
-			while (board.game_tree.actual_move != tree_node) {
-				tmp = board.game_tree.prev();
-				board.undo_play(tmp.play);
+		// do: rewind game until reaches game tree_node.
+			while (game.game_tree.actual_move != tree_node) {
+				tmp = game.game_tree.prev();
+				game.board.undo_play(tmp.play);
 			}
-		// do: play sgf_node contents at board point in game.
+		// do: play sgf_node contents at game point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
-				if (board.get_next_move() == "B" && sgf_node.B != undefined) {
+				if (game.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
-					time_left = this.get_time_from_node(board.timer, sgf_node.BL, sgf_node.OB);
-				} else if (board.get_next_move() == "W" && sgf_node.W != undefined) {
+					time_left = this.get_time_from_node(game.timer, sgf_node.BL, sgf_node.OB);
+				} else if (game.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
-					time_left = this.get_time_from_node(board.timer, sgf_node.WL, sgf_node.OW);
+					time_left = this.get_time_from_node(game.timer, sgf_node.WL, sgf_node.OW);
 				} else {
 					this.status = SGFPARSER_ST_ERROR;
 					this.error = "Turn and Play mismatch";
 					return false;
 				}
-				if (move == "" || (board.size < 20 && move == "tt")) {
-					tmp = new Pass(board.get_next_move())
-					board.update_play_captures(tmp);
+				if (move == "" || (game.board.size < 20 && move == "tt")) {
+					tmp = new Pass(game.get_next_move())
+					game.update_play_captures(tmp);
 				} else {
-					tmp = board.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
+					tmp = game.setup_play(move.charCodeAt(1) - 97, move.charCodeAt(0) - 97);
 					if (!tmp) {
 						this.status = SGFPARSER_ST_ERROR;
 						this.error = "Illegal move or such...";
@@ -373,31 +373,31 @@ SGFParser.prototype = {
 				}
 				tmp.time_left = time_left;
 				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
-				board.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
-				board.make_play(tmp);
-				if (time_left != undefined && !isNaN(time_left) && board.timer != undefined) {
-					board.timer.set_remain(tmp.put.color, time_left);
+				game.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
+				game.board.make_play(tmp);
+				if (time_left != undefined && !isNaN(time_left) && game.timer != undefined) {
+					game.timer.set_remain(tmp.put.color, time_left);
 				}
 				if (tmp instanceof Play || tmp instanceof Pass) {
 					// TODO: turn count sucks monkey ass
-					board.turn_count++;
+					game.turn_count++;
 				}
 			}
 		// do: push actual_node to pend_game_tree_node
 		// do: push sgf_node.next nodes to pend_sgf_node
 			for (var i = sgf_node.next.length - 1; i >= 0; --i) {
 				pend_sgf_node.push(sgf_node.next[i]);
-				pend_game_tree_node.push(board.game_tree.actual_move);
+				pend_game_tree_node.push(game.game_tree.actual_move);
 			}
 		}
 		return true;
 	},
 
-	rewind_game: function(board, limit) {
+	rewind_game: function(game, limit) {
 		var tmp_node;
-		while (board.game_tree.actual_move != board.game_tree.root) {
-			tmp_node = board.game_tree.prev();
-			board.undo_play(tmp_node.play);
+		while (game.game_tree.actual_move != game.game_tree.root) {
+			tmp_node = game.game_tree.prev();
+			game.board.undo_play(tmp_node.play);
 			if (limit != undefined) {
 				limit--;
 				if (limit <= 0) {

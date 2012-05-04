@@ -1141,8 +1141,10 @@ GoSpeed.prototype = {
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":
-				case "Hourglass":
 					i_lose = (remain[this.get_next_move()] == 0);
+				break;
+				case "Hourglass":
+					i_lose = (remain[this.get_next_move()].main_time == 0);
 				break;
 				case "Byoyomi":
 					var my_remain = remain[this.get_next_move()];
@@ -1415,8 +1417,10 @@ GoSpeed.prototype = {
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":
-				case "Hourglass":
 					res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
+				break;
+				case "Hourglass":
+					res += play.put.color + "L[" + Number(remain[play.put.color].main_time).toFixed(3) + "]";
 				break;
 				case "Byoyomi":
 					if (remain[play.put.color].main_time > 0) {
@@ -1553,11 +1557,33 @@ GoSpeed.prototype = {
 					}
 				break;
 				case "Hourglass":
-					if (last_remain_white == undefined) {
-						last_remain_white = Number(this.timer.system.main_time);
-					}
-					if (last_remain_black == undefined) {
-						last_remain_black = Number(this.timer.system.main_time);
+					var color = this.get_next_move();
+
+					if (last_remain_black == undefined && last_remain_white == undefined) {
+						last_remain_black = {
+							main_time: Number(this.timer.system.main_time),
+						};
+						last_remain_white = {
+							main_time: Number(this.timer.system.main_time),
+						};
+					} else if (last_remain_black == undefined) {
+						last_remain_black = {
+							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
+						};
+					} else if (last_remain_white == undefined) {
+						last_remain_white = {
+							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
+						};
+					} else {
+						if (color == "B") {
+							last_remain_black = {
+								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
+							};
+						} else {
+							last_remain_white = {
+								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
+							};
+						}
 					}
 				break;
 				case "Byoyomi":
@@ -1579,8 +1605,16 @@ GoSpeed.prototype = {
 			}
 
 			// Finally setup clocks.
-			this.timer.set_remain("B", last_remain_black);
-			this.timer.set_remain("W", last_remain_white);
+			if (this.timer.system.name == "Hourglass") {
+				// The new way...
+				var rmn = {};
+				rmn["B"] = last_remain_black;
+				rmn["W"] = last_remain_white;
+				this.timer.set_remain(rmn);
+			} else {
+				this.timer.set_remain("B", last_remain_black);
+				this.timer.set_remain("W", last_remain_white);
+			}
 
 			this.timer.resume(this.get_next_move());
 			if (time_adjustment != undefined) {

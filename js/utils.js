@@ -321,7 +321,7 @@ var NODE_VARIATION = 8;
 				branches.push(cur_branch);
 			}
 
-			console.log(branches);
+			//console.log(branches);
 			// assertion...
 			if (stash.length > 0) {
 				throw new Error("Wha?!");

@@ -70,6 +70,11 @@ GoSpeed.prototype = {
 			this.div_id_move_number = args.div_id_move_number;
 		}
 
+	// Timer
+		if (args.time_settings != undefined) {
+			this.setup_timer(args.time_settings);
+		}
+
 	// Shower
 		// Define the showing engine
 		if (args.shower != undefined) {
@@ -78,11 +83,6 @@ GoSpeed.prototype = {
 			} else if (args.shower == "graphic") {
 				this.shower = new GoGraphic(this);
 			}
-		}
-
-	// Timer
-		if (args.time_settings != undefined) {
-			this.setup_timer(args.time_settings);
 		}
 
 	// GameTree

@@ -1096,7 +1096,7 @@ GoSpeed.prototype = {
 				this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
 			case "Hourglass":
-				this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+				this.timer = new HourglassTimer(this, time_settings.settings);
 			break;
 		}
 	},
@@ -1121,8 +1121,7 @@ GoSpeed.prototype = {
 				//this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
 			case "Hourglass":
-				return "UNSUPPORTED"; // TODO
-				//this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+				return "OT[Hourglass]TM[" + time_settings.settings.main_time + "]";
 			break;
 			default:
 				return "";
@@ -1142,6 +1141,7 @@ GoSpeed.prototype = {
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":
+				case "Hourglass":
 					i_lose = (remain[this.get_next_move()] == 0);
 				break;
 				case "Byoyomi":
@@ -1415,6 +1415,7 @@ GoSpeed.prototype = {
 			switch(this.timer.system.name) {
 				case "Absolute":
 				case "Fischer":
+				case "Hourglass":
 					res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
 				break;
 				case "Byoyomi":
@@ -1549,6 +1550,14 @@ GoSpeed.prototype = {
 					}
 					if (last_remain_black == undefined) {
 						last_remain_black = Number(this.timer.system.time);
+					}
+				break;
+				case "Hourglass":
+					if (last_remain_white == undefined) {
+						last_remain_white = Number(this.timer.system.main_time);
+					}
+					if (last_remain_black == undefined) {
+						last_remain_black = Number(this.timer.system.main_time);
 					}
 				break;
 				case "Byoyomi":

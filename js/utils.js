@@ -306,7 +306,7 @@ var NODE_VARIATION = 8;
 				while(node) {
 					if (node.elem.next.length > 1) {
 						for (var i = node.elem.next.length - 1; i > 0; --i) {
-							stash.push({lvl: node.lvl + i, elem: node.elem.next[i]});
+							stash.push({lvl: node.lvl + 1, elem: node.elem.next[i]});
 						}
 					}
 					width++;

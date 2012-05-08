@@ -1663,7 +1663,7 @@ GoSpeed.prototype = {
 		}
 		// Handicap
 		if (data.handicap_sgf_node != undefined) {
-			sgf += data.handicap_sgf_node;
+			sSgf += data.handicap_sgf_node;
 		}
 		// Moves
 		if (data.moves) {

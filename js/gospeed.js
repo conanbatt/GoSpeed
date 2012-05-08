@@ -86,7 +86,8 @@ GoSpeed.prototype = {
 		}
 
 	// GameTree
-		this.game_tree = new GameTree(args.div_id_tree);
+		var that = this;
+		this.game_tree = new GameTree(args.div_id_tree, function(path) { that.goto_path.call(that, path); });
 		this.div_id_tree = args.div_id_tree;
 
 	// Online
@@ -1339,7 +1340,8 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
-		this.game_tree = new GameTree(this.div_id_tree);
+		var that = this;
+		this.game_tree = new GameTree(this.div_id_tree, function(path) { that.goto_path.call(that, path); });
 
 		// Tracks
 		this.tracks = [];

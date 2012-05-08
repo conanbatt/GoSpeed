@@ -94,14 +94,14 @@ var NODE_VARIATION = 8;
 	}
 
 // Game tree
-	function GameTree(div_id_tree) {
+	function GameTree(div_id_tree, goto_method) {
 		this.root = new GameNode(null);
 		this.root.root = true;
 		this.root.pos = false;
 		this.root.turn_number = 0;
 		this.actual_move = this.root;
 		if (div_id_tree != undefined) {
-			this.graphic = new GameTreeGraphic(this, div_id_tree);
+			this.graphic = new GameTreeGraphic(this, div_id_tree, goto_method);
 		}
 	}
 
@@ -248,13 +248,16 @@ var NODE_VARIATION = 8;
 	}
 
 // Tree shower
-	function GameTreeGraphic(game_tree, div_id_tree) {
+	function GameTreeGraphic(game_tree, div_id_tree, goto_method) {
 		if (game_tree == undefined) {
 			throw new Error("A tree is needed.");
 		}
 		this.game_tree = game_tree;
 		if (div_id_tree != undefined) {
 			this.div_tree = document.getElementById(div_id_tree);
+		}
+		if (typeof goto_method === "function") {
+			this.goto_method = goto_method;
 		}
 	}
 
@@ -271,7 +274,8 @@ var NODE_VARIATION = 8;
 				return false;
 			}
 			function add_node(node, branch) {
-				var div = document.createElement("div");
+				var div = document.createElement("a");
+				div.href = "javascript: void(0);";
 				if (node.play != undefined && node.play.put != undefined) {
 					if (node.play.put.color == "B") {
 						div.className = "TreeNode B";
@@ -285,7 +289,13 @@ var NODE_VARIATION = 8;
 				div.style.left = (node.turn_number * 27 + 5) + "px";
 				div.innerHTML = node.turn_number;
 				if (node == that.game_tree.actual_move) {
-					div.style.backgroundColor = "#ACA";
+					div.className += " Current";
+				}
+				if (that.goto_method != undefined) {
+					div.onclick = that.binder(function(event) {
+						event.preventDefault();
+						that.goto_method(node.get_path());
+					});
 				}
 				that.div_tree.appendChild(div);
 			}
@@ -364,7 +374,11 @@ var NODE_VARIATION = 8;
 
 			this.div_tree.scrollTop = (actual_node_lvl - 2) * 27 + 5;
 			this.div_tree.scrollLeft = (this.game_tree.actual_move.turn_number - 5) * 27 + 5;
-		}
+		},
+
+		binder: function (method, object, args) {
+			return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
+		},
 	};
 
 // Game node

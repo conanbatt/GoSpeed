@@ -97,6 +97,7 @@ var NODE_VARIATION = 8;
 	function GameTree(div_id_tree) {
 		this.root = new GameNode(null);
 		this.root.root = true;
+		this.root.pos = false;
 		this.root.turn_number = 0;
 		this.actual_move = this.root;
 		if (div_id_tree != undefined) {
@@ -109,6 +110,8 @@ var NODE_VARIATION = 8;
 			node.prev = this.actual_move;
 			node.turn_number = this.actual_move.turn_number + 1;
 			this.actual_move.next.push(node);
+			node.pos = this.actual_move.next.length - 1;
+
 			// TODO XXX FIXME: here might be the origin of the govar bug.
 			if (follow) {
 				this.actual_move.last_next = node;
@@ -188,13 +191,24 @@ var NODE_VARIATION = 8;
 			}
 		},
 
-		test_path: function(path) {
-			var test_node = this.root;
-			for (var i = 0, li = path.length; i < li; ++i) {
-				if (test_node.next.hasOwnProperty(path[i])) {
-					test_node = test_node.next[path[i]];
+		test_path: function(arr_path) {
+			var pos; // Decition to make
+			var count; // Number of times
+			var test_node = this.root; // Pointer
+			for (var i = 0, li = arr_path.length; i < li; ++i) {
+				pos = Number(arr_path[i][0]);
+				if (arr_path[i][1] != undefined) {
+					count = Number(arr_path[i][1]);
 				} else {
-					return false;
+					count = 1;
+				}
+				// Browse tree
+				while(count--) {
+					if (test_node.next.hasOwnProperty(pos)) {
+						test_node = test_node.next[pos];
+					} else {
+						return false;
+					}
 				}
 			}
 			return true;
@@ -376,17 +390,43 @@ var NODE_VARIATION = 8;
 	}
 
 	GameNode.prototype.get_path = function() {
-		var pos,
-			res = [],
-			tmp_node = this;
+		var res = []; // Stores the result as an array
+		var last_pos; // The last decition made
+		var pos_count = 0; // The number of times the decition was repeated
+		var tmp_node = this; // Pointer
 		while (tmp_node) {
-			pos = tmp_node.get_pos();
-			if (pos !== false) {
-				res.push(pos);
+			if (typeof tmp_node.pos === "number") {
+				if (last_pos == tmp_node.pos) {
+					// Same decition? increment
+					pos_count++;
+				} else {
+					if (typeof last_pos === "number") {
+						// Changed decition? store previous one
+						if (pos_count > 1) {
+							res.unshift(last_pos + "-" + pos_count);
+						} else {
+							res.unshift(last_pos + "");
+						}
+					}
+					// And configure for the new one
+					last_pos = tmp_node.pos;
+					pos_count = 1;
+				}
 			}
+			// Go one node back
 			tmp_node = tmp_node.prev;
 		}
-		return res.reverse();
+		// Store last decition taken
+		if (typeof last_pos === "number") {
+			if (pos_count > 1) {
+				res.unshift(last_pos + "-" + pos_count);
+			} else {
+				res.unshift(last_pos + "");
+			}
+		}
+
+		// Encode and return
+		return res.join("|");
 	}
 
 // Track

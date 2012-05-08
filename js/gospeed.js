@@ -439,11 +439,35 @@ GoSpeed.prototype = {
 	},
 
 	goto_path: function(path) {
-		if (this.game_tree.test_path(path)) {
+		// Basic format check
+		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)?)$/.test(path)) {
+			return false;
+		}
+		// Parse path to array
+		var arr_path = path.split("|");
+		for (var i = 0, li = arr_path.length; i < li; ++i) {
+			arr_path[i] = arr_path[i].split("-");
+		}
+		// Test array path
+		if (this.game_tree.test_path(arr_path)) {
+			var pos; // Decition to make
+			var count; // Number of times
+			// Go to root and then browse path
 			this.goto_start(true);
-			for (var i = 0, li = path.length; i < li; ++i) {
-				this.next(path[i], true);
+			if (path != "") {
+				for (var i = 0, li = arr_path.length; i < li; ++i) {
+					pos = Number(arr_path[i][0]);
+					if (arr_path[i][1] !== undefined) {
+						count = Number(arr_path[i][1]);
+					} else {
+						count = 1;
+					}
+					while(count--) {
+						this.next(pos, true);
+					}
+				}
 			}
+			// Render after all
 			if (this.shower != undefined) {
 				this.shower.redraw();
 			}

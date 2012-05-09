@@ -259,10 +259,21 @@ var NODE_VARIATION = 8;
 		if (typeof goto_method === "function") {
 			this.goto_method = goto_method;
 		}
+		this.ready_to_draw = true;
+		this.draw_requested = false;
 	}
 
 	GameTreeGraphic.prototype = {
 		draw: function() {
+			// Performance timer
+			if (!this.ready_to_draw) {
+				this.draw_requested = true;
+				return false;
+			} else {
+				this.draw_requested = false;
+				this.ready_to_draw = false;
+			}
+
 			var that = this;
 			function branch_concurrence(b1, b2) {
 				var codo = (b2.pos == 0 ? 0 : 1);
@@ -408,6 +419,14 @@ var NODE_VARIATION = 8;
 
 			this.div_tree.scrollTop = (actual_node_lvl - 2) * 27 + 5;
 			this.div_tree.scrollLeft = (this.game_tree.actual_move.turn_number - 5) * 27 + 5;
+
+			// Performance timer
+			window.setTimeout(function() {
+				that.ready_to_draw = true;
+				if (that.draw_requested) {
+					that.draw();
+				}
+			}, 200);
 		},
 
 		binder: function (method, object, args) {

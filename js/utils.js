@@ -138,6 +138,7 @@ var NODE_VARIATION = 8;
 				return false;
 			} else {
 				if (next[index] != undefined) {
+					this.actual_move.last_next = next[index];
 					this.actual_move = next[index];
 				} else {
 					if (this.actual_move.last_next != undefined) {

@@ -49,16 +49,50 @@
 
 	a.TreeNode.B {
 		color: #FFF;
+		background-image: url("../img/t_black.png");
+	}
+
+	a.TreeNode.B.Selected {
 		background-image: url("../img/black.png");
 	}
 
 	a.TreeNode.W {
 		color: #000;
+		background-image: url("../img/t_white.png");
+	}
+
+	a.TreeNode.W.Selected {
 		background-image: url("../img/white.png");
 	}
 
 	a.TreeNode.Current {
 		background-color: #ACA;
+	}
+
+	div.Elbow {
+		padding-top: 5px;
+		position: absolute;
+		width: 25px;
+		height: 20px;
+		z-index: 2;
+		background-image: url("../img/t_elbow.png");
+	}
+
+	div.Elbow.Selected {
+		background-image: url("../img/elbow.png");
+	}
+
+	div.VLine {
+		padding-top: 5px;
+		position: absolute;
+		width: 25px;
+		height: 20px;
+		z-index: 2;
+		background-image: url("../img/t_vline.png");
+	}
+
+	div.VLine.Selected {
+		background-image: url("../img/vline.png");
 	}
 
 	span.Node {

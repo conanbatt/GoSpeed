@@ -265,25 +265,49 @@ var NODE_VARIATION = 8;
 		draw: function() {
 			var that = this;
 			function branch_concurrence(b1, b2) {
-				if (b1.x >= b2.x - 1 && b1.x <= b2.x + b2.width) {
+				var codo = (b2.pos == 0 ? 0 : 1);
+				if (b1.x >= b2.x - codo && b1.x <= b2.x + b2.width) {
 					return true;
 				}
-				if (b1.x <= b2.x - 1 && b1.x + b1.width >= b2.x - 1) {
+				if (b1.x <= b2.x - codo && b1.x + b1.width - 1 >= b2.x - codo) {
 					return true;
 				}
 				return false;
 			}
-			function add_node(node, branch) {
+			function add_node(node, branch, first) {
+				if (first && node.pos > 0) {
+					var elbow = document.createElement("div");
+					elbow.className = "Elbow";
+					if (branch.selected) {
+						elbow.className += " Selected";
+					}
+					elbow.style.top = (branch.lvl * 27 + 5) + "px";
+					elbow.style.left = ((node.turn_number - 1) * 27 + 5) + "px";
+					that.div_tree.appendChild(elbow);
+					var height = 0;
+					for (var i = branch.parent_branch.lvl + 1, li = branch.lvl - 1; i <= li; ++i) {
+						height += 27;
+					}
+					if (height > 0) {
+						var vline = document.createElement("div");
+						vline.className = "VLine";
+						if (branch.selected) {
+							vline.className += " Selected";
+						}
+						vline.style.top = ((branch.parent_branch.lvl + 1) * 27 + 5) + "px";
+						vline.style.left = ((node.turn_number - 1) * 27 + 5) + "px";
+						vline.style.height = height + "px";
+						that.div_tree.appendChild(vline);
+					}
+				}
 				var div = document.createElement("a");
 				div.href = "javascript: void(0);";
+				div.className = "TreeNode";
 				if (node.play != undefined && node.play.put != undefined) {
-					if (node.play.put.color == "B") {
-						div.className = "TreeNode B";
-					} else {
-						div.className = "TreeNode W";
-					}
-				} else {
-					div.className = "TreeNode";
+					div.className += " " + node.play.put.color;
+				}
+				if (branch.selected) {
+					div.className += " Selected";
 				}
 				div.style.top = (branch.lvl * 27 + 5) + "px";
 				div.style.left = (node.turn_number * 27 + 5) + "px";
@@ -308,22 +332,27 @@ var NODE_VARIATION = 8;
 			var branches = [];
 			var cur_branch;
 			var actual_node_lvl;
-			stash.push({lvl: 0, elem: this.game_tree.root});
+			stash.push({lvl: 0, elem: this.game_tree.root, selected: true});
 			while(node = stash.pop()) {
 				// First collect info about actual branch
 				width = 0;
-				cur_branch = {x: node.elem.turn_number, lvl: node.lvl};
+				cur_branch = {x: node.elem.turn_number, pos: node.elem.pos, lvl: node.lvl, parent_branch: node.parent_branch};
+				if (node.elem.prev == undefined || node.selected && node.elem.prev.last_next == node.elem) {
+					cur_branch.selected = true;
+				}
 				while(node) {
-					if (node.elem.next.length > 1) {
-						for (var i = node.elem.next.length - 1; i > 0; --i) {
-							stash.push({lvl: node.lvl + 1, elem: node.elem.next[i]});
-						}
-					}
 					width++;
-					if (node.elem.next.length != 0) {
-						node = {lvl: node.lvl, elem: node.elem.next[0]};
-					} else {
+					if (node.elem.next.length > 1) {
+						for (var i = node.elem.next.length - 1; i >= 0; --i) {
+							stash.push({lvl: node.lvl + (i > 0 ? 1 : 0) /*(node.elem.pos > 0 ? 1 : 0)*/, elem: node.elem.next[i], selected: cur_branch.selected, parent_branch: cur_branch});
+						}
 						node = false;
+					} else {
+						if (node.elem.next.length == 0) {
+							node = false;
+						} else {
+							node = {lvl: node.lvl, elem: node.elem.next[0], selected: node.selected, parent_branch: node.parent_branch};
+						}
 					}
 				}
 				cur_branch.width = width;
@@ -332,7 +361,7 @@ var NODE_VARIATION = 8;
 				fixed = false;
 				while(!fixed) {
 					for (var i = 0, li = branches.length; i < li; ++i) {
-						if (branches[i].lvl == cur_branch.lvl) {
+						if (branches[i].lvl >= cur_branch.lvl) {
 							if (branch_concurrence(branches[i], cur_branch)) {
 								cur_branch.lvl++;
 								fixed = true;
@@ -345,29 +374,34 @@ var NODE_VARIATION = 8;
 				branches.push(cur_branch);
 			}
 
-			//console.log(branches);
+			console.log(branches);
 			// assertion...
 			if (stash.length > 0) {
 				throw new Error("Wha?!");
 			}
 
+			var first;
 			stash.push(this.game_tree.root);
 			while(node = stash.pop()) {
 				cur_branch = branches.shift();
+				first = true;
 				while(node) {
-					if (node.next.length > 1) {
-						for (var i = node.next.length - 1; i > 0; --i) {
-							stash.push(node.next[i]);
-						}
-					}
-					add_node(node, cur_branch);
+					add_node(node, cur_branch, first);
+					first = false;
 					if (node === this.game_tree.actual_move) {
 						actual_node_lvl = cur_branch.lvl;
 					}
-					if (node.next.length != 0) {
-						node = node.next[0];
-					} else {
+					if (node.next.length > 1) {
+						for (var i = node.next.length - 1; i >= 0; --i) {
+							stash.push(node.next[i]);
+						}
 						node = false;
+					} else {
+						if (node.next.length == 0) {
+							node = false;
+						} else {
+							node = node.next[0];
+						}
 					}
 				}
 			}

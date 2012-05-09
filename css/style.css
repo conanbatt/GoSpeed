@@ -74,11 +74,12 @@
 		position: absolute;
 		width: 25px;
 		height: 20px;
-		z-index: 2;
+		z-index: 0;
 		background-image: url("../img/t_elbow.png");
 	}
 
 	div.Elbow.Selected {
+		z-index: 1;
 		background-image: url("../img/elbow.png");
 	}
 
@@ -87,11 +88,12 @@
 		position: absolute;
 		width: 25px;
 		height: 20px;
-		z-index: 2;
+		z-index: 0;
 		background-image: url("../img/t_vline.png");
 	}
 
 	div.VLine.Selected {
+		z-index: 1;
 		background-image: url("../img/vline.png");
 	}
 

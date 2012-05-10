@@ -287,7 +287,7 @@ var NODE_VARIATION = 8;
 				return false;
 			}
 			function add_node(node, branch, first) {
-				if (first && node.pos > 0) {
+				if (first && branch.parent_branch) {
 					var elbow = document.createElement("div");
 					elbow.className = "Elbow";
 					if (branch.selected) {

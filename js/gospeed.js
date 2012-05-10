@@ -21,9 +21,7 @@ GoSpeed.prototype = {
 		this.komi = args.komi;
 
 	// Timer
-		if (args.time_settings != undefined) {
-			this.setup_timer(args.time_settings);
-		}
+		this.time = new GoTime(this, args.time_settings);
 
 	// Shower
 		// Define the showing engine
@@ -266,10 +264,7 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Pause timer and get remain
-					var time_left = false;
-					if (this.timer != undefined) {
-						time_left = this.timer.pause(true);
-					}
+					var time_left = this.time.pause(true);
 
 					// Try to add time to play
 					if (time_left !== false) {
@@ -279,10 +274,7 @@ GoSpeed.prototype = {
 					// Commit
 					this.commit_play(tmp_play, NODE_OFFLINE);
 
-					if (this.timer != undefined) {
-						this.timer.resume(this.get_next_move());
-						this.timer.tick();
-					}
+					this.time.resume(this.get_next_move());
 
 					bRes = true;
 				}
@@ -299,10 +291,7 @@ GoSpeed.prototype = {
 
 				if (tmp_play) {
 					// Time
-					var tmp_remain = false;
-					if (this.timer != undefined) {
-						tmp_remain = this.timer.pause(true);
-					}
+					var tmp_remain = this.time.pause(true);
 
 					// Commit
 					if (tmp_remain !== false) {
@@ -543,10 +532,7 @@ GoSpeed.prototype = {
 				var color = this.get_next_move();
 
 				// Time
-				var time_left = false;
-				if (this.timer != undefined) {
-					time_left = this.timer.pause(true);
-				}
+				var time_left = this.time.pause(true);
 
 				// Play
 				var tmp_play = new Pass(color);
@@ -560,10 +546,7 @@ GoSpeed.prototype = {
 					this.shower.clear_last_stone_markers();
 				}
 
-				if (this.timer != undefined) {
-					this.timer.resume(this.get_next_move());
-					this.timer.tick();
-				}
+				this.time.resume(this.get_next_move());
 
 				bRes = true;
 
@@ -578,13 +561,10 @@ GoSpeed.prototype = {
 				var color = this.get_next_move();
 
 				// Time
-				var tmp_remain = false;
-				if (this.timer != undefined) {
-					tmp_remain = this.timer.pause(true);
-				}
+				var tmp_remain = this.time.pause(true);
 
 				// Play
-				var tmp_play = new Pass(color)
+				var tmp_play = new Pass(color);
 				if (tmp_remain !== false) {
 					tmp_play.time_left = tmp_remain[color]
 				}
@@ -802,97 +782,7 @@ GoSpeed.prototype = {
 		return move + s;
 	},
 
-//	Time commands
-	setup_timer: function(time_settings) {
-		switch(time_settings.name) {
-			case "Absolute":
-				this.timer = new AbsoluteTimer(this, time_settings.settings.main_time);
-			break;
-			case "Fischer":
-				this.timer = new FischerTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
-			break;
-			case "Canadian":
-				this.timer = new CanadianTimer(this, time_settings.settings.main_time, time_settings.settings.period_time, time_settings.settings.period_stones);
-			break;
-			case "Byoyomi":
-				this.timer = new ByoyomiTimer(this, time_settings.settings.main_time, time_settings.settings.periods, time_settings.settings.period_time);
-			break;
-			case "Bronstein":
-				this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
-			break;
-			case "Hourglass":
-				this.timer = new HourglassTimer(this, time_settings.settings);
-			break;
-		}
-	},
-
-	timer_settings_to_sgf: function(time_settings) {
-		switch(time_settings.name) {
-			case "Absolute":
-				return "TM[" + time_settings.settings.main_time + "]";
-			break;
-			case "Fischer":
-				return "OT[Fischer " + time_settings.settings.bonus + "]TM[" + time_settings.settings.main_time + "]";
-			break;
-			case "Canadian":
-				return "UNSUPPORTED"; // TODO
-				//this.timer = new CanadianTimer(this, time_settings.settings.main_time, time_settings.settings.period_time, time_settings.settings.period_stones);
-			break;
-			case "Byoyomi":
-				return "OT[" + time_settings.settings.periods + "x" + time_settings.settings.period_time + " byo-yomi]TM[" + time_settings.settings.main_time + "]";
-			break;
-			case "Bronstein":
-				return "UNSUPPORTED"; // TODO
-				//this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
-			break;
-			case "Hourglass":
-				return "OT[Hourglass]TM[" + time_settings.settings.main_time + "]";
-			break;
-			default:
-				return "";
-			break;
-		}
-	},
-
-	update_clocks: function(remain) {
-		if (this.shower != undefined) {
-			this.shower.update_clocks(remain);
-		}
-	},
-
-	announce_time_loss: function(remain) {
-		var i_lose = false;
-		if (this.is_my_turn()) {
-			switch(this.timer.system.name) {
-				case "Absolute":
-				case "Fischer":
-					i_lose = (remain[this.get_next_move()] == 0);
-				break;
-				case "Hourglass":
-					i_lose = (remain[this.get_next_move()].main_time == 0);
-				break;
-				case "Byoyomi":
-					var my_remain = remain[this.get_next_move()];
-					i_lose = (my_remain.main_time <= 0 && my_remain.periods <= 1 && my_remain.period_time <= 0);
-				break;
-			}
-			if (i_lose) {
-				var that = this;
-				if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
-					$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "time_loss"}, function(data, textStatus) {
-						if (textStatus == "success") {
-							if (KAYAGLOBAL != undefined) {
-								KAYAGLOBAL.play_sound("outoftime");
-							}
-							that.timer.stop();
-						}
-					});
-				}
-			}
-		}
-		return i_lose;
-	},
-
+//	To be changed to callback
 	resign: function() {
 		if (this.server_path_absolute_url != undefined && this.server_path_game_end != undefined) {
 			$.post(this.server_path_absolute_url + this.server_path_game_end, {result: "resign"});
@@ -913,8 +803,8 @@ GoSpeed.prototype = {
 		// If I was counting, clean score and set up everything to keep on playing.
 		if ((this.mode == "count" || this.mode == "count_online") && mode != "count" && mode != "count_online") {
 			this.quit_territory_counting();
-			if (mode != "free" && this.timer != undefined) {
-				this.timer.resume(this.get_next_move());
+			if (mode != "free") {
+				this.time.resume(this.get_next_move());
 			}
 		}
 
@@ -937,9 +827,7 @@ GoSpeed.prototype = {
 		if (this.mode != "count" && this.mode != "count_online" && (mode == "count" || mode == "count_online")) {
 			this.mode = mode;
 			this.start_territory_counting();
-			if (this.timer != undefined) {
-				this.timer.pause();
-			}
+			this.time.pause();
 		} else {
 			this.mode = mode;
 		}
@@ -1032,7 +920,7 @@ GoSpeed.prototype = {
 		}
 
 		// Timer
-		this.timer = undefined;
+		this.time.clear();
 
 		// SGFParser
 		if (this.sgf != undefined) {
@@ -1077,18 +965,14 @@ GoSpeed.prototype = {
 		this.connected = true;
 		/*
 		// TODO: guess what is the best thing to do with timer when jugs disconnect.
-		if (this.timer != undefined) {
-			this.timer.resume(this.get_next_move());
-		}
+		this.time.resume(this.get_next_move());
 		*/
 	},
 
 	disconnect: function() {
 		/*
 		// TODO: guess what is the best thing to do with timer when jugs disconnect.
-		if (this.timer != undefined) {
-			this.timer.pause();
-		}
+		this.time.pause();
 		*/
 		this.connected = false;
 	},
@@ -1143,11 +1027,9 @@ GoSpeed.prototype = {
 
 		// Time left property
 		if (remain != undefined && remain !== false) {
-			switch(this.timer.system.name) {
+			switch(this.time.clock.system.name) {
 				case "Absolute":
 				case "Fischer":
-					res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
-				break;
 				case "Hourglass":
 					res += play.put.color + "L[" + Number(remain[play.put.color].main_time).toFixed(3) + "]";
 				break;
@@ -1186,12 +1068,10 @@ GoSpeed.prototype = {
 			this.update_game(data);
 		} else {
 			// Loaded: diff update.
-			if (this.timer != undefined) {
-				if (data.result != undefined) {
-					this.timer.stop();
-				} else {
-					this.timer.pause();
-				}
+			if (data.result != undefined) {
+				this.time.stop();
+			} else {
+				this.time.pause();
 			}
 
 			// Clear and change size if required
@@ -1208,7 +1088,7 @@ GoSpeed.prototype = {
 					// XXX metodo cabeza para soportar UNDO.
 					if (move_added) {
 						this.update_raw_score_state(data.raw_score_state);
-						this.update_timer(data.time_adjustment);
+						this.time.update(data.time_adjustment);
 						this.detach_head(true);
 					} else {
 						return this.update_game(data);
@@ -1235,122 +1115,9 @@ GoSpeed.prototype = {
 				// Fast forward
 				this.goto_end();
 				this.handle_score_agreement(data.raw_score_state);
-				this.update_timer(data.time_adjustment);
+				this.time.update(data.time_adjustment);
 			}
 		}
-	},
-
-	update_timer: function(time_adjustment) {
-		if (this.mode == "count" || this.mode == "count_online") {
-			return false;
-		}
-		if (this.timer != undefined) {
-			var play;
-			var color;
-			var end = false;
-			var last_remain_black;
-			var last_remain_white;
-			var node = this.game_tree.actual_move;
-
-			// Fetch last remain for black and white.
-			while(!end) {
-				play = node.play;
-				if (play instanceof Play || play instanceof Pass) {
-					color = play.put.color;
-					if (color == "B" && last_remain_black == undefined) {
-						last_remain_black = play.time_left;
-					}
-					if (color == "W" && last_remain_white == undefined) {
-						last_remain_white = play.time_left;
-					}
-				}
-				if (last_remain_white != undefined && last_remain_black != undefined) {
-					end = true;
-				} else {
-					node = node.prev;
-					if (node == undefined) {
-						end = true;
-					}
-				}
-			}
-
-			// Configure default time depending on time system.
-			switch(this.timer.system.name) {
-				case "Absolute":
-				case "Fischer":
-					if (last_remain_white == undefined) {
-						last_remain_white = Number(this.timer.system.time);
-					}
-					if (last_remain_black == undefined) {
-						last_remain_black = Number(this.timer.system.time);
-					}
-				break;
-				case "Hourglass":
-					var color = this.get_next_move();
-
-					if (last_remain_black == undefined && last_remain_white == undefined) {
-						last_remain_black = {
-							main_time: Number(this.timer.system.main_time),
-						};
-						last_remain_white = {
-							main_time: Number(this.timer.system.main_time),
-						};
-					} else if (last_remain_black == undefined) {
-						last_remain_black = {
-							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
-						};
-					} else if (last_remain_white == undefined) {
-						last_remain_white = {
-							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
-						};
-					} else {
-						if (color == "B") {
-							last_remain_black = {
-								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
-							};
-						} else {
-							last_remain_white = {
-								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
-							};
-						}
-					}
-				break;
-				case "Byoyomi":
-					if (last_remain_white == undefined) {
-						last_remain_white = {
-							'main_time': this.timer.system.main_time,
-							'period_time': this.timer.system.period_time,
-							'periods': this.timer.system.periods,
-						};
-					}
-					if (last_remain_black == undefined) {
-						last_remain_black = {
-							'main_time': this.timer.system.main_time,
-							'period_time': this.timer.system.period_time,
-							'periods': this.timer.system.periods,
-						};
-					}
-				break;
-			}
-
-			// Finally setup clocks.
-			if (this.timer.system.name == "Hourglass") {
-				// The new way...
-				var rmn = {};
-				rmn["B"] = last_remain_black;
-				rmn["W"] = last_remain_white;
-				this.timer.set_remain(rmn);
-			} else {
-				this.timer.set_remain("B", last_remain_black);
-				this.timer.set_remain("W", last_remain_white);
-			}
-
-			this.timer.resume(this.get_next_move());
-			if (time_adjustment != undefined) {
-				this.timer.adjust(time_adjustment);
-			}
-		}
-
 	},
 
 	update_game: function(data) {
@@ -1370,13 +1137,11 @@ GoSpeed.prototype = {
 		}
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
-		this.update_timer(data.time_adjustment);
+		this.time.update(data.time_adjustment);
 
 		// Stop timer when game ends
-		if (this.timer != undefined) {
-			if (data.result != undefined) {
-				this.timer.stop();
-			}
+		if (data.result != undefined) {
+			this.time.stop();
 		}
 	},
 
@@ -1388,7 +1153,7 @@ GoSpeed.prototype = {
 		}
 		// Timer config
 		if (data.time_settings != undefined) {
-			sSgf += this.timer_settings_to_sgf(data.time_settings);
+			sSgf += this.time.settings_to_sgf(data.time_settings);
 		}
 		// Handicap
 		if (data.handicap_sgf_node != undefined) {

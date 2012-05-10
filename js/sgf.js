@@ -299,7 +299,8 @@ SGFParser.prototype = {
 		}
 
 		// Finally apply config
-		game.setup_timer(time_settings);
+		//game.time = new GoTime(game, time_settings);
+		game.time.setup(time_settings);
 
 		if (sgf_node.AB != undefined || sgf_node.AW != undefined) {
 			var free = new FreePlay();
@@ -341,6 +342,10 @@ SGFParser.prototype = {
 		var time_left;
 		var tmp;
 		var tree_node;
+		var time_system = undefined;
+		if (game.time.clock != undefined && game.time.clock.system != undefined) {
+			time_system = game.time.clock.system.name;
+		}
 		while(sgf_node = pend_sgf_node.pop()) {
 			tree_node = pend_game_tree_node.pop();
 			tree_node.last_next = tree_node.next[0]; // XXX WTF???
@@ -354,10 +359,10 @@ SGFParser.prototype = {
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
 				if (game.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
-					time_left = this.get_time_from_node(game.timer, sgf_node.BL, sgf_node.OB);
+					time_left = this.get_time_from_node(time_system, sgf_node.BL, sgf_node.OB);
 				} else if (game.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
-					time_left = this.get_time_from_node(game.timer, sgf_node.WL, sgf_node.OW);
+					time_left = this.get_time_from_node(time_system, sgf_node.WL, sgf_node.OW);
 				} else {
 					this.status = SGFPARSER_ST_ERROR;
 					this.error = "Turn and Play mismatch";
@@ -378,8 +383,10 @@ SGFParser.prototype = {
 				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
 				game.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
 				game.board.make_play(tmp);
-				if (time_left != undefined && !isNaN(time_left) && game.timer != undefined) {
-					game.timer.set_remain(tmp.put.color, time_left);
+				if (time_left != undefined && !isNaN(time_left) && game.time.clock != undefined) {
+					var rmn = {};
+					rmn[tmp.put.color] = time_left;
+					game.time.clock.set_remain(rmn);
 				}
 				if (tmp instanceof Play || tmp instanceof Pass) {
 					// TODO: turn count sucks monkey ass
@@ -509,15 +516,15 @@ SGFParser.prototype = {
 		return sRes;
 	},
 
-	get_time_from_node: function(timer, time_left, overtime_periods) {
+	get_time_from_node: function(time_system, time_left, overtime_periods) {
 		// XXX TODO FIXME Maybe this validation is way too hard.
-		if (timer != undefined && timer.system != undefined && timer.system.name != undefined) {
-			switch(timer.system.name) {
+		if (time_system != undefined) {
+			switch(time_system) {
 				case "Free":
-				case "Absolute":
-				case "Fischer":
 					return parseFloat(time_left);
 				break;
+				case "Absolute":
+				case "Fischer":
 				case "Hourglass":
 					return {
 						main_time: parseFloat(time_left),

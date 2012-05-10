@@ -545,7 +545,6 @@ GoGraphic.prototype = {
 			case "Absolute":
 			case "Fischer":
 			case "Bronstein":
-			case "Hourglass":
 				for (var color in color_arr) {
 					color = color_arr[color];
 
@@ -554,6 +553,18 @@ GoGraphic.prototype = {
 						this.format_clock_div(remain[color], color);
 						this.write_clock_value(formatTime(remain[color] + 0.99, true), color);
 						this.draw_t_stone_number(remain[color], color);
+					}
+				}
+			break;
+			case "Hourglass":
+				for (var color in color_arr) {
+					color = color_arr[color];
+
+					if (remain[color] != undefined) {
+						this.handle_clock_sound(remain[color].main_time, color);
+						this.format_clock_div(remain[color].main_time, color);
+						this.write_clock_value(formatTime(remain[color].main_time + 0.99, true), color);
+						this.draw_t_stone_number(remain[color].main_time, color);
 					}
 				}
 			break;
@@ -751,6 +762,9 @@ GoGraphic.prototype = {
 
 		// Move Number
 		this.update_move_number(this.game.game_tree.actual_move);
+
+		// Comments
+		this.update_comments();
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {
@@ -802,6 +816,7 @@ GoGraphic.prototype = {
 		this.refresh_ko(node.play);
 		this.update_captures(node.play);
 		this.update_move_number(node);
+		this.update_comments();
 		if (node.play instanceof Play) {
 			this.place_last_stone_marker(node.play.put);
 		}

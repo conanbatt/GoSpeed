@@ -267,6 +267,9 @@ SGFParser.prototype = {
 						bonus: parseFloat(bonus[0]),
 					}
 				}
+			} else if (/hourglass/i.test(sgf_node.OT)) {
+				time_settings.name = "Hourglass";
+				time_settings.settings = {};
 			} else if (/byo-?yomi/i.test(sgf_node.OT)) {
 				var match = sgf_node.OT.match(/(\d+)[x\/](\d+)/i);
 				if (match[1] && match[2]) {
@@ -514,6 +517,11 @@ SGFParser.prototype = {
 				case "Absolute":
 				case "Fischer":
 					return parseFloat(time_left);
+				break;
+				case "Hourglass":
+					return {
+						main_time: parseFloat(time_left),
+					};
 				break;
 				case "Byoyomi":
 					var res;

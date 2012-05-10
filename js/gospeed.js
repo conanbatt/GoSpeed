@@ -20,6 +20,11 @@ GoSpeed.prototype = {
 		this.ruleset = args.ruleset;
 		this.komi = args.komi;
 
+	// Timer
+		if (args.time_settings != undefined) {
+			this.setup_timer(args.time_settings);
+		}
+
 	// Shower
 		// Define the showing engine
 		if (args.shower != undefined) {
@@ -30,13 +35,9 @@ GoSpeed.prototype = {
 			}
 		}
 
-	// Timer
-		if (args.time_settings != undefined) {
-			this.setup_timer(args.time_settings);
-		}
-
 	// GameTree
-		this.game_tree = new GameTree(args.div_id_tree);
+		var that = this;
+		this.game_tree = new GameTree(args.div_id_tree, function(path) { that.goto_path.call(that, path); });
 		this.div_id_tree = args.div_id_tree;
 
 	// Online
@@ -198,11 +199,35 @@ GoSpeed.prototype = {
 	},
 
 	goto_path: function(path) {
-		if (this.game_tree.test_path(path)) {
+		// Basic format check
+		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)?)$/.test(path)) {
+			return false;
+		}
+		// Parse path to array
+		var arr_path = path.split("|");
+		for (var i = 0, li = arr_path.length; i < li; ++i) {
+			arr_path[i] = arr_path[i].split("-");
+		}
+		// Test array path
+		if (this.game_tree.test_path(arr_path)) {
+			var pos; // Decition to make
+			var count; // Number of times
+			// Go to root and then browse path
 			this.goto_start(true);
-			for (var i = 0, li = path.length; i < li; ++i) {
-				this.next(path[i], true);
+			if (path != "") {
+				for (var i = 0, li = arr_path.length; i < li; ++i) {
+					pos = Number(arr_path[i][0]);
+					if (arr_path[i][1] !== undefined) {
+						count = Number(arr_path[i][1]);
+					} else {
+						count = 1;
+					}
+					while(count--) {
+						this.next(pos, true);
+					}
+				}
 			}
+			// Render after all
 			if (this.shower != undefined) {
 				this.shower.redraw();
 			}
@@ -796,7 +821,7 @@ GoSpeed.prototype = {
 				this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
 			case "Hourglass":
-				this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+				this.timer = new HourglassTimer(this, time_settings.settings);
 			break;
 		}
 	},
@@ -821,8 +846,7 @@ GoSpeed.prototype = {
 				//this.timer = new BronsteinTimer(this, time_settings.settings.main_time, time_settings.settings.bonus);
 			break;
 			case "Hourglass":
-				return "UNSUPPORTED"; // TODO
-				//this.timer = new HourglassTimer(this, time_settings.settings.main_time);
+				return "OT[Hourglass]TM[" + time_settings.settings.main_time + "]";
 			break;
 			default:
 				return "";
@@ -843,6 +867,9 @@ GoSpeed.prototype = {
 				case "Absolute":
 				case "Fischer":
 					i_lose = (remain[this.get_next_move()] == 0);
+				break;
+				case "Hourglass":
+					i_lose = (remain[this.get_next_move()].main_time == 0);
 				break;
 				case "Byoyomi":
 					var my_remain = remain[this.get_next_move()];
@@ -1013,10 +1040,11 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
+		var that = this;
 		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
 			var div_id_tree = this.game_tree.graphic.div_tree.id;
 		}
-		this.game_tree = new GameTree(div_id_tree);
+		this.game_tree = new GameTree(div_id_tree, function(path) { that.goto_path.call(that, path); });
 
 		// Tracks
 		this.tracks = [];
@@ -1119,6 +1147,9 @@ GoSpeed.prototype = {
 				case "Absolute":
 				case "Fischer":
 					res += play.put.color + "L[" + Number(remain[play.put.color]).toFixed(3) + "]";
+				break;
+				case "Hourglass":
+					res += play.put.color + "L[" + Number(remain[play.put.color].main_time).toFixed(3) + "]";
 				break;
 				case "Byoyomi":
 					if (remain[play.put.color].main_time > 0) {
@@ -1254,6 +1285,36 @@ GoSpeed.prototype = {
 						last_remain_black = Number(this.timer.system.time);
 					}
 				break;
+				case "Hourglass":
+					var color = this.get_next_move();
+
+					if (last_remain_black == undefined && last_remain_white == undefined) {
+						last_remain_black = {
+							main_time: Number(this.timer.system.main_time),
+						};
+						last_remain_white = {
+							main_time: Number(this.timer.system.main_time),
+						};
+					} else if (last_remain_black == undefined) {
+						last_remain_black = {
+							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
+						};
+					} else if (last_remain_white == undefined) {
+						last_remain_white = {
+							main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
+						};
+					} else {
+						if (color == "B") {
+							last_remain_black = {
+								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_white.main_time)),
+							};
+						} else {
+							last_remain_white = {
+								main_time: parseFloat(this.timer.system.main_time) + (parseFloat(this.timer.system.main_time) - Number(last_remain_black.main_time)),
+							};
+						}
+					}
+				break;
 				case "Byoyomi":
 					if (last_remain_white == undefined) {
 						last_remain_white = {
@@ -1273,8 +1334,16 @@ GoSpeed.prototype = {
 			}
 
 			// Finally setup clocks.
-			this.timer.set_remain("B", last_remain_black);
-			this.timer.set_remain("W", last_remain_white);
+			if (this.timer.system.name == "Hourglass") {
+				// The new way...
+				var rmn = {};
+				rmn["B"] = last_remain_black;
+				rmn["W"] = last_remain_white;
+				this.timer.set_remain(rmn);
+			} else {
+				this.timer.set_remain("B", last_remain_black);
+				this.timer.set_remain("W", last_remain_white);
+			}
 
 			this.timer.resume(this.get_next_move());
 			if (time_adjustment != undefined) {
@@ -1323,7 +1392,7 @@ GoSpeed.prototype = {
 		}
 		// Handicap
 		if (data.handicap_sgf_node != undefined) {
-			sgf += data.handicap_sgf_node;
+			sSgf += data.handicap_sgf_node;
 		}
 		// Moves
 		if (data.moves) {

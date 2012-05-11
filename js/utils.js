@@ -2,6 +2,7 @@ var NODE_SGF = 1;
 var NODE_ONLINE = 2;
 var NODE_OFFLINE = 4;
 var NODE_VARIATION = 8;
+var TREE_DRAW_INTERVAL = 100;
 
 // Play
 	function Play(color, row, col) {
@@ -427,7 +428,7 @@ var NODE_VARIATION = 8;
 				if (that.draw_requested) {
 					that.draw();
 				}
-			}, 200);
+			}, TREE_DRAW_INTERVAL);
 		},
 
 		binder: function (method, object, args) {

@@ -23,6 +23,9 @@ GoGraphic.prototype = {
 			this.grid[row] = Array(size);
 		}
 
+		// Engine
+		this.draw = new HTMLEngine(this);
+
 		// Board Bound
 		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
 	},
@@ -40,27 +43,6 @@ GoGraphic.prototype = {
 		this.grid[row][col] = stones;
 	},
 
-	draw_stone: function(color, row, col) {
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "Stone" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		this.div_board.appendChild(stone);
-
-		var shadow = document.createElement("div");
-		shadow.className = "Shadow";
-		shadow.style.left = (stoneLeft + SHADOW_SIDE * SHADOW_LEFT) + "px";
-		shadow.style.top = (stoneTop + SHADOW_TOP) + "px";
-		this.div_board.appendChild(shadow);
-
-		return {
-			stone: stone,
-			shadow: shadow,
-		};
-	},
-
 	put_little_stone: function(color, row, col) {
 		// Draw
 		var stone = this.draw_little_stone(color, row, col);
@@ -74,64 +56,15 @@ GoGraphic.prototype = {
 		this.grid[row][col].little_stone = stone;
 	},
 
-	draw_little_stone: function(color, row, col) {
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "LittleStone" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		this.div_board.appendChild(stone);
-
-		return stone;
-	},
-
-	place_last_stone_wait_marker: function(put) {
-		this.clear_last_stone_markers();
-		this.last_stone_wait[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone_wait[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone_wait[put.color].style.display = "block";
-	},
-
-	place_last_stone_marker: function(put) {
-		this.clear_last_stone_markers();
-		this.last_stone[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone[put.color].style.display = "block";
-	},
-
-	clear_last_stone_markers: function() {
-		this.last_stone["W"].style.display = "none";
-		this.last_stone["B"].style.display = "none";
-		this.last_stone_wait["W"].style.display = "none";
-		this.last_stone_wait["B"].style.display = "none";
-	},
-
-	place_coord_marker: function(row, col) {
-		this.coord_marker.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.coord_marker.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.coord_marker.style.display = "block";
-	},
-
-	clear_coord_marker: function() {
-		this.coord_marker.style.display = "none";
-	},
-
-	place_ko: function(ko) {
-		this.ko.style.left = (ko.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.ko.style.top = (ko.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.ko.style.display = "block";
-	},
-
-	clear_ko: function() {
-		this.ko.style.display = "none";
-	},
+	// Patched
+	clear_last_stone_markers: this.engine.clear_last_stone_markers(),
+	place_coord_marker: this.engine.place_coord_marker,
+	clear_coord_marker: this.engine.clear_coord_marker,
 
 	remove_stone: function(row, col) {
 		var target = this.grid[row][col];
 		if (target != undefined && target.stone != undefined && target.shadow != undefined) {
-			this.div_board.removeChild(target.stone);
-			this.div_board.removeChild(target.shadow);
+			this.engine.remove_stone(target.stone, target.shadow);
 			if (target.little_stone == undefined) {
 				this.grid[row][col] = undefined;
 			} else {
@@ -144,7 +77,7 @@ GoGraphic.prototype = {
 	remove_little_stone: function(row, col) {
 		var target = this.grid[row][col];
 		if (target != undefined && target.little_stone != undefined) {
-			this.div_board.removeChild(target.little_stone);
+			this.engine.remove_little_stone(target.little_stone);
 			if (target.stone == undefined && target.shadow == undefined) {
 				this.grid[row][col] = undefined;
 			} else {
@@ -154,40 +87,40 @@ GoGraphic.prototype = {
 	},
 
 	draw_number: function(play, num) {
-		this.clear_last_stone_markers();
+		this.engine.clear_last_stone_markers();
 		if (play instanceof Play) {
 			if (play.put) {
 				var pos = this.grid[play.put.row][play.put.col];
 				if (pos != undefined && pos.stone != undefined) {
-					pos.stone.innerHTML = num;
+					this.engine.draw_number(pos.stone, num);
 				}
 			}
 		}
 	},
 
 	stone_dead: function(color, row, col) {
-		this.grid[row][col].stone.style.display = "none";
-		this.grid[row][col].shadow.style.display = "none";
+		// Hide original stone
+		this.engine.hide_stone(this.grid[row][col].stone, this.grid[row][col].shadow);
 
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "StoneT" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		stone.style.display = "block";
-		this.div_board.appendChild(stone);
-		this.grid[row][col].t_stone = stone;
+		// Draw the dead one
+		var t_stone = this.draw_transparent_stone(color, row, col);
+
+		// Store register
+		this.grid[row][col].t_stone = t_stone;
 	},
 
 	stone_revive: function(color, row, col) {
+		// Remove stone if exists
 		var target = this.grid[row][col];
 		if (target.t_stone != undefined) {
-			this.div_board.removeChild(target.t_stone);
+			this.engine.remove_transparent_stone(target.t_stone);
 		}
+
+		// Clear register
 		target.t_stone = undefined;
-		target.stone.style.display = "block";
-		target.shadow.style.display = "block";
+
+		// Show original stone
+		this.engine.show_stone(target.stone, target.shadow);
 	},
 
 	render: function() {
@@ -478,9 +411,9 @@ GoGraphic.prototype = {
 
 	refresh_ko: function(play) {
 		if (play && play.ko) {
-			this.place_ko(play.ko);
+			this.engine.draw_ko(play.ko);
 		} else {
-			this.clear_ko();
+			this.engine.clear_ko();
 		}
 	},
 
@@ -571,6 +504,28 @@ GoGraphic.prototype = {
 		this.update_comments();
 		if (node.play instanceof Play) {
 			this.place_last_stone_marker(node.play.put);
+		}
+	},
+
+	draw_variation_numbers: function() {
+		var node = this.game.game_tree.actual_move;
+		if (node.source == NODE_VARIATION) {
+			while(node.prev && node.prev.source == NODE_VARIATION) {
+				node = node.prev;
+			}
+
+			var num = 1;
+			// XXX TODO FIXME: UGLY HARDCODED [0] -> i dont have last_next on variations...
+			while(node.next[0]) {
+				if (node.play) {
+					this.engine.draw_number(node.play, num);
+				}
+				node = node.next[0];
+				num++;
+			}
+			if (node.play) {
+				this.engine.draw_number(node.play, num);
+			}
 		}
 	},
 

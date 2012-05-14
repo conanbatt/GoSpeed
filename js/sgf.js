@@ -49,6 +49,7 @@ SGFParser.prototype = {
 
 	parse: function() {
 		this.root = new SGFNode();
+		this.root.root = true;
 		this.pointer = this.root;
 		this.last_node = this.root;
 		var new_node;
@@ -344,12 +345,18 @@ SGFParser.prototype = {
 		while(sgf_node = pend_sgf_node.pop()) {
 			tree_node = pend_game_tree_node.pop();
 			tree_node.last_next = tree_node.next[0]; // XXX WTF???
-		// do: rewind game until reaches board tree_node.
-			while (board.game_tree.actual_move != tree_node) {
-				tmp = board.game_tree.prev();
-				board.undo_play(tmp.play);
+		// do: rewind game until reaches game tree_node.
+			var path = tree_node.get_path();
+			if (path != game.game_tree.actual_move.get_path()) {
+				game.goto_path(path, true);
 			}
-		// do: play sgf_node contents at board point in game.
+			/*
+			while (game.game_tree.actual_move != tree_node) {
+				tmp = game.game_tree.prev();
+				game.board.undo_play(tmp.play);
+			}
+			*/
+		// do: play sgf_node contents at game point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
 				if (board.get_next_move() == "B" && sgf_node.B != undefined) {
@@ -408,6 +415,92 @@ SGFParser.prototype = {
 				}
 			}
 		}
+	},
+
+	same_move: function(sgf_node, tree_node) {
+		var move;
+		//if (sgf_node.B != undefined || sgf_node.W != undefined) {
+		if (tree_node.play != undefined && tree_node.play.put != undefined && tree_node.play.put.color != undefined) {
+			move = sgf_node[tree_node.play.put.color];
+			if (tree_node.play instanceof Pass) {
+				if (move != "") {
+					return false;
+				}
+			} else if (tree_node.play instanceof Play) {
+				if (tree_node.play.put.row != move.charCodeAt(1) - 97 || tree_node.play.put.col != move.charCodeAt(0) - 97) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		return true;
+	},
+
+	new_add_moves: function(game, moves) {
+		// Generate and parse sgf from moves.
+		var sgf = "(;FF[4]" + moves + ")";
+		var tmp_parser = new SGFParser(sgf);
+
+		// Browse
+		var sgf_node; // SGF node pointer
+		var tree_node; // Tree node pointer
+		var sgf_stash = []; // Iterative-recursion stash from sgf
+		var tree_stash = []; // Iterative-recursion stash from game_tree
+
+		var tmp_sgf_stash = []; // To make sure the algorithm is DFS
+		var tmp_tree_stash = []; // To make sure the algorithm is DFS
+
+		var reconstruct; // Flag to reconstruct branch
+		var offline_nodes; // Will temporarily store offline nodes
+
+		//game.goto_start(true); // Point game to start.
+
+		sgf_stash.push(tmp_parser.root);      // Start with root, please.
+		tree_stash.push(game.game_tree.root); // Sure!
+
+		while(sgf_node = sgf_stash.pop()) {
+			tree_node = tree_stash.pop();
+			//if (!sgf_node.root && !tree_node.root) {
+			for (var i = 0, li = sgf_node.next.length; i < li; ++i) {
+				reconstruct = false;
+				if (tree_node.next[i] != undefined) {
+					if (tree_node.next[i].source > NODE_ONLINE) {
+						// Temporarily remove offline nodes
+						offline_nodes = tree_node.next.splice(i, tree_node.next.length - i);
+						// Increment their node position
+						for (var j = 0, lj = offline_nodes.length; j < lj; ++j) {
+							offline_nodes[j].pos++;
+						}
+						// Cast reconstruct
+						reconstruct = true;
+					} else {
+						if (!this.same_move(sgf_node.next[i], tree_node.next[i])) {
+							throw new Error("Different moves loaded in the same place...");
+						}
+						tmp_sgf_stash.unshift(sgf_node.next[i]);
+						tmp_tree_stash.unshift(tree_node.next[i]);
+					}
+				} else {
+					// Cast reconstruct
+					reconstruct = true;
+				}
+				if (reconstruct === true) {
+					this.sgf_to_tree(game, sgf_node.next[i], tree_node, NODE_ONLINE);
+					if (offline_nodes != undefined) {
+						tree_node.next = tree_node.next.concat(offline_nodes);
+						offline_nodes = undefined;
+					}
+				}
+			}
+			sgf_stash = sgf_stash.concat(tmp_sgf_stash);
+			tree_stash = tree_stash.concat(tmp_tree_stash);
+			tmp_sgf_stash = [];
+			tmp_tree_stash = [];
+		}
+		return true;
 	},
 
 	add_moves: function(game, sgf, no_rewind) {

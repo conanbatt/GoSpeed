@@ -318,6 +318,7 @@ GoTime.prototype = {
 			rmn["W"] = last_remain_white;
 			this.clock.set_remain(rmn);
 
+			// XXX TODO FIXME: Check if this is working well... (timer resume with tick and stuff...)
 			this.clock.resume(this.game.get_next_move());
 			if (time_adjustment != undefined) {
 				this.clock.adjust(time_adjustment);

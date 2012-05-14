@@ -27,7 +27,20 @@ GoGraphic.prototype = {
 		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
 	},
 
+
+/*
+*   Board drawing primitives   *
+                              */
 	put_stone: function(color, row, col) {
+		// Draw
+		var stones = this.draw_stone(color, row, col);
+		this.clean_t_stones();
+
+		// Store stone register
+		this.grid[row][col] = stones;
+	},
+
+	draw_stone: function(color, row, col) {
 		var stone = document.createElement("div");
 		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
 		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
@@ -42,14 +55,26 @@ GoGraphic.prototype = {
 		shadow.style.top = (stoneTop + SHADOW_TOP) + "px";
 		this.div_board.appendChild(shadow);
 
-		this.clean_t_stones();
-		this.grid[row][col] = {
+		return {
 			stone: stone,
 			shadow: shadow,
 		};
 	},
 
 	put_little_stone: function(color, row, col) {
+		// Draw
+		var stone = this.draw_little_stone(color, row, col);
+
+		// Create object if undefined
+		if (this.grid[row][col] == undefined) {
+			this.grid[row][col] = {};
+		}
+
+		// Store little stone register
+		this.grid[row][col].little_stone = stone;
+	},
+
+	draw_little_stone: function(color, row, col) {
 		var stone = document.createElement("div");
 		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
 		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
@@ -58,13 +83,7 @@ GoGraphic.prototype = {
 		stone.style.top = stoneTop + "px";
 		this.div_board.appendChild(stone);
 
-		if (this.grid[row][col] == undefined) {
-			this.grid[row][col] = {
-				little_stone: stone,
-			}
-		} else {
-			this.grid[row][col].little_stone = stone;
-		}
+		return stone;
 	},
 
 	place_last_stone_wait_marker: function(put) {
@@ -88,10 +107,6 @@ GoGraphic.prototype = {
 		this.last_stone_wait["B"].style.display = "none";
 	},
 
-	confirm_play: function(put) {
-		this.place_last_stone_marker(put);
-	},
-
 	place_coord_marker: function(row, col) {
 		this.coord_marker.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
 		this.coord_marker.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
@@ -110,14 +125,6 @@ GoGraphic.prototype = {
 
 	clear_ko: function() {
 		this.ko.style.display = "none";
-	},
-
-	refresh_ko: function(play) {
-		if (play && play.ko) {
-			this.place_ko(play.ko);
-		} else {
-			this.clear_ko();
-		}
 	},
 
 	remove_stone: function(row, col) {
@@ -146,48 +153,6 @@ GoGraphic.prototype = {
 		}
 	},
 
-	draw_play: function(play, wait) {
-		this.clear_last_stone_markers();
-		if (play instanceof FreePlay) {
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.remove_stone(play.remove[s].row, play.remove[s].col);
-			}
-			for (var s = 0, ls = play.put.length; s < ls; ++s) {
-				this.put_stone(play.put[s].color, play.put[s].row, play.put[s].col);
-			}
-		} else if (play instanceof Play) {
-			this.put_stone(play.put.color, play.put.row, play.put.col);
-			if (wait) {
-				this.place_last_stone_wait_marker(play.put);
-			} else {
-				this.place_last_stone_marker(play.put);
-			}
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.remove_stone(play.remove[s].row, play.remove[s].col);
-			}
-			this.refresh_ko(play);
-		} else if (play instanceof Pass) {
-			this.refresh_ko(play);
-		}
-	},
-
-	undraw_play: function(play) {
-		if (play instanceof FreePlay) {
-			for (var s = 0, ls = play.put.length; s < ls; ++s) {
-				this.remove_stone(play.put[s].row, play.put[s].col);
-			}
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
-			}
-		} else if (play instanceof Play) {
-			this.remove_stone(play.put.row, play.put.col);
-			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
-				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
-			}
-		}
-		this.clear_last_stone_markers();
-	},
-
 	draw_number: function(play, num) {
 		this.clear_last_stone_markers();
 		if (play instanceof Play) {
@@ -200,6 +165,148 @@ GoGraphic.prototype = {
 		}
 	},
 
+	stone_dead: function(color, row, col) {
+		this.grid[row][col].stone.style.display = "none";
+		this.grid[row][col].shadow.style.display = "none";
+
+		var stone = document.createElement("div");
+		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
+		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
+		stone.className = "StoneT" + color;
+		stone.style.left = stoneLeft + "px";
+		stone.style.top = stoneTop + "px";
+		stone.style.display = "block";
+		this.div_board.appendChild(stone);
+		this.grid[row][col].t_stone = stone;
+	},
+
+	stone_revive: function(color, row, col) {
+		var target = this.grid[row][col];
+		if (target.t_stone != undefined) {
+			this.div_board.removeChild(target.t_stone);
+		}
+		target.t_stone = undefined;
+		target.stone.style.display = "block";
+		target.shadow.style.display = "block";
+	},
+
+	render: function() {
+		switch(this.game.board.size) {
+			case 19:
+				this.div_board.style.width = "495px";
+				this.div_board.style.height = "495px";
+				this.div_board.className = "OnlyBoard19";
+			break;
+			case 13:
+				this.div_board.style.width = "346px";
+				this.div_board.style.height = "346px";
+				this.div_board.className = "OnlyBoard13";
+			break;
+			case 9:
+				this.div_board.style.width = "246px";
+				this.div_board.style.height = "246px";
+				this.div_board.className = "OnlyBoard9";
+			break;
+		}
+		this.div_board.style.position = "relative";
+
+		// Image prefetch (dunno if this is the right place...)
+		var tmp_path = "";
+		if (this.game.server_path_gospeed_root != undefined) {
+			tmp_path = this.game.server_path_gospeed_root;
+		}
+		(new Image()).src = tmp_path + "img/white.png";
+		(new Image()).src = tmp_path + "img/black.png";
+		(new Image()).src = tmp_path + "img/t_white.png";
+		(new Image()).src = tmp_path + "img/t_black.png";
+		(new Image()).src = tmp_path + "img/shadow.png";
+		(new Image()).src = tmp_path + "img/last_stone_w.png";
+		(new Image()).src = tmp_path + "img/last_stone_b.png";
+		(new Image()).src = tmp_path + "img/last_stone_wait_w.gif";
+		(new Image()).src = tmp_path + "img/last_stone_wait_b.gif";
+		(new Image()).src = tmp_path + "img/little_white.png";
+		(new Image()).src = tmp_path + "img/little_black.png";
+		(new Image()).src = tmp_path + "img/t_little_white.png";
+		(new Image()).src = tmp_path + "img/t_little_black.png";
+
+		// Transparent Stones
+		this.t_white = this.create_elem("div", "StoneTW", true);
+		this.t_black = this.create_elem("div", "StoneTB", true);
+		this.t_little_white = this.create_elem("div", "LittleStoneTW", true);
+		this.t_little_black = this.create_elem("div", "LittleStoneTB", true);
+
+		// Revive stones
+		this.revive_w = this.create_elem("div", "ReviveStoneW", true);
+		this.revive_b = this.create_elem("div", "ReviveStoneB", true);
+
+		// Last stone markers
+		this.last_stone = [];
+		this.last_stone["W"] = this.create_elem("div", "LastStoneW", true);
+		this.last_stone["B"] = this.create_elem("div", "LastStoneB", true);
+
+		// Last stone wait markers
+		this.last_stone_wait = [];
+		this.last_stone_wait["W"] = this.create_elem("div", "LastStoneWaitW", true);
+		this.last_stone_wait["B"] = this.create_elem("div", "LastStoneWaitB", true);
+
+		// Ko
+		this.ko = this.create_elem("div", "Ko");
+
+		// Coord Marker
+		this.coord_marker = this.create_elem("div", "CoordMarker", true);
+
+		// Bind mouse handlers
+		this.div_board.onclick = this.binder(this.click_handler, this, null);
+		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
+		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
+
+		// Captures
+		this.update_captures(this.game.game_tree.actual_move.play);
+
+		// Move Number
+		this.update_move_number(this.game.game_tree.actual_move);
+
+		// Comments
+		this.update_comments();
+	},
+
+	create_elem: function(sTag, sClass, bHidden) {
+		var elem = document.createElement(sTag);
+		elem.className = sClass;
+		if (bHidden) {
+			elem.style.display = "none";
+		}
+		this.div_board.appendChild(elem);
+		return elem;
+	},
+
+	clean_t_stones: function() {
+		this.t_white.style.display = "none";
+		this.t_black.style.display = "none";
+		this.t_little_white.style.display = "none";
+		this.t_little_black.style.display = "none";
+		this.revive_b.style.display = "none";
+		this.revive_w.style.display = "none";
+	},
+
+	clear: function() {
+		this.grid = Array(this.game.board.size);
+		for (var row = 0 ; row < this.game.board.size ; row++) {
+			this.grid[row] = Array(this.game.board.size);
+		}
+		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
+		/*
+		this.t_white = undefined;
+		this.t_black = undefined;
+		this.ko = undefined;
+		*/
+		this.div_board.innerHTML = "";
+	},
+
+
+/*
+*   Controls drawing primitives   *
+                                 */
 	update_captures: function(play) {
 		if (play != undefined && play.captured != undefined) {
 			if (this.div_captured_w != undefined) {
@@ -281,29 +388,142 @@ GoGraphic.prototype = {
 		}
 	},
 
-	stone_dead: function(color, row, col) {
-		this.grid[row][col].stone.style.display = "none";
-		this.grid[row][col].shadow.style.display = "none";
 
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "StoneT" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		stone.style.display = "block";
-		this.div_board.appendChild(stone);
-		this.grid[row][col].t_stone = stone;
+/*
+*   Clock drawing primitives   *
+                              */
+	handle_clock_sound: function(remain, color) {
+		if (typeof KAYAGLOBAL !== 'undefined') {
+			if (this.game.is_my_turn() && this.game.my_colour == color) {
+				var rc = Math.floor(remain);
+				if (!KAYAGLOBAL.is_playing) {
+					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...
+					if (remain > 0 && remain < 11) {
+						var start = 10 - rc;
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("countdown_sound", start, delay);
+					}
+					if (remain > 60 && remain < 61) {
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("oneminute", 0, delay);
+					}
+					if (remain > 300 && remain < 301) {
+						var delay = (remain - rc) * 1000;
+						return KAYAGLOBAL.delayed_play_sound("fiveminutes", 0, delay);
+					}
+				}
+			}
+		}
+		return false;
 	},
 
-	stone_revive: function(color, row, col) {
-		var target = this.grid[row][col];
-		if (target.t_stone != undefined) {
-			this.div_board.removeChild(target.t_stone);
+	draw_t_stone_number: function(remain, color) {
+		var rc = Math.floor(remain + 0.99);
+		if (this.my_colour != "O") {
+			if (color == this.game.get_next_move()) {
+				if (Math.floor(rc) > 0 && Math.floor(rc) <= 10) {
+					if (color == BLACK) {
+						this.t_black.innerHTML = Math.floor(rc);
+					} else {
+						this.t_white.innerHTML = Math.floor(rc);
+					}
+				} else {
+					if (color == BLACK) {
+						this.t_black.innerHTML = "";
+					} else {
+						this.t_white.innerHTML = "";
+					}
+				}
+			}
 		}
-		target.t_stone = undefined;
-		target.stone.style.display = "block";
-		target.shadow.style.display = "block";
+	},
+
+	format_clock_div: function(remain, color) {
+		if (color != undefined && remain != undefined) {
+			var rc = Math.floor(remain + 0.99);
+			var div = this.div_clocks[color];
+			if (div != undefined) {
+				if (color == this.game.get_next_move()) {
+					if (remain <= 0) {
+						div.style.color = "#800";
+					} else if (rc > 0 && rc <= 10) {
+						if (rc % 2 == 0) {
+							div.style.color = "#EEE";
+						} else {
+							div.style.color = "";
+						}
+					} else {
+						div.style.color = "";
+					}
+				} else {
+					div.style.color = "";
+				}
+			}
+		}
+	},
+
+	write_clock_value: function(value, color) {
+		if (color != undefined && this.div_clocks[color] != undefined) {
+			this.div_clocks[color].innerHTML = value;
+		}
+	},
+
+
+/*
+*   Helpers   *
+             */
+	confirm_play: function(put) {
+		this.place_last_stone_marker(put);
+	},
+
+	refresh_ko: function(play) {
+		if (play && play.ko) {
+			this.place_ko(play.ko);
+		} else {
+			this.clear_ko();
+		}
+	},
+
+	draw_play: function(play, wait) {
+		this.clear_last_stone_markers();
+		if (play instanceof FreePlay) {
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.remove_stone(play.remove[s].row, play.remove[s].col);
+			}
+			for (var s = 0, ls = play.put.length; s < ls; ++s) {
+				this.put_stone(play.put[s].color, play.put[s].row, play.put[s].col);
+			}
+		} else if (play instanceof Play) {
+			this.put_stone(play.put.color, play.put.row, play.put.col);
+			if (wait) {
+				this.place_last_stone_wait_marker(play.put);
+			} else {
+				this.place_last_stone_marker(play.put);
+			}
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.remove_stone(play.remove[s].row, play.remove[s].col);
+			}
+			this.refresh_ko(play);
+		} else if (play instanceof Pass) {
+			this.refresh_ko(play);
+		}
+	},
+
+	undraw_play: function(play) {
+		if (play instanceof FreePlay) {
+			for (var s = 0, ls = play.put.length; s < ls; ++s) {
+				this.remove_stone(play.put[s].row, play.put[s].col);
+			}
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
+			}
+		} else if (play instanceof Play) {
+			this.remove_stone(play.put.row, play.put.col);
+			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
+				this.put_stone(play.remove[s].color, play.remove[s].row, play.remove[s].col);
+			}
+		}
+		this.clear_last_stone_markers();
 	},
 
 	draw_dead_groups: function(dead_groups) {
@@ -332,6 +552,32 @@ GoGraphic.prototype = {
 		}
 	},
 
+	redraw: function() {
+		this.clear();
+		this.render();
+		var color;
+		for (var i = 0, li = this.game.board.size; i < li; ++i) {
+			for (var j = 0; j < li; ++j) {
+				color = this.game.board.grid[i][j];
+				if (color != undefined) {
+					this.put_stone(color, i, j);
+				}
+			}
+		}
+		var node = this.game.game_tree.actual_move;
+		this.refresh_ko(node.play);
+		this.update_captures(node.play);
+		this.update_move_number(node);
+		this.update_comments();
+		if (node.play instanceof Play) {
+			this.place_last_stone_marker(node.play.put);
+		}
+	},
+
+
+/*
+*   Event handling   *
+                    */
 	binder: function (method, object, args) {
 		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
 	},
@@ -506,218 +752,10 @@ GoGraphic.prototype = {
 		}
 	},
 
-	// Clock methods
-	handle_clock_sound: function(remain, color) {
-		if (typeof KAYAGLOBAL !== 'undefined') {
-			if (this.game.is_my_turn() && this.game.my_colour == color) {
-				var rc = Math.floor(remain);
-				if (!KAYAGLOBAL.is_playing) {
-					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...
-					if (remain > 0 && remain < 11) {
-						var start = 10 - rc;
-						var delay = (remain - rc) * 1000;
-						return KAYAGLOBAL.delayed_play_sound("countdown_sound", start, delay);
-					}
-					if (remain > 60 && remain < 61) {
-						var delay = (remain - rc) * 1000;
-						return KAYAGLOBAL.delayed_play_sound("oneminute", 0, delay);
-					}
-					if (remain > 300 && remain < 301) {
-						var delay = (remain - rc) * 1000;
-						return KAYAGLOBAL.delayed_play_sound("fiveminutes", 0, delay);
-					}
-				}
-			}
-		}
-		return false;
-	},
 
-	draw_t_stone_number: function(remain, color) {
-		var rc = Math.floor(remain + 0.99);
-		if (this.my_colour != "O") {
-			if (color == this.game.get_next_move()) {
-				if (Math.floor(rc) > 0 && Math.floor(rc) <= 10) {
-					if (color == BLACK) {
-						this.t_black.innerHTML = Math.floor(rc);
-					} else {
-						this.t_white.innerHTML = Math.floor(rc);
-					}
-				} else {
-					if (color == BLACK) {
-						this.t_black.innerHTML = "";
-					} else {
-						this.t_white.innerHTML = "";
-					}
-				}
-			}
-		}
-	},
-
-	format_clock_div: function(remain, color) {
-		if (color != undefined && remain != undefined) {
-			var rc = Math.floor(remain + 0.99);
-			var div = this.div_clocks[color];
-			if (div != undefined) {
-				if (color == this.game.get_next_move()) {
-					if (remain <= 0) {
-						div.style.color = "#800";
-					} else if (rc > 0 && rc <= 10) {
-						if (rc % 2 == 0) {
-							div.style.color = "#EEE";
-						} else {
-							div.style.color = "";
-						}
-					} else {
-						div.style.color = "";
-					}
-				} else {
-					div.style.color = "";
-				}
-			}
-		}
-	},
-
-	write_clock_value: function(value, color) {
-		if (color != undefined && this.div_clocks[color] != undefined) {
-			this.div_clocks[color].innerHTML = value;
-		}
-	},
-
-	render: function() {
-		switch(this.game.board.size) {
-			case 19:
-				this.div_board.style.width = "495px";
-				this.div_board.style.height = "495px";
-				this.div_board.className = "OnlyBoard19";
-			break;
-			case 13:
-				this.div_board.style.width = "346px";
-				this.div_board.style.height = "346px";
-				this.div_board.className = "OnlyBoard13";
-			break;
-			case 9:
-				this.div_board.style.width = "246px";
-				this.div_board.style.height = "246px";
-				this.div_board.className = "OnlyBoard9";
-			break;
-		}
-		this.div_board.style.position = "relative";
-
-		// Image prefetch (dunno if this is the right place...)
-		var tmp_path = "";
-		if (this.game.server_path_gospeed_root != undefined) {
-			tmp_path = this.game.server_path_gospeed_root;
-		}
-		(new Image()).src = tmp_path + "img/white.png";
-		(new Image()).src = tmp_path + "img/black.png";
-		(new Image()).src = tmp_path + "img/t_white.png";
-		(new Image()).src = tmp_path + "img/t_black.png";
-		(new Image()).src = tmp_path + "img/shadow.png";
-		(new Image()).src = tmp_path + "img/last_stone_w.png";
-		(new Image()).src = tmp_path + "img/last_stone_b.png";
-		(new Image()).src = tmp_path + "img/last_stone_wait_w.gif";
-		(new Image()).src = tmp_path + "img/last_stone_wait_b.gif";
-		(new Image()).src = tmp_path + "img/little_white.png";
-		(new Image()).src = tmp_path + "img/little_black.png";
-		(new Image()).src = tmp_path + "img/t_little_white.png";
-		(new Image()).src = tmp_path + "img/t_little_black.png";
-
-		// Transparent Stones
-		this.t_white = this.create_elem("div", "StoneTW", true);
-		this.t_black = this.create_elem("div", "StoneTB", true);
-		this.t_little_white = this.create_elem("div", "LittleStoneTW", true);
-		this.t_little_black = this.create_elem("div", "LittleStoneTB", true);
-
-		// Revive stones
-		this.revive_w = this.create_elem("div", "ReviveStoneW", true);
-		this.revive_b = this.create_elem("div", "ReviveStoneB", true);
-
-		// Last stone markers
-		this.last_stone = [];
-		this.last_stone["W"] = this.create_elem("div", "LastStoneW", true);
-		this.last_stone["B"] = this.create_elem("div", "LastStoneB", true);
-
-		// Last stone wait markers
-		this.last_stone_wait = [];
-		this.last_stone_wait["W"] = this.create_elem("div", "LastStoneWaitW", true);
-		this.last_stone_wait["B"] = this.create_elem("div", "LastStoneWaitB", true);
-
-		// Ko
-		this.ko = this.create_elem("div", "Ko");
-
-		// Coord Marker
-		this.coord_marker = this.create_elem("div", "CoordMarker", true);
-
-		// Bind mouse handlers
-		this.div_board.onclick = this.binder(this.click_handler, this, null);
-		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
-		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
-
-		// Captures
-		this.update_captures(this.game.game_tree.actual_move.play);
-
-		// Move Number
-		this.update_move_number(this.game.game_tree.actual_move);
-
-		// Comments
-		this.update_comments();
-	},
-
-	create_elem: function(sTag, sClass, bHidden) {
-		var elem = document.createElement(sTag);
-		elem.className = sClass;
-		if (bHidden) {
-			elem.style.display = "none";
-		}
-		this.div_board.appendChild(elem);
-		return elem;
-	},
-
-	clean_t_stones: function() {
-		this.t_white.style.display = "none";
-		this.t_black.style.display = "none";
-		this.t_little_white.style.display = "none";
-		this.t_little_black.style.display = "none";
-		this.revive_b.style.display = "none";
-		this.revive_w.style.display = "none";
-	},
-
-	clear: function() {
-		this.grid = Array(this.game.board.size);
-		for (var row = 0 ; row < this.game.board.size ; row++) {
-			this.grid[row] = Array(this.game.board.size);
-		}
-		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
-		/*
-		this.t_white = undefined;
-		this.t_black = undefined;
-		this.ko = undefined;
-		*/
-		this.div_board.innerHTML = "";
-	},
-
-	redraw: function() {
-		this.clear();
-		this.render();
-		var color;
-		for (var i = 0, li = this.game.board.size; i < li; ++i) {
-			for (var j = 0; j < li; ++j) {
-				color = this.game.board.grid[i][j];
-				if (color != undefined) {
-					this.put_stone(color, i, j);
-				}
-			}
-		}
-		var node = this.game.game_tree.actual_move;
-		this.refresh_ko(node.play);
-		this.update_captures(node.play);
-		this.update_move_number(node);
-		this.update_comments();
-		if (node.play instanceof Play) {
-			this.place_last_stone_marker(node.play.put);
-		}
-	},
-
+/*
+*   Validation   *
+                */
 	test_and_store_div: function(source, source_name, target, target_name, empty) {
 		var tmp;
 		if (source[source_name] !== undefined) {

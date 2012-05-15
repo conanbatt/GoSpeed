@@ -1,3 +1,5 @@
+var WHITE = "W";
+var BLACK = "B";
 var STONE_SIZE = 25;
 var BOARD_BOUND = 10;
 var SHADOW_LEFT = 3;
@@ -24,10 +26,7 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
-		this.draw = new HTMLEngine(this);
-
-		// Board Bound
-		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
+		this.engine = new HTMLEngine(this, args);
 	},
 
 
@@ -36,8 +35,8 @@ GoGraphic.prototype = {
                               */
 	put_stone: function(color, row, col) {
 		// Draw
-		var stones = this.draw_stone(color, row, col);
-		this.clean_t_stones();
+		var stones = this.engine.draw_stone(color, row, col);
+		this.engine.clean_t_stones();
 
 		// Store stone register
 		this.grid[row][col] = stones;
@@ -45,7 +44,7 @@ GoGraphic.prototype = {
 
 	put_little_stone: function(color, row, col) {
 		// Draw
-		var stone = this.draw_little_stone(color, row, col);
+		var stone = this.engine.draw_little_stone(color, row, col);
 
 		// Create object if undefined
 		if (this.grid[row][col] == undefined) {
@@ -57,9 +56,21 @@ GoGraphic.prototype = {
 	},
 
 	// Patched
-	clear_last_stone_markers: this.engine.clear_last_stone_markers(),
-	place_coord_marker: this.engine.place_coord_marker,
-	clear_coord_marker: this.engine.clear_coord_marker,
+	place_last_stone_marker: function(put) {
+		this.engine.draw_last_stone_marker(put);
+	},
+	clear_last_stone_markers: function() {
+		this.engine.clear_last_stone_markers();
+	},
+	place_coord_marker: function(row, col) {
+		this.engine.draw_coord_marker(row, col);
+	},
+	clear_coord_marker: function() {
+		this.engine.clear_coord_marker();
+	},
+	clean_t_stones: function() {
+		this.engine.clean_t_stones();
+	},
 
 	remove_stone: function(row, col) {
 		var target = this.grid[row][col];
@@ -98,6 +109,19 @@ GoGraphic.prototype = {
 		}
 	},
 
+	draw_score: function(score) {
+		for (var i = 0, li = score.groups.length; i < li; ++i) {
+			var group = score.groups[i];
+			var owner = group.owner;
+			var coords = group.coords;
+			if (owner == BLACK || owner == WHITE) {
+				for (var j = 0, lj = coords.length; j < lj; ++j) {
+					this.put_little_stone(owner, coords[j].row, coords[j].col);
+				}
+			}
+		}
+	},
+
 	stone_dead: function(color, row, col) {
 		// Hide original stone
 		this.engine.hide_stone(this.grid[row][col].stone, this.grid[row][col].shadow);
@@ -124,74 +148,7 @@ GoGraphic.prototype = {
 	},
 
 	render: function() {
-		switch(this.game.board.size) {
-			case 19:
-				this.div_board.style.width = "495px";
-				this.div_board.style.height = "495px";
-				this.div_board.className = "OnlyBoard19";
-			break;
-			case 13:
-				this.div_board.style.width = "346px";
-				this.div_board.style.height = "346px";
-				this.div_board.className = "OnlyBoard13";
-			break;
-			case 9:
-				this.div_board.style.width = "246px";
-				this.div_board.style.height = "246px";
-				this.div_board.className = "OnlyBoard9";
-			break;
-		}
-		this.div_board.style.position = "relative";
-
-		// Image prefetch (dunno if this is the right place...)
-		var tmp_path = "";
-		if (this.game.server_path_gospeed_root != undefined) {
-			tmp_path = this.game.server_path_gospeed_root;
-		}
-		(new Image()).src = tmp_path + "img/white.png";
-		(new Image()).src = tmp_path + "img/black.png";
-		(new Image()).src = tmp_path + "img/t_white.png";
-		(new Image()).src = tmp_path + "img/t_black.png";
-		(new Image()).src = tmp_path + "img/shadow.png";
-		(new Image()).src = tmp_path + "img/last_stone_w.png";
-		(new Image()).src = tmp_path + "img/last_stone_b.png";
-		(new Image()).src = tmp_path + "img/last_stone_wait_w.gif";
-		(new Image()).src = tmp_path + "img/last_stone_wait_b.gif";
-		(new Image()).src = tmp_path + "img/little_white.png";
-		(new Image()).src = tmp_path + "img/little_black.png";
-		(new Image()).src = tmp_path + "img/t_little_white.png";
-		(new Image()).src = tmp_path + "img/t_little_black.png";
-
-		// Transparent Stones
-		this.t_white = this.create_elem("div", "StoneTW", true);
-		this.t_black = this.create_elem("div", "StoneTB", true);
-		this.t_little_white = this.create_elem("div", "LittleStoneTW", true);
-		this.t_little_black = this.create_elem("div", "LittleStoneTB", true);
-
-		// Revive stones
-		this.revive_w = this.create_elem("div", "ReviveStoneW", true);
-		this.revive_b = this.create_elem("div", "ReviveStoneB", true);
-
-		// Last stone markers
-		this.last_stone = [];
-		this.last_stone["W"] = this.create_elem("div", "LastStoneW", true);
-		this.last_stone["B"] = this.create_elem("div", "LastStoneB", true);
-
-		// Last stone wait markers
-		this.last_stone_wait = [];
-		this.last_stone_wait["W"] = this.create_elem("div", "LastStoneWaitW", true);
-		this.last_stone_wait["B"] = this.create_elem("div", "LastStoneWaitB", true);
-
-		// Ko
-		this.ko = this.create_elem("div", "Ko");
-
-		// Coord Marker
-		this.coord_marker = this.create_elem("div", "CoordMarker", true);
-
-		// Bind mouse handlers
-		this.div_board.onclick = this.binder(this.click_handler, this, null);
-		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
-		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
+		this.engine.render(this.game.board.size);
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
@@ -203,37 +160,12 @@ GoGraphic.prototype = {
 		this.update_comments();
 	},
 
-	create_elem: function(sTag, sClass, bHidden) {
-		var elem = document.createElement(sTag);
-		elem.className = sClass;
-		if (bHidden) {
-			elem.style.display = "none";
-		}
-		this.div_board.appendChild(elem);
-		return elem;
-	},
-
-	clean_t_stones: function() {
-		this.t_white.style.display = "none";
-		this.t_black.style.display = "none";
-		this.t_little_white.style.display = "none";
-		this.t_little_black.style.display = "none";
-		this.revive_b.style.display = "none";
-		this.revive_w.style.display = "none";
-	},
-
 	clear: function() {
 		this.grid = Array(this.game.board.size);
 		for (var row = 0 ; row < this.game.board.size ; row++) {
 			this.grid[row] = Array(this.game.board.size);
 		}
-		this.max_bound = this.game.board.size * STONE_SIZE + BOARD_BOUND;
-		/*
-		this.t_white = undefined;
-		this.t_black = undefined;
-		this.ko = undefined;
-		*/
-		this.div_board.innerHTML = "";
+		this.engine.clear();
 	},
 
 
@@ -308,19 +240,6 @@ GoGraphic.prototype = {
 		}
 	},
 
-	draw_score: function(score) {
-		for (var i = 0, li = score.groups.length; i < li; ++i) {
-			var group = score.groups[i];
-			var owner = group.owner;
-			var coords = group.coords;
-			if (owner == BLACK || owner == WHITE) {
-				for (var j = 0, lj = coords.length; j < lj; ++j) {
-					this.put_little_stone(owner, coords[j].row, coords[j].col);
-				}
-			}
-		}
-	},
-
 
 /*
 *   Clock drawing primitives   *
@@ -355,17 +274,9 @@ GoGraphic.prototype = {
 		if (this.my_colour != "O") {
 			if (color == this.game.get_next_move()) {
 				if (Math.floor(rc) > 0 && Math.floor(rc) <= 10) {
-					if (color == BLACK) {
-						this.t_black.innerHTML = Math.floor(rc);
-					} else {
-						this.t_white.innerHTML = Math.floor(rc);
-					}
+					this.engine.draw_t_stone_number(color, Math.floor(rc));
 				} else {
-					if (color == BLACK) {
-						this.t_black.innerHTML = "";
-					} else {
-						this.t_white.innerHTML = "";
-					}
+					this.engine.clear_t_stone_numbers();
 				}
 			}
 		}
@@ -406,7 +317,7 @@ GoGraphic.prototype = {
 *   Helpers   *
              */
 	confirm_play: function(put) {
-		this.place_last_stone_marker(put);
+		this.engine.draw_last_stone_marker(put);
 	},
 
 	refresh_ko: function(play) {
@@ -429,9 +340,9 @@ GoGraphic.prototype = {
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			if (wait) {
-				this.place_last_stone_wait_marker(play.put);
+				this.engine.draw_last_stone_wait_marker(play.put);
 			} else {
-				this.place_last_stone_marker(play.put);
+				this.engine.draw_last_stone_marker(play.put);
 			}
 			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
 				this.remove_stone(play.remove[s].row, play.remove[s].col);
@@ -503,7 +414,7 @@ GoGraphic.prototype = {
 		this.update_move_number(node);
 		this.update_comments();
 		if (node.play instanceof Play) {
-			this.place_last_stone_marker(node.play.put);
+			this.engine.draw_last_stone_marker(node.play.put);
 		}
 	},
 
@@ -525,184 +436,6 @@ GoGraphic.prototype = {
 			}
 			if (node.play) {
 				this.engine.draw_number(node.play, num);
-			}
-		}
-	},
-
-
-/*
-*   Event handling   *
-                    */
-	binder: function (method, object, args) {
-		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
-	},
-
-	click_handler: function(mouse) {
-		if (mouse) {
-			event = mouse;
-		}
-		if ('pageX' in event) { // all browsers except IE before version 9
-			var pageX = event.pageX;
-			var pageY = event.pageY + MOUSE_ADJUST_Y;
-		} else {  // IE before version 9
-			var pageX = event.clientX + document.documentElement.scrollLeft;
-			var pageY = event.clientY + document.documentElement.scrollTop + MOUSE_ADJUST_Y;
-		}
-
-		var boundedX = pageX - this.div_board.offsetLeft + 1;
-		var boundedY = pageY - this.div_board.offsetTop + 1;
-		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
-			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-
-			// XXX TODO FIXME RGF WTF IS THIS DOING HERE?!!?
-			if (this.game.callbacks.rgf_board_click != undefined) {
-				var bOK = true;
-				bOK = bOK && (this.game.mode == "play");
-				bOK = bOK && !event.shiftKey && !event.ctrlKey;
-				bOK = bOK && this.game.setup_play(gridY, gridX);
-				if (bOK) {
-					if (!this.game.callbacks.rgf_board_click(gridY, gridX)) {
-						return false;
-					}
-				} else {
-					return false;
-				}
-			}
-			// WOHAAAAAAA
-
-			this.game.play(gridY, gridX, event.shiftKey, event.ctrlKey);
-		}
-	},
-
-	mousemove_handler: function(mouse) {
-		if (!this.game.connected) {
-			return false;
-		}
-
-		if (mouse) {
-			event = mouse;
-		}
-		if ('pageX' in event) { // all browsers except IE before version 9
-			var pageX = event.pageX;
-			var pageY = event.pageY + MOUSE_ADJUST_Y;
-		} else {  // IE before version 9
-			var pageX = event.clientX + document.documentElement.scrollLeft;
-			var pageY = event.clientY + document.documentElement.scrollTop + MOUSE_ADJUST_Y;
-		}
-
-		var t_stone;
-
-		if (this.game.mode == "count" || (this.game.mode == "count_online" && this.game.my_colour != "O")) {
-			this.clean_t_stones();
-			var boundedX = pageX - this.div_board.offsetLeft + 1;
-			var boundedY = pageY - this.div_board.offsetTop + 1;
-			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
-				return false;
-			}
-
-			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-
-			var tmp_color = this.game.board.get_pos(row, col);
-			if (tmp_color == "B") {
-				if (event.shiftKey) {
-					t_stone = this.revive_b;
-				} else {
-					t_stone = this.t_little_white;
-				}
-			} else if (tmp_color == "W") {
-				if (event.shiftKey) {
-					t_stone = this.revive_w;
-				} else {
-					t_stone = this.t_little_black;
-				}
-			} else {
-				return false;
-			}
-			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.display = "block";
-			return false;
-
-		} else {
-
-			switch (this.game.mode) {
-				case "free":
-					t_stone = this.t_white;
-				break;
-				case "play":
-				case "variation":
-					if (this.game.get_next_move() == "B") {
-						t_stone = this.t_black;
-					} else {
-						t_stone = this.t_white;
-					}
-				break;
-				case "play_online":
-					if (this.game.is_my_turn()) {
-						if (this.game.get_next_move() == "B") {
-							t_stone = this.t_black;
-						} else {
-							t_stone = this.t_white;
-						}
-					} else {
-						t_stone = null;
-					}
-				break;
-			}
-
-			if (t_stone == null) {
-				this.clean_t_stones();
-				return false;
-			}
-
-			var boundedX = pageX - this.div_board.offsetLeft + 1;
-			var boundedY = pageY - this.div_board.offsetTop + 1;
-			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
-				t_stone.style.display = "none";
-				return false;
-			}
-
-			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
-
-			if (this.game.board.get_pos(row, col) != undefined) {
-				t_stone.style.display = "none";
-				return false;
-			}
-
-			if (this.game.board.pos_is_ko(row, col)) {
-				t_stone.style.display = "none";
-				return false;
-			}
-
-			var tmp_play = new Play(this.game.get_next_move(), row, col);
-			this.game.board.play_eat(tmp_play);
-			if (this.game.board.play_check_suicide(tmp_play)) {
-				t_stone.style.display = "none";
-				return false;
-			}
-
-			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.display = "block";
-		}
-	},
-
-	mouseout_handler: function(mouse) {
-		if (mouse) {
-			event = mouse;
-		}
-		var hide = false;
-		if (event.relatedTarget == null) {
-			this.clean_t_stones();
-		} else {
-			if (event.relatedTarget == this.div_board) {
-				return;
-			}
-			if (event.relatedTarget.parentNode != this.div_board) {
-				this.clean_t_stones();
 			}
 		}
 	},
@@ -741,5 +474,4 @@ GoGraphic.prototype = {
 		this.test_and_store_div(args, "div_id_comments", this, "div_comments");
 		this.test_and_store_div(args, "div_id_move_number", this, "div_move_number");
 	},
-
 };

@@ -298,7 +298,7 @@ var TREE_DRAW_INTERVAL = 100;
 				}
 			}
 			function add_node(node, branch, first) {
-				if (first && branch.parent_branch) {
+				if (first && node.pos > 0) {
 					var elbow = document.createElement("div");
 					elbow.className = "Elbow";
 					if (branch.selected) {

@@ -288,6 +288,14 @@ var NODE_VARIATION = 8;
 				}
 				return false;
 			}
+			function correct_whole_branch(branch) {
+				var cur_branch = branch;
+				cur_branch.lvl++;
+				while (cur_branch.pos == 0 && cur_branch.parent_branch.lvl < cur_branch.lvl) {
+					cur_branch.parent_branch.lvl = cur_branch.lvl;
+					cur_branch = cur_branch.parent_branch;
+				}
+			}
 			function add_node(node, branch, first) {
 				if (first && node.pos > 0) {
 					var elbow = document.createElement("div");
@@ -377,7 +385,7 @@ var NODE_VARIATION = 8;
 					for (var i = 0, li = branches.length; i < li; ++i) {
 						if (branches[i].lvl >= cur_branch.lvl) {
 							if (branch_concurrence(branches[i], cur_branch)) {
-								cur_branch.lvl++;
+								correct_whole_branch(cur_branch);
 								fixed = true;
 							}
 						}

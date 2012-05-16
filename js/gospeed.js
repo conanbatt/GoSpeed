@@ -207,7 +207,7 @@ GoSpeed.prototype = {
 
 	goto_path: function(path, no_redraw) {
 		// Basic format check
-		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(R))$/.test(path)) {
+		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(root))$/.test(path)) {
 			return false;
 		}
 		// Parse path to array
@@ -221,7 +221,7 @@ GoSpeed.prototype = {
 			var count; // Number of times
 			// Go to root and then browse path
 			this.goto_start(true);
-			if (path != "R") {
+			if (path != "root") {
 				for (var i = 0, li = arr_path.length; i < li; ++i) {
 					pos = Number(arr_path[i][0]);
 					if (arr_path[i][1] !== undefined) {

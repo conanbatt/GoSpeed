@@ -1101,23 +1101,23 @@ GoSpeed.prototype = {
 			if (data.moves != undefined) {
 				if (!this.is_attached()) {
 					this.attach_head(true);
-					this.sgf.new_add_moves(this, data.moves);
+					move_added = this.sgf.new_add_moves(this, data.moves);
 					this.update_raw_score_state(data.raw_score_state);
 					this.time.update(data.time_adjustment);
 					if (data.focus) {
 						this.goto_path(data.focus, true);
+					}
+					if (move_added) {
 						move_added = this.game_tree.actual_move;
-					} else {
-						move_added = false;
 					}
 					this.detach_head(true);
 				} else {
-					this.sgf.new_add_moves(this, data.moves);
+					move_added = this.sgf.new_add_moves(this, data.moves);
 					if (data.focus) {
 						this.goto_path(data.focus);
+					}
+					if (move_added) {
 						move_added = this.game_tree.actual_move;
-					} else {
-						move_added = false;
 					}
 				}
 			}

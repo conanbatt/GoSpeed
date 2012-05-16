@@ -447,6 +447,10 @@ SGFParser.prototype = {
 	},
 
 	new_add_moves: function(game, moves) {
+		// Check moves already loaded
+		if (this.moves_loaded == moves) {
+			return false;
+		}
 		// Generate and parse sgf from moves.
 		var sgf = "(;FF[4]" + moves + ")";
 		var tmp_parser = new SGFParser(sgf);
@@ -462,6 +466,7 @@ SGFParser.prototype = {
 
 		var reconstruct; // Flag to reconstruct branch
 		var offline_nodes; // Will temporarily store offline nodes
+		var new_moves = false;
 
 		//game.goto_start(true); // Point game to start.
 
@@ -495,6 +500,7 @@ SGFParser.prototype = {
 					reconstruct = true;
 				}
 				if (reconstruct === true) {
+					new_moves = true;
 					this.sgf_to_tree(game, sgf_node.next[i], tree_node, NODE_ONLINE);
 					if (offline_nodes != undefined) {
 						tree_node.next = tree_node.next.concat(offline_nodes);
@@ -507,7 +513,8 @@ SGFParser.prototype = {
 			tmp_sgf_stash = [];
 			tmp_tree_stash = [];
 		}
-		return true;
+		this.moves_loaded = moves;
+		return new_moves;
 	},
 
 	add_moves: function(game, sgf, no_rewind) {

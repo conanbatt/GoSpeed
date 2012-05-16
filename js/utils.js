@@ -289,6 +289,14 @@ var TREE_DRAW_INTERVAL = 100;
 				}
 				return false;
 			}
+			function correct_whole_branch(branch) {
+				var cur_branch = branch;
+				cur_branch.lvl++;
+				while (cur_branch.pos == 0 && cur_branch.parent_branch.lvl < cur_branch.lvl) {
+					cur_branch.parent_branch.lvl = cur_branch.lvl;
+					cur_branch = cur_branch.parent_branch;
+				}
+			}
 			function add_node(node, branch, first) {
 				if (first && branch.parent_branch) {
 					var elbow = document.createElement("div");
@@ -378,7 +386,7 @@ var TREE_DRAW_INTERVAL = 100;
 					for (var i = 0, li = branches.length; i < li; ++i) {
 						if (branches[i].lvl >= cur_branch.lvl) {
 							if (branch_concurrence(branches[i], cur_branch)) {
-								cur_branch.lvl++;
+								correct_whole_branch(cur_branch);
 								fixed = true;
 							}
 						}

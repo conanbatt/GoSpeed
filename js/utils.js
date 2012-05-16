@@ -196,19 +196,21 @@ var NODE_VARIATION = 8;
 			var pos; // Decition to make
 			var count; // Number of times
 			var test_node = this.root; // Pointer
-			for (var i = 0, li = arr_path.length; i < li; ++i) {
-				pos = Number(arr_path[i][0]);
-				if (arr_path[i][1] != undefined) {
-					count = Number(arr_path[i][1]);
-				} else {
-					count = 1;
-				}
-				// Browse tree
-				while(count--) {
-					if (test_node.next.hasOwnProperty(pos)) {
-						test_node = test_node.next[pos];
+			if (path != "R") {
+				for (var i = 0, li = arr_path.length; i < li; ++i) {
+					pos = Number(arr_path[i][0]);
+					if (arr_path[i][1] != undefined) {
+						count = Number(arr_path[i][1]);
 					} else {
-						return false;
+						count = 1;
+					}
+					// Browse tree
+					while(count--) {
+						if (test_node.next.hasOwnProperty(pos)) {
+							test_node = test_node.next[pos];
+						} else {
+							return false;
+						}
 					}
 				}
 			}

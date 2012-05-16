@@ -196,7 +196,7 @@ var NODE_VARIATION = 8;
 			var pos; // Decition to make
 			var count; // Number of times
 			var test_node = this.root; // Pointer
-			if (path != "R") {
+			if (arr_path[0][0] != "root") {
 				for (var i = 0, li = arr_path.length; i < li; ++i) {
 					pos = Number(arr_path[i][0]);
 					if (arr_path[i][1] != undefined) {
@@ -460,6 +460,12 @@ var NODE_VARIATION = 8;
 	}
 
 	GameNode.prototype.get_path = function() {
+		// Erm... root node...
+		if (this.root === true) {
+			return "root";
+		}
+
+		// Else, make path
 		var res = []; // Stores the result as an array
 		var last_pos; // The last decition made
 		var pos_count = 0; // The number of times the decition was repeated

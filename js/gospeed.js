@@ -35,8 +35,13 @@ GoSpeed.prototype = {
 
 	// GameTree
 		var that = this;
-		this.game_tree = new GameTree(args.div_id_tree, function(path) { that.goto_path.call(that, path); });
-		this.div_id_tree = args.div_id_tree;
+		this.game_tree = new GameTree(args.div_id_tree, function(path) {
+			if (that.callbacks.send_focus != undefined) {
+				that.callbacks.send_focus(path);
+			} else {
+				that.goto_path.call(that, path);
+			}
+		});
 
 	// Online
 		if (args.my_colour != undefined) {
@@ -79,10 +84,14 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function(no_redraw) {
+		// XXX: commented this, don't know what is doing here, certainly related with Kaya.
+		// XXX: this doesn't look like the right place for it.
+		/*
 		if (this.is_attached()) {
 			// TODO: what if we're playing offline?
 			this.detach_head();
 		}
+		*/
 		var node = this.game_tree.prev();
 		if (node) {
 			this.board.undo_play(node.play);
@@ -196,7 +205,7 @@ GoSpeed.prototype = {
 		this.render_tree();
 	},
 
-	goto_path: function(path) {
+	goto_path: function(path, no_redraw) {
 		// Basic format check
 		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(R))$/.test(path)) {
 			return false;
@@ -225,11 +234,13 @@ GoSpeed.prototype = {
 					}
 				}
 			}
-			// Render after all
-			if (this.shower != undefined) {
-				this.shower.redraw();
+			// Render after all (unless no_redraw)
+			if (!no_redraw) {
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+				this.render_tree();
 			}
-			this.render_tree();
 			return true;
 		} else {
 			return false;
@@ -932,7 +943,13 @@ GoSpeed.prototype = {
 		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
 			var div_id_tree = this.game_tree.graphic.div_tree.id;
 		}
-		this.game_tree = new GameTree(div_id_tree, function(path) { that.goto_path.call(that, path); });
+		this.game_tree = new GameTree(div_id_tree, function(path) {
+			if (that.callbacks.send_focus != undefined) {
+				that.callbacks.send_focus(path);
+			} else {
+				that.goto_path.call(that, path);
+			}
+		});
 
 		// Tracks
 		this.tracks = [];
@@ -1061,6 +1078,70 @@ GoSpeed.prototype = {
 		}
 	},
 
+	new_diff_update_game: function(data) {
+		// Check SGF status:
+		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
+			// Not loaded: load from scratch.
+			this.update_game(data);
+		} else {
+			// Loaded: diff update.
+			if (data.result != undefined) {
+				this.time.stop();
+			} else {
+				this.time.pause();
+			}
+
+			// Clear and change size if required
+			if (data.size != undefined && data.size != this.board.size) {
+				this.change_size(Number(data.size));
+			}
+
+			// Compare SGF and add only new moves + update score state if not attached.
+			var move_added;
+			if (data.moves != undefined) {
+				if (!this.is_attached()) {
+					this.attach_head(true);
+					this.sgf.new_add_moves(this, data.moves);
+					this.update_raw_score_state(data.raw_score_state);
+					this.time.update(data.time_adjustment);
+					if (data.focus) {
+						this.goto_path(data.focus, true);
+						move_added = this.game_tree.actual_move;
+					} else {
+						move_added = false;
+					}
+					this.detach_head(true);
+				} else {
+					this.sgf.new_add_moves(this, data.moves);
+					if (data.focus) {
+						this.goto_path(data.focus);
+						move_added = this.game_tree.actual_move;
+					} else {
+						move_added = false;
+					}
+				}
+			}
+
+			// Play sound!
+			if (KAYAGLOBAL != undefined) {
+				if (move_added.play instanceof Play) {
+					KAYAGLOBAL.play_sound(move_added.play.put.color);
+				} else if (move_added.play instanceof Pass) {
+					KAYAGLOBAL.play_sound("pass");
+				}
+			}
+
+			if (this.is_attached()) {
+				// Fast forward
+				if (!data.focus) {
+					this.goto_end();
+				}
+				this.handle_score_agreement(data.raw_score_state);
+				this.time.update(data.time_adjustment);
+			}
+		}
+	},
+
 	diff_update_game: function(data) {
 		// Check SGF status:
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
@@ -1081,7 +1162,7 @@ GoSpeed.prototype = {
 
 			// Compare SGF and add only new moves + update score state if not attached.
 			var move_added = false;
-			if (data.moves != undefined && data.moves != null) {
+			if (data.moves != undefined) {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.add_moves(this, data.moves, true);

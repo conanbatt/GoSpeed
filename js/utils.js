@@ -367,7 +367,7 @@ var TREE_DRAW_INTERVAL = 100;
 					width++;
 					if (node.elem.next.length > 1) {
 						for (var i = node.elem.next.length - 1; i >= 0; --i) {
-							stash.push({lvl: node.lvl + (i > 0 ? 1 : 0) /*(node.elem.pos > 0 ? 1 : 0)*/, elem: node.elem.next[i], selected: cur_branch.selected, parent_branch: cur_branch});
+							stash.push({lvl: node.lvl + i, elem: node.elem.next[i], selected: cur_branch.selected, parent_branch: cur_branch});
 						}
 						node = false;
 					} else {

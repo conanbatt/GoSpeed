@@ -420,7 +420,7 @@ GoSpeed.prototype = {
 				if (this.mode == "count_online" && this.my_colour == "O") {
 					return false;
 				}
-				var target = this.board_get_pos(row, col);
+				var target = this.board.get_pos(row, col);
 				if (target == undefined) {
 					return false;
 				}
@@ -1319,7 +1319,7 @@ GoSpeed.prototype = {
 			for (var i = 0, li = states.length; i < li; ++i) {
 				var alive = (states[i].charAt(1) == "A");
 				var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
-				var target = this.board_get_pos(pos.row, pos.col);
+				var target = this.board.get_pos(pos.row, pos.col);
 				if (target == undefined) {
 					continue;
 				}

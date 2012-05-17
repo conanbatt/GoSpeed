@@ -677,15 +677,17 @@ GoSpeed.prototype = {
 		return id;
 	},
 
-	load_track: function(variation, force_id) {
+	load_track: function(path, variation, force_id) {
+		// Validate path
+		var rex = /^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(root))$/;
+		if (!rex.test(path)) {
+			return false;
+		}
 		// Validate variation format
-		var rex = /^(\d\d?\d?)(\ )+([a-s]{2})+$/;
+		var rex = /^([a-s]{2})*$/;
 		if (!rex.test(variation)) {
 			return false;
 		}
-		//var root_number = variation.match(/^0|^[1-9]\d*/)[0];
-		var root_number = variation.match(/\d\d?\d?/)[0];
-
 		// Save actual track id
 		var old = this.actual_track;
 
@@ -695,25 +697,17 @@ GoSpeed.prototype = {
 		// Switch to new track
 		this.switch_to_track(id, true);
 			// Go to variation root
-			var res;
-			while(this.game_tree.actual_move.turn_number < root_number) {
-				res = this.next(0, true);
-				if (!res) {
-					throw new Error("Todo mal, no llegué nunca al root number!");
-					return false;
-				}
-			}
+			this.goto_path(path, true);
 
 			variation = this.ungovar(variation, this.get_next_move());
 			// Validate new variation format
-			var rex = /^(0|([1-9]\d*))(\;(B|W)\[[a-s]{2}\])+$/;
+			var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
 			if (!rex.test(variation)) {
 				return false;
 			}
-			var moves = variation.match(/;.*$/)[0];
 
 			// Parse and load moves.
-			var sgf = new SGFParser("(;FF[4]" + moves + ")");
+			var sgf = new SGFParser("(;FF[4]" + variation + ")");
 			sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
 
 		// Switch to old track
@@ -734,6 +728,7 @@ GoSpeed.prototype = {
 				this.shower.redraw();
 			}
 			this.handle_score_agreement();
+			this.render_tree();
 		}
 		return true;
 	},
@@ -764,42 +759,32 @@ GoSpeed.prototype = {
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
-		if (tmp_node.source != NODE_VARIATION) {
-			return "";
-			throw new Error("No hay jugadas locales.");
-		}
 		while((tmp_node.source == NODE_VARIATION || !tail) && !tmp_node.root) {
-			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
 			tmp_node = tmp_node.prev;
 		}
 		if (!tail && tmp_node.root && tmp_node.play) {
-			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
 		} else {
-			s_res = tmp_node.turn_number + s_res;
+			s_res = tmp_node.get_path() + " " + s_res;
 		}
 		return s_res;
 	},
 
 	govar: function() {
-		var s = this.var_to_string(true);
-		if (s != "") {
-			var i = s.indexOf(';');
-			s = s.substring(0, i) + " " + s.substring(i, s.length).replace(/(;(W|B)\[|\])/g, "");
-		}
-		return s;
+		return this.var_to_string(true);
 	},
 
-	ungovar: function(govar, first_color) {
-		var move = govar.match(/\d\d?\d?/)[0];
-		var variation = govar.match(/([a-s][a-s])/g);
+	ungovar: function(variation, first_color) {
 		var color = [];
 		color[0] = first_color;
 		color[1] = (first_color == "W" ? "B" : "W");
+		var var_arr = variation.match(/([a-s][a-s])/g);
 		var s = "";
-		for (var i = 0, li = variation.length; i < li; ++i) {
-			s += ";" + color[i % 2] + "[" + variation[i] + "]";
+		for (var i = 0, li = var_arr.length; i < li; ++i) {
+			s += ";" + color[i % 2] + "[" + var_arr[i] + "]";
 		}
-		return move + s;
+		return s;
 	},
 
 //	To be changed to callback

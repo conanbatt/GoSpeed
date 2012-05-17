@@ -696,19 +696,22 @@ GoSpeed.prototype = {
 
 		// Switch to new track
 		this.switch_to_track(id, true);
+
 			// Go to variation root
 			this.goto_path(path, true);
 
-			variation = this.ungovar(variation, this.get_next_move());
-			// Validate new variation format
-			var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
-			if (!rex.test(variation)) {
-				return false;
-			}
+			if (variation != "") {
+				variation = this.ungovar(variation, this.get_next_move());
+				// Validate new variation format
+				var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
+				if (!rex.test(variation)) {
+					return false;
+				}
 
-			// Parse and load moves.
-			var sgf = new SGFParser("(;FF[4]" + variation + ")");
-			sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
+				// Parse and load moves.
+				var sgf = new SGFParser("(;FF[4]" + variation + ")");
+				sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
+			}
 
 		// Switch to old track
 		this.switch_to_track(old, true);

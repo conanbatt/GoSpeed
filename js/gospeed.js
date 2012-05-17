@@ -217,6 +217,14 @@ GoSpeed.prototype = {
 		}
 		// Test array path
 		if (this.game_tree.test_path(arr_path)) {
+			// Mode adjustments
+			if (this.mode == "count_online") {
+				this.change_mode("play_online");
+			}
+			if (this.mode == "count") {
+				this.change_mode("play");
+			}
+
 			var pos; // Decition to make
 			var count; // Number of times
 			// Go to root and then browse path
@@ -239,6 +247,7 @@ GoSpeed.prototype = {
 				if (this.shower != undefined) {
 					this.shower.redraw();
 				}
+				this.handle_score_agreement();
 				this.render_tree();
 			}
 			return true;
@@ -1135,8 +1144,8 @@ GoSpeed.prototype = {
 				// Fast forward
 				if (!data.focus) {
 					this.goto_end();
+					this.handle_score_agreement(data.raw_score_state);
 				}
-				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
 			}
 		}

@@ -35,13 +35,13 @@ var timer_prototype = {
 	},
 
 	// Force a remaining time for a player.
-	set_remain: function(remain) {
+	set_remain: function(remain, safe) {
 		if (remain != undefined) {
 			if (remain[BLACK] != undefined) {
-				this.remain[BLACK] = this.copy_time(remain[BLACK]);
+				this.remain[BLACK] = this.copy_time(remain[BLACK], safe);
 			}
 			if (remain[WHITE] != undefined) {
-				this.remain[WHITE] = this.copy_time(remain[WHITE]);
+				this.remain[WHITE] = this.copy_time(remain[WHITE], safe);
 			}
 		}
 	},
@@ -149,7 +149,7 @@ var timer_prototype = {
 	       configure_system: function(timer_settings) {},
 	      validate_settings: function(timer_settings) {},
 	          validate_time: function(time) {},
-	              copy_time: function(time_ref) {},
+	              copy_time: function(time_ref, safe) {},
 	         substract_time: function(target, color, time_to_substract) {},
           pause_adjustments: function(target) {},
 	             is_time_up: function(time) {},

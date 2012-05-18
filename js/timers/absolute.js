@@ -31,10 +31,16 @@ AbsoluteTimer.prototype.configure_system = function(timer_settings) {
 	};
 };
 
-AbsoluteTimer.prototype.copy_time = function(time_ref) {
-	return {
-		main_time: time_ref.main_time,
-	};
+AbsoluteTimer.prototype.copy_time = function(time_ref, safe) {
+	if (safe && time_ref.main_time == undefined) {
+		return {
+			main_time: this.system.main_time,
+		};
+	} else {
+		return {
+			main_time: time_ref.main_time,
+		};
+	}
 };
 
 AbsoluteTimer.prototype.substract_time = function(target, color, time_to_substract) {

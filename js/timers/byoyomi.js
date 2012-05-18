@@ -49,12 +49,26 @@ ByoyomiTimer.prototype.configure_system = function(timer_settings) {
 	};
 };
 
-ByoyomiTimer.prototype.copy_time = function(time_ref) {
-	return {
+ByoyomiTimer.prototype.copy_time = function(time_ref, safe) {
+	var tmp = {
 		main_time: time_ref.main_time,
 		periods: time_ref.periods,
 		period_time: time_ref.period_time,
 	};
+
+	if (safe) {
+		if (tmp.main_time == undefined) {
+			tmp.main_time = this.system.main_time;
+		}
+		if (tmp.periods == undefined) {
+			tmp.periods = this.system.periods;
+		}
+		if (tmp.period_time == undefined) {
+			tmp.period_time = this.system.period_time;
+		}
+	}
+
+	return tmp;
 };
 
 ByoyomiTimer.prototype.substract_time = function(target, color, time_to_substract) {

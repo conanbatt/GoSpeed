@@ -383,6 +383,10 @@ var TREE_DRAW_INTERVAL = 100;
 				// Now compare with previous branches and check if there's need to adjust lvl
 				fixed = false;
 				while(!fixed) {
+					// Correct cur if parent was corrected
+					if (cur_branch.parent_branch && cur_branch.lvl < cur_branch.parent_branch.lvl + cur_branch.pos) {
+						cur_branch.lvl = cur_branch.parent_branch.lvl + cur_branch.pos;
+					}
 					for (var i = 0, li = branches.length; i < li; ++i) {
 						if (branches[i].lvl >= cur_branch.lvl) {
 							if (branch_concurrence(branches[i], cur_branch)) {

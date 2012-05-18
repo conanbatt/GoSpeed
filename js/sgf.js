@@ -343,10 +343,6 @@ SGFParser.prototype = {
 		var time_left;
 		var tmp;
 		var tree_node;
-		var time_system = undefined;
-		if (game.time.clock != undefined && game.time.clock.system != undefined) {
-			time_system = game.time.clock.system.name;
-		}
 		while(sgf_node = pend_sgf_node.pop()) {
 			tree_node = pend_game_tree_node.pop();
 			tree_node.last_next = tree_node.next[0]; // XXX WTF???
@@ -366,10 +362,10 @@ SGFParser.prototype = {
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
 				if (game.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
-					time_left = this.get_time_from_node(time_system, sgf_node.BL, sgf_node.OB);
+					time_left = this.get_time_from_node(game.time.clock, sgf_node.BL, sgf_node.OB);
 				} else if (game.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
-					time_left = this.get_time_from_node(time_system, sgf_node.WL, sgf_node.OW);
+					time_left = this.get_time_from_node(game.time.clock, sgf_node.WL, sgf_node.OW);
 				} else {
 					this.status = SGFPARSER_ST_ERROR;
 					this.error = "Turn and Play mismatch";
@@ -616,49 +612,35 @@ SGFParser.prototype = {
 		return sRes;
 	},
 
-	get_time_from_node: function(time_system, time_left, overtime_periods) {
+	get_time_from_node: function(clock, time_left, overtime_periods) {
 		// XXX TODO FIXME Maybe this validation is way too hard.
-		if (time_system != undefined) {
-			switch(time_system) {
+		if (clock != undefined) {
+			switch(clock.system.name) {
 				case "Free":
-					return parseFloat(time_left);
+					return undefined;
 				break;
 				case "Absolute":
 				case "Fischer":
 				case "Hourglass":
+					if (time_left == undefined) {
+						time_left = clock.system.main_time;
+					}
 					return {
 						main_time: parseFloat(time_left),
 					};
 				break;
 				case "Byoyomi":
-					var res;
-					if (overtime_periods != undefined) {
-						res = {
-							'main_time': 0,
-							'periods': parseInt(overtime_periods, 10),
-							'period_time': parseFloat(time_left),
-						};
-					} else {
-						res = {
-							'main_time': parseFloat(time_left),
-						};
+					if (time_left == undefined) {
+						time_left = clock.system.main_time;
 					}
-					return res;
-				break;
-				case "Canadian":
-					var res;
-					if (overtime_periods != undefined) {
-						res = {
-							'main_time': 0,
-							'period_time': parseFloat(time_left),
-							'period_stones': parseInt(overtime_periods, 10),
-						};
-					} else {
-						res = {
-							'main_time': parseFloat(time_left),
-						};
+					if (overtime_periods == undefined) {
+						overtime_periods = clock.system.periods;
 					}
-					return res;
+					return {
+						'main_time': parseFloat(time_left),
+						'periods': parseInt(overtime_periods, 10),
+						'period_time': clock.system.period_time,
+					};
 				break;
 			}
 		} else {

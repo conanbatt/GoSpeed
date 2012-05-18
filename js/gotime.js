@@ -153,7 +153,7 @@ GoTime.prototype = {
 	// Takes clock value, and depending on calculus, draws the graphic interface
 	draw: function(remain) {
 		// Only possible if shower is defined
-		if (this.game.shower == undefined) {
+		if (this.game.shower == undefined || this.clock == undefined) {
 			return false;
 		}
 

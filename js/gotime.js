@@ -153,7 +153,7 @@ GoTime.prototype = {
 	// Takes clock value, and depending on calculus, draws the graphic interface
 	draw: function(remain) {
 		// Only possible if shower is defined
-		if (this.game.shower == undefined) {
+		if (this.game.shower == undefined || this.clock == undefined) {
 			return false;
 		}
 
@@ -265,6 +265,8 @@ GoTime.prototype = {
 					}
 				break;
 				case "Hourglass":
+					// XXX FIXME TODO: Actually, this should be handeled in the byoyomi timer.
+					// Here we should call set_remain() with the LAST TIME INFO and hourglass should auto balance the other color time.
 					var color = this.game.get_next_move();
 
 					if (last_remain_black == undefined && last_remain_white == undefined) {

@@ -35,8 +35,13 @@ GoSpeed.prototype = {
 
 	// GameTree
 		var that = this;
-		this.game_tree = new GameTree(args.div_id_tree, function(path) { that.goto_path.call(that, path); });
-		this.div_id_tree = args.div_id_tree;
+		this.game_tree = new GameTree(args.div_id_tree, function(path) {
+			if (that.callbacks.send_focus != undefined) {
+				that.callbacks.send_focus(path);
+			} else {
+				that.goto_path.call(that, path);
+			}
+		});
 
 	// Online
 		if (args.my_colour != undefined) {
@@ -79,10 +84,14 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function(no_redraw) {
+		// XXX: commented this, don't know what is doing here, certainly related with Kaya.
+		// XXX: this doesn't look like the right place for it.
+		/*
 		if (this.is_attached()) {
 			// TODO: what if we're playing offline?
 			this.detach_head();
 		}
+		*/
 		var node = this.game_tree.prev();
 		if (node) {
 			this.board.undo_play(node.play);
@@ -196,9 +205,9 @@ GoSpeed.prototype = {
 		this.render_tree();
 	},
 
-	goto_path: function(path) {
+	goto_path: function(path, no_redraw) {
 		// Basic format check
-		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)?)$/.test(path)) {
+		if (!/^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(root))$/.test(path)) {
 			return false;
 		}
 		// Parse path to array
@@ -208,11 +217,19 @@ GoSpeed.prototype = {
 		}
 		// Test array path
 		if (this.game_tree.test_path(arr_path)) {
+			// Mode adjustments
+			if (this.mode == "count_online") {
+				this.change_mode("play_online");
+			}
+			if (this.mode == "count") {
+				this.change_mode("play");
+			}
+
 			var pos; // Decition to make
 			var count; // Number of times
 			// Go to root and then browse path
 			this.goto_start(true);
-			if (path != "") {
+			if (path != "root") {
 				for (var i = 0, li = arr_path.length; i < li; ++i) {
 					pos = Number(arr_path[i][0]);
 					if (arr_path[i][1] !== undefined) {
@@ -225,11 +242,13 @@ GoSpeed.prototype = {
 					}
 				}
 			}
-			// Render after all
-			if (this.shower != undefined) {
-				this.shower.redraw();
+			// Render after all (unless no_redraw)
+			if (!no_redraw) {
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+				this.render_tree();
 			}
-			this.render_tree();
 			return true;
 		} else {
 			return false;
@@ -409,7 +428,7 @@ GoSpeed.prototype = {
 				if (this.mode == "count_online" && this.my_colour == "O") {
 					return false;
 				}
-				var target = this.board_get_pos(row, col);
+				var target = this.board.get_pos(row, col);
 				if (target == undefined) {
 					return false;
 				}
@@ -657,15 +676,17 @@ GoSpeed.prototype = {
 		return id;
 	},
 
-	load_track: function(variation, force_id) {
+	load_track: function(path, variation, force_id) {
+		// Validate path
+		var rex = /^((\d+|\d+-\d+)+(\|(\d+|\d+-\d+))*|(\d+|\d+-\d+)|(root))$/;
+		if (!rex.test(path)) {
+			return false;
+		}
 		// Validate variation format
-		var rex = /^(\d\d?\d?)(\ )+([a-s]{2})+$/;
+		var rex = /^([a-s]{2})*$/;
 		if (!rex.test(variation)) {
 			return false;
 		}
-		//var root_number = variation.match(/^0|^[1-9]\d*/)[0];
-		var root_number = variation.match(/\d\d?\d?/)[0];
-
 		// Save actual track id
 		var old = this.actual_track;
 
@@ -674,27 +695,22 @@ GoSpeed.prototype = {
 
 		// Switch to new track
 		this.switch_to_track(id, true);
+
 			// Go to variation root
-			var res;
-			while(this.game_tree.actual_move.turn_number < root_number) {
-				res = this.next(0, true);
-				if (!res) {
-					throw new Error("Todo mal, no llegué nunca al root number!");
+			this.goto_path(path, true);
+
+			if (variation != "") {
+				variation = this.ungovar(variation, this.get_next_move());
+				// Validate new variation format
+				var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
+				if (!rex.test(variation)) {
 					return false;
 				}
-			}
 
-			variation = this.ungovar(variation, this.get_next_move());
-			// Validate new variation format
-			var rex = /^(0|([1-9]\d*))(\;(B|W)\[[a-s]{2}\])+$/;
-			if (!rex.test(variation)) {
-				return false;
+				// Parse and load moves.
+				var sgf = new SGFParser("(;FF[4]" + variation + ")");
+				sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
 			}
-			var moves = variation.match(/;.*$/)[0];
-
-			// Parse and load moves.
-			var sgf = new SGFParser("(;FF[4]" + moves + ")");
-			sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
 
 		// Switch to old track
 		this.switch_to_track(old, true);
@@ -714,6 +730,7 @@ GoSpeed.prototype = {
 				this.shower.redraw();
 			}
 			this.handle_score_agreement();
+			this.render_tree();
 		}
 		return true;
 	},
@@ -727,42 +744,32 @@ GoSpeed.prototype = {
 	var_to_string: function(tail) {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
-		if (tmp_node.source != NODE_VARIATION) {
-			return "";
-			throw new Error("No hay jugadas locales.");
-		}
 		while((tmp_node.source == NODE_VARIATION || !tail) && !tmp_node.root) {
-			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
 			tmp_node = tmp_node.prev;
 		}
 		if (!tail && tmp_node.root && tmp_node.play) {
-			s_res = this.data_to_sgf_node(tmp_node.play) + s_res;
+			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
 		} else {
-			s_res = tmp_node.turn_number + s_res;
+			s_res = tmp_node.get_path() + " " + s_res;
 		}
 		return s_res;
 	},
 
 	govar: function() {
-		var s = this.var_to_string(true);
-		if (s != "") {
-			var i = s.indexOf(';');
-			s = s.substring(0, i) + " " + s.substring(i, s.length).replace(/(;(W|B)\[|\])/g, "");
-		}
-		return s;
+		return this.var_to_string(true);
 	},
 
-	ungovar: function(govar, first_color) {
-		var move = govar.match(/\d\d?\d?/)[0];
-		var variation = govar.match(/([a-s][a-s])/g);
+	ungovar: function(variation, first_color) {
 		var color = [];
 		color[0] = first_color;
 		color[1] = (first_color == "W" ? "B" : "W");
+		var var_arr = variation.match(/([a-s][a-s])/g);
 		var s = "";
-		for (var i = 0, li = variation.length; i < li; ++i) {
-			s += ";" + color[i % 2] + "[" + variation[i] + "]";
+		for (var i = 0, li = var_arr.length; i < li; ++i) {
+			s += ";" + color[i % 2] + "[" + var_arr[i] + "]";
 		}
-		return move + s;
+		return s;
 	},
 
 //	To be changed to callback
@@ -915,7 +922,13 @@ GoSpeed.prototype = {
 		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
 			var div_id_tree = this.game_tree.graphic.div_tree.id;
 		}
-		this.game_tree = new GameTree(div_id_tree, function(path) { that.goto_path.call(that, path); });
+		this.game_tree = new GameTree(div_id_tree, function(path) {
+			if (that.callbacks.send_focus != undefined) {
+				that.callbacks.send_focus(path);
+			} else {
+				that.goto_path.call(that, path);
+			}
+		});
 
 		// Tracks
 		this.tracks = [];
@@ -1044,6 +1057,70 @@ GoSpeed.prototype = {
 		}
 	},
 
+	new_diff_update_game: function(data) {
+		// Check SGF status:
+		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
+			// Not loaded: load from scratch.
+			this.update_game(data);
+		} else {
+			// Loaded: diff update.
+			if (data.result != undefined) {
+				this.time.stop();
+			} else {
+				this.time.pause();
+			}
+
+			// Clear and change size if required
+			if (data.size != undefined && data.size != this.board.size) {
+				this.change_size(Number(data.size));
+			}
+
+			// Compare SGF and add only new moves + update score state if not attached.
+			var move_added;
+			if (data.moves != undefined) {
+				if (!this.is_attached()) {
+					this.attach_head(true);
+					move_added = this.sgf.new_add_moves(this, data.moves);
+					if (data.focus) {
+						this.goto_path(data.focus, true);
+					}
+					this.update_raw_score_state(data.raw_score_state);
+					this.time.update(data.time_adjustment);
+					if (move_added) {
+						move_added = this.game_tree.actual_move;
+					}
+					this.detach_head(true);
+				} else {
+					move_added = this.sgf.new_add_moves(this, data.moves);
+					if (data.focus) {
+						this.goto_path(data.focus);
+					}
+					if (move_added) {
+						move_added = this.game_tree.actual_move;
+					}
+				}
+			}
+
+			// Play sound!
+			if (KAYAGLOBAL != undefined) {
+				if (move_added.play instanceof Play) {
+					KAYAGLOBAL.play_sound(move_added.play.put.color);
+				} else if (move_added.play instanceof Pass) {
+					KAYAGLOBAL.play_sound("pass");
+				}
+			}
+
+			if (this.is_attached()) {
+				// Fast forward
+				if (!data.focus) {
+					this.goto_end();
+				}
+				this.handle_score_agreement(data.raw_score_state);
+				this.time.update(data.time_adjustment);
+			}
+		}
+	},
+
 	diff_update_game: function(data) {
 		// Check SGF status:
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
@@ -1064,7 +1141,7 @@ GoSpeed.prototype = {
 
 			// Compare SGF and add only new moves + update score state if not attached.
 			var move_added = false;
-			if (data.moves != undefined && data.moves != null) {
+			if (data.moves != undefined) {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.add_moves(this, data.moves, true);
@@ -1153,7 +1230,7 @@ GoSpeed.prototype = {
 
 	place_coord_marker: function(row, col) {
 		if (this.shower != undefined) {
-			if (this.safe_get_pos(row, col) != "") {
+			if (this.board.safe_get_pos(row, col) != "") {
 				this.shower.place_coord_marker(row, col);
 			}
 		}
@@ -1216,19 +1293,21 @@ GoSpeed.prototype = {
 			this.shower.clear_dead_groups(this.score.dead_groups); // XXX FIXME TODO: maybe this should be independent from this.score... maybe a full clean.
 		}
 		var states = this.game_tree.actual_move.play.raw_score_state;
-		if (states != undefined) {
+		if (states != undefined && states != "") {
 			states = states.match(/;(A|D)\[[a-s]{2}\]/g);
-			for (var i = 0, li = states.length; i < li; ++i) {
-				var alive = (states[i].charAt(1) == "A");
-				var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
-				var target = this.board_get_pos(pos.row, pos.col);
-				if (target == undefined) {
-					continue;
-				}
-				if (alive) {
-					this.score.revive_stone(target, pos.row, pos.col);
-				} else {
-					this.score.kill_stone(target, pos.row, pos.col);
+			if (states != undefined) {
+				for (var i = 0, li = states.length; i < li; ++i) {
+					var alive = (states[i].charAt(1) == "A");
+					var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
+					var target = this.board.get_pos(pos.row, pos.col);
+					if (target == undefined) {
+						continue;
+					}
+					if (alive) {
+						this.score.revive_stone(target, pos.row, pos.col);
+					} else {
+						this.score.kill_stone(target, pos.row, pos.col);
+					}
 				}
 			}
 		}

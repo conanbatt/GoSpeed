@@ -49,6 +49,7 @@ SGFParser.prototype = {
 
 	parse: function() {
 		this.root = new SGFNode();
+		this.root.root = true;
 		this.pointer = this.root;
 		this.last_node = this.root;
 		var new_node;
@@ -342,27 +343,29 @@ SGFParser.prototype = {
 		var time_left;
 		var tmp;
 		var tree_node;
-		var time_system = undefined;
-		if (game.time.clock != undefined && game.time.clock.system != undefined) {
-			time_system = game.time.clock.system.name;
-		}
 		while(sgf_node = pend_sgf_node.pop()) {
 			tree_node = pend_game_tree_node.pop();
 			tree_node.last_next = tree_node.next[0]; // XXX WTF???
 		// do: rewind game until reaches game tree_node.
+			var path = tree_node.get_path();
+			if (path != game.game_tree.actual_move.get_path()) {
+				game.goto_path(path, true);
+			}
+			/*
 			while (game.game_tree.actual_move != tree_node) {
 				tmp = game.game_tree.prev();
 				game.board.undo_play(tmp.play);
 			}
+			*/
 		// do: play sgf_node contents at game point in game.
 			// FIXME: quisiera ver cuál es la mejor manera de validar que el sgf hizo la jugada correcta sin tener que confiar en next_move que podría romperse
 			if (sgf_node.B != undefined || sgf_node.W != undefined) {
 				if (game.get_next_move() == "B" && sgf_node.B != undefined) {
 					move = sgf_node.B;
-					time_left = this.get_time_from_node(time_system, sgf_node.BL, sgf_node.OB);
+					time_left = this.get_time_from_node(game.time.clock, sgf_node.BL, sgf_node.OB);
 				} else if (game.get_next_move() == "W" && sgf_node.W != undefined) {
 					move = sgf_node.W;
-					time_left = this.get_time_from_node(time_system, sgf_node.WL, sgf_node.OW);
+					time_left = this.get_time_from_node(game.time.clock, sgf_node.WL, sgf_node.OW);
 				} else {
 					this.status = SGFPARSER_ST_ERROR;
 					this.error = "Turn and Play mismatch";
@@ -415,6 +418,99 @@ SGFParser.prototype = {
 				}
 			}
 		}
+	},
+
+	same_move: function(sgf_node, tree_node) {
+		var move;
+		//if (sgf_node.B != undefined || sgf_node.W != undefined) {
+		if (tree_node.play != undefined && tree_node.play.put != undefined && tree_node.play.put.color != undefined) {
+			move = sgf_node[tree_node.play.put.color];
+			if (tree_node.play instanceof Pass) {
+				if (move != "") {
+					return false;
+				}
+			} else if (tree_node.play instanceof Play) {
+				if (tree_node.play.put.row != move.charCodeAt(1) - 97 || tree_node.play.put.col != move.charCodeAt(0) - 97) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+		return true;
+	},
+
+	new_add_moves: function(game, moves) {
+		// Check moves already loaded
+		if (this.moves_loaded == moves) {
+			return false;
+		}
+		// Generate and parse sgf from moves.
+		var sgf = "(;FF[4]" + moves + ")";
+		var tmp_parser = new SGFParser(sgf);
+
+		// Browse
+		var sgf_node; // SGF node pointer
+		var tree_node; // Tree node pointer
+		var sgf_stash = []; // Iterative-recursion stash from sgf
+		var tree_stash = []; // Iterative-recursion stash from game_tree
+
+		var tmp_sgf_stash = []; // To make sure the algorithm is DFS
+		var tmp_tree_stash = []; // To make sure the algorithm is DFS
+
+		var reconstruct; // Flag to reconstruct branch
+		var offline_nodes; // Will temporarily store offline nodes
+		var new_moves = false;
+
+		//game.goto_start(true); // Point game to start.
+
+		sgf_stash.push(tmp_parser.root);      // Start with root, please.
+		tree_stash.push(game.game_tree.root); // Sure!
+
+		while(sgf_node = sgf_stash.pop()) {
+			tree_node = tree_stash.pop();
+			//if (!sgf_node.root && !tree_node.root) {
+			for (var i = 0, li = sgf_node.next.length; i < li; ++i) {
+				reconstruct = false;
+				if (tree_node.next[i] != undefined) {
+					if (tree_node.next[i].source > NODE_ONLINE) {
+						// Temporarily remove offline nodes
+						offline_nodes = tree_node.next.splice(i, tree_node.next.length - i);
+						// Increment their node position
+						for (var j = 0, lj = offline_nodes.length; j < lj; ++j) {
+							offline_nodes[j].pos++;
+						}
+						// Cast reconstruct
+						reconstruct = true;
+					} else {
+						if (!this.same_move(sgf_node.next[i], tree_node.next[i])) {
+							throw new Error("Different moves loaded in the same place...");
+						}
+						tmp_sgf_stash.unshift(sgf_node.next[i]);
+						tmp_tree_stash.unshift(tree_node.next[i]);
+					}
+				} else {
+					// Cast reconstruct
+					reconstruct = true;
+				}
+				if (reconstruct === true) {
+					new_moves = true;
+					this.sgf_to_tree(game, sgf_node.next[i], tree_node, NODE_ONLINE);
+					if (offline_nodes != undefined) {
+						tree_node.next = tree_node.next.concat(offline_nodes);
+						offline_nodes = undefined;
+					}
+				}
+			}
+			sgf_stash = sgf_stash.concat(tmp_sgf_stash);
+			tree_stash = tree_stash.concat(tmp_tree_stash);
+			tmp_sgf_stash = [];
+			tmp_tree_stash = [];
+		}
+		this.moves_loaded = moves;
+		return new_moves;
 	},
 
 	add_moves: function(game, sgf, no_rewind) {
@@ -516,49 +612,35 @@ SGFParser.prototype = {
 		return sRes;
 	},
 
-	get_time_from_node: function(time_system, time_left, overtime_periods) {
+	get_time_from_node: function(clock, time_left, overtime_periods) {
 		// XXX TODO FIXME Maybe this validation is way too hard.
-		if (time_system != undefined) {
-			switch(time_system) {
+		if (clock != undefined) {
+			switch(clock.system.name) {
 				case "Free":
-					return parseFloat(time_left);
+					return undefined;
 				break;
 				case "Absolute":
 				case "Fischer":
 				case "Hourglass":
+					if (time_left == undefined) {
+						time_left = clock.system.main_time;
+					}
 					return {
 						main_time: parseFloat(time_left),
 					};
 				break;
 				case "Byoyomi":
-					var res;
-					if (overtime_periods != undefined) {
-						res = {
-							'main_time': 0,
-							'periods': parseInt(overtime_periods, 10),
-							'period_time': parseFloat(time_left),
-						};
-					} else {
-						res = {
-							'main_time': parseFloat(time_left),
-						};
+					if (time_left == undefined) {
+						time_left = clock.system.main_time;
 					}
-					return res;
-				break;
-				case "Canadian":
-					var res;
-					if (overtime_periods != undefined) {
-						res = {
-							'main_time': 0,
-							'period_time': parseFloat(time_left),
-							'period_stones': parseInt(overtime_periods, 10),
-						};
-					} else {
-						res = {
-							'main_time': parseFloat(time_left),
-						};
+					if (overtime_periods == undefined) {
+						overtime_periods = clock.system.periods;
 					}
-					return res;
+					return {
+						'main_time': parseFloat(time_left),
+						'periods': parseInt(overtime_periods, 10),
+						'period_time': clock.system.period_time,
+					};
 				break;
 			}
 		} else {

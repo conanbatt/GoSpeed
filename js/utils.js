@@ -197,19 +197,21 @@ var TREE_DRAW_INTERVAL = 100;
 			var pos; // Decition to make
 			var count; // Number of times
 			var test_node = this.root; // Pointer
-			for (var i = 0, li = arr_path.length; i < li; ++i) {
-				pos = Number(arr_path[i][0]);
-				if (arr_path[i][1] != undefined) {
-					count = Number(arr_path[i][1]);
-				} else {
-					count = 1;
-				}
-				// Browse tree
-				while(count--) {
-					if (test_node.next.hasOwnProperty(pos)) {
-						test_node = test_node.next[pos];
+			if (arr_path[0][0] != "root") {
+				for (var i = 0, li = arr_path.length; i < li; ++i) {
+					pos = Number(arr_path[i][0]);
+					if (arr_path[i][1] != undefined) {
+						count = Number(arr_path[i][1]);
 					} else {
-						return false;
+						count = 1;
+					}
+					// Browse tree
+					while(count--) {
+						if (test_node.next.hasOwnProperty(pos)) {
+							test_node = test_node.next[pos];
+						} else {
+							return false;
+						}
 					}
 				}
 			}
@@ -287,8 +289,16 @@ var TREE_DRAW_INTERVAL = 100;
 				}
 				return false;
 			}
+			function correct_whole_branch(branch) {
+				var cur_branch = branch;
+				cur_branch.lvl++;
+				while (cur_branch.pos == 0 && cur_branch.parent_branch.lvl < cur_branch.lvl) {
+					cur_branch.parent_branch.lvl = cur_branch.lvl;
+					cur_branch = cur_branch.parent_branch;
+				}
+			}
 			function add_node(node, branch, first) {
-				if (first && branch.parent_branch) {
+				if (first && node.pos > 0) {
 					var elbow = document.createElement("div");
 					elbow.className = "Elbow";
 					if (branch.selected) {
@@ -357,7 +367,7 @@ var TREE_DRAW_INTERVAL = 100;
 					width++;
 					if (node.elem.next.length > 1) {
 						for (var i = node.elem.next.length - 1; i >= 0; --i) {
-							stash.push({lvl: node.lvl + (i > 0 ? 1 : 0) /*(node.elem.pos > 0 ? 1 : 0)*/, elem: node.elem.next[i], selected: cur_branch.selected, parent_branch: cur_branch});
+							stash.push({lvl: node.lvl + i, elem: node.elem.next[i], selected: cur_branch.selected, parent_branch: cur_branch});
 						}
 						node = false;
 					} else {
@@ -373,10 +383,14 @@ var TREE_DRAW_INTERVAL = 100;
 				// Now compare with previous branches and check if there's need to adjust lvl
 				fixed = false;
 				while(!fixed) {
+					// Correct cur if parent was corrected
+					if (cur_branch.parent_branch && cur_branch.lvl < cur_branch.parent_branch.lvl + cur_branch.pos) {
+						cur_branch.lvl = cur_branch.parent_branch.lvl + cur_branch.pos;
+					}
 					for (var i = 0, li = branches.length; i < li; ++i) {
 						if (branches[i].lvl >= cur_branch.lvl) {
 							if (branch_concurrence(branches[i], cur_branch)) {
-								cur_branch.lvl++;
+								correct_whole_branch(cur_branch);
 								fixed = true;
 							}
 						}
@@ -459,6 +473,12 @@ var TREE_DRAW_INTERVAL = 100;
 	}
 
 	GameNode.prototype.get_path = function() {
+		// Erm... root node...
+		if (this.root === true) {
+			return "root";
+		}
+
+		// Else, make path
 		var res = []; // Stores the result as an array
 		var last_pos; // The last decition made
 		var pos_count = 0; // The number of times the decition was repeated

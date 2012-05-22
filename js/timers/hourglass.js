@@ -34,7 +34,7 @@ HourglassTimer.prototype.configure_system = function(timer_settings) {
 	};
 };
 
-HourglassTimer.prototype.copy_time = function(time_ref) {
+HourglassTimer.prototype.copy_time = function(time_ref, safe) {
 	if (safe && time_ref.main_time == undefined) {
 		return {
 			main_time: this.system.main_time,

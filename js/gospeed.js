@@ -247,7 +247,6 @@ GoSpeed.prototype = {
 				if (this.shower != undefined) {
 					this.shower.redraw();
 				}
-				this.handle_score_agreement();
 				this.render_tree();
 			}
 			return true;
@@ -1099,11 +1098,11 @@ GoSpeed.prototype = {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					this.update_raw_score_state(data.raw_score_state);
-					this.time.update(data.time_adjustment);
 					if (data.focus) {
 						this.goto_path(data.focus, true);
 					}
+					this.update_raw_score_state(data.raw_score_state);
+					this.time.update(data.time_adjustment);
 					if (move_added) {
 						move_added = this.game_tree.actual_move;
 					}
@@ -1132,8 +1131,8 @@ GoSpeed.prototype = {
 				// Fast forward
 				if (!data.focus) {
 					this.goto_end();
-					this.handle_score_agreement(data.raw_score_state);
 				}
+				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
 			}
 		}
@@ -1311,19 +1310,21 @@ GoSpeed.prototype = {
 			this.shower.clear_dead_groups(this.score.dead_groups); // XXX FIXME TODO: maybe this should be independent from this.score... maybe a full clean.
 		}
 		var states = this.game_tree.actual_move.play.raw_score_state;
-		if (states != undefined) {
+		if (states != undefined && states != "") {
 			states = states.match(/;(A|D)\[[a-s]{2}\]/g);
-			for (var i = 0, li = states.length; i < li; ++i) {
-				var alive = (states[i].charAt(1) == "A");
-				var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
-				var target = this.board.get_pos(pos.row, pos.col);
-				if (target == undefined) {
-					continue;
-				}
-				if (alive) {
-					this.score.revive_stone(target, pos.row, pos.col);
-				} else {
-					this.score.kill_stone(target, pos.row, pos.col);
+			if (states != undefined) {
+				for (var i = 0, li = states.length; i < li; ++i) {
+					var alive = (states[i].charAt(1) == "A");
+					var pos = this.sgf_coord_to_pos(states[i].match(/[a-s]{2}/)[0]);
+					var target = this.board.get_pos(pos.row, pos.col);
+					if (target == undefined) {
+						continue;
+					}
+					if (alive) {
+						this.score.revive_stone(target, pos.row, pos.col);
+					} else {
+						this.score.kill_stone(target, pos.row, pos.col);
+					}
 				}
 			}
 		}

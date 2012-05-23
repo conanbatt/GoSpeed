@@ -1,0 +1,25 @@
+#!/bin/bash
+
+OUT=`git status --porcelain | sed -n 's/^\ M\ //p'`
+for file in $OUT
+do
+	cp $file /home/polly/git-root/BGS/gospeed/$file
+done
+
+
+#redis-server > /dev/null &
+#redis_pid=$!
+#echo "Redis PID: $redis_pid"
+#juggernaut > /dev/null &
+#juggernaut_pid=$!
+#echo "Juggernaut PID: $juggernaut_pid"
+#ruby scripts/jugger.rb > /dev/null &
+#jugger_pid=$!
+#echo "Ruby jugger PID: $jugger_pid"
+##unicorn -c .tele/unicorn_config.rb
+#rackup
+#
+#echo "Killing child processes..."
+#trap "kill $redis_pid" INT TERM EXIT
+#trap "kill $juggernaut_pid" INT TERM EXIT
+#trap "kill $jugger_pid" INT TERM EXIT

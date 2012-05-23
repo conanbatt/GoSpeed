@@ -1,23 +1,14 @@
-var STONE_SIZE = 25;
-var BOARD_BOUND = 10;
-var SHADOW_LEFT = 3;
-var SHADOW_TOP = 1;
-var SHADOW_SIDE = -1; // 1 for right, -1 for left
-var MOUSE_ADJUST_Y = 0;
 
-function HTMLEngine(manager, args) {
+function Canvas2DEngine(manager, args) {
 	this.init.call(this, manager, args);
 }
 
-HTMLEngine.prototype = {
+Canvas2DEngine.prototype = {
 	init: function(manager, args) {
 		this.manager = manager;
 
 		// Validation
 		this.validate_and_load_divs(args);
-
-		// Board Bound
-		this.max_bound = this.manager.game.board.size * STONE_SIZE + BOARD_BOUND;
 	},
 /*
 *   Board drawing primitives   *
@@ -145,32 +136,96 @@ HTMLEngine.prototype = {
 		this.div_board.removeChild(t_stone);
 	},
 
-	render: function(size) {
-		var dimension = (size * STONE_SIZE + BOARD_BOUND * 2) + "px";
-		this.div_board.style.width = dimension;
-		this.div_board.style.height = dimension;
-		this.div_board.className = "OnlyBoard" + size;
-		this.div_board.style.position = "relative";
+	draw_hoshi: function(row, col) {
+		this.bg_ct.beginPath();
+		this.bg_ct.arc(col * this.stone_size + this.bound_size, row * this.stone_size + this.bound_size, 2.5, 0, 2 * Math.PI, false);
+		this.bg_ct.closePath();
+		this.bg_ct.fillStyle = "rgba(0, 0, 0, 1)";
+		this.bg_ct.fill();
+	},
 
-		// Image prefetch (dunno if this is the right place...)
+	draw_bg: function() {
+		this.bg_ct.lineWidth = 1;
+		this.bg_ct.save();
+		this.bg_ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
+		for (var i = 0, li = this.size - 1; i < li; ++i) {
+			for (var j = 0, lj = this.size - 1; j < lj; ++j) {
+				this.bg_ct.strokeRect(i * this.stone_size + this.bound_size, j * this.stone_size + this.bound_size, this.stone_size, this.stone_size);
+				if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
+					if (this.size == 9) {
+						if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
+							this.draw_hoshi(i, j)
+						}
+					} else if (this.size == 13) {
+						if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
+							this.draw_hoshi(i, j)
+						}
+					} else if (this.size == 19) {
+						if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
+							this.draw_hoshi(i, j)
+						}
+					}
+				}
+			}
+		}
+		this.bg_ct.drawImage(this.board_bg, 1, 1, this.last_width - 2, this.last_height -2, 0, 0, this.last_width, this.last_height);
+
+		this.bg_ct.restore();
+	},
+
+	render: function(size) {
+		// Setup
+		this.size = size;
+		this.div_board.style.position = "relative";
+		this.last_width = this.div_board.offsetWidth;
+		this.last_height = this.div_board.offsetHeight;
+
+		// Stone size
+		this.stone_size = Math.floor(this.last_width / (this.size + 0.5));
+
+			// Tiene que ser par para que las líneas del tablero se vean bien
+			if (this.stone_size % 2 == 1) {
+				this.stone_size--;
+			}
+
+		// Bound size
+		this.bound_size = (this.last_width - this.stone_size * (this.size - 1)) / 2;
+
+		// Background Canvas
+		this.bg_canvas = this.create_elem("canvas", "BGCanvas");
+		this.bg_canvas.width = this.last_width;
+		this.bg_canvas.height = this.last_height;
+		this.bg_canvas.style.zIndex = "5";
+		this.bg_ct = this.bg_canvas.getContext("2d");
+		this.bg_ct.lineWidth = 1;
+		this.bg_ct.lineCap = "square";
+		this.bg_ct.lineJoin = "square";
+
+		// Stone Canvas
+		this.stone_canvas = this.create_elem("canvas", "StoneCanvas");
+		this.stone_canvas.style.width = this.last_width + "px";
+		this.stone_canvas.style.height= this.last_height+ "px";
+		this.stone_canvas.style.zIndex = "10";
+		this.stone_ct = this.stone_canvas.getContext("2d");
+		this.stone_ct.lineWidth = 1;
+		this.stone_ct.lineCap = "square";
+		this.stone_ct.lineJoin = "square";
+
+		// Background Image
+		this.board_bg = new Image();
+		var that = this;
+		this.board_bg.onload = function() {
+			that.draw_bg.call(that);
+		}
+
 		var tmp_path = "";
 		if (this.manager.game.server_path_gospeed_root != undefined) {
 			tmp_path = this.manager.game.server_path_gospeed_root;
 		}
-		(new Image()).src = tmp_path + "img/white.png";
-		(new Image()).src = tmp_path + "img/black.png";
-		(new Image()).src = tmp_path + "img/t_white.png";
-		(new Image()).src = tmp_path + "img/t_black.png";
-		(new Image()).src = tmp_path + "img/shadow.png";
-		(new Image()).src = tmp_path + "img/last_stone_w.png";
-		(new Image()).src = tmp_path + "img/last_stone_b.png";
-		(new Image()).src = tmp_path + "img/last_stone_wait_w.gif";
-		(new Image()).src = tmp_path + "img/last_stone_wait_b.gif";
-		(new Image()).src = tmp_path + "img/little_white.png";
-		(new Image()).src = tmp_path + "img/little_black.png";
-		(new Image()).src = tmp_path + "img/t_little_white.png";
-		(new Image()).src = tmp_path + "img/t_little_black.png";
+		this.board_bg.src = tmp_path + "img/WoodClear.png";
 
+
+		/*
 		// Transparent Stones
 		this.t_stones = {};
 		this.t_stones[WHITE] = this.create_elem("div", "StoneTW", true);
@@ -205,6 +260,7 @@ HTMLEngine.prototype = {
 		this.div_board.onclick = this.binder(this.click_handler, this, null);
 		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
 		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
+		*/
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {

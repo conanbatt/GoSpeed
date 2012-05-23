@@ -1,11 +1,5 @@
 var WHITE = "W";
 var BLACK = "B";
-var STONE_SIZE = 25;
-var BOARD_BOUND = 10;
-var SHADOW_LEFT = 3;
-var SHADOW_TOP = 1;
-var SHADOW_SIDE = -1; // 1 for right, -1 for left
-var MOUSE_ADJUST_Y = 0;
 
 function GoGraphic(game, args) {
 	this.init.call(this, game, args);
@@ -26,7 +20,7 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
-		this.engine = new HTMLEngine(this, args);
+		this.engine = new Canvas2DEngine(this, args);
 	},
 
 

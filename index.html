@@ -15,12 +15,11 @@
 		<script type="text/javascript" src="js/utils.js"></script>
 		<script type="text/javascript" src="js/gographic.js"></script>
 		<script type="text/javascript" src="js/graphic_engines/html.js"></script>
+		<script type="text/javascript" src="js/graphic_engines/canvas.js"></script>
 		<script type="text/javascript" src="js/timers/timer.js"></script>
 		<script type="text/javascript" src="js/timers/absolute.js"></script>
 		<script type="text/javascript" src="js/timers/fischer.js"></script>
-		<script type="text/javascript" src="js/timers/canadian.js"></script>
 		<script type="text/javascript" src="js/timers/byoyomi.js"></script>
-		<script type="text/javascript" src="js/timers/bronstein.js"></script>
 		<script type="text/javascript" src="js/timers/hourglass.js"></script>
 
         <style type="text/css">
@@ -85,7 +84,14 @@
             div#board-container {
                 float: left;
                 width: 495px;
+                height: 495px;
             }
+
+			div#board1 {
+				margin: 0px auto;
+                width: 495px;
+                height: 495px;
+			}
 
             div#button-container {
                 float: left;
@@ -190,7 +196,7 @@
                         </p>
                     </div>
                     <div class="panel" id="board-container">
-                        <div id="board1" style="margin: 0px auto;">
+                        <div id="board1">
 (;GM[1]FF[4]CA[UTF-8]AP[CGoban:3]ST[2]RU[Japanese]SZ[9]KM[6.50]TM[1800]OT[25/600 Canadian]PW[DP]PB[ros88]DT[2011-03-23]PC[The KGS Go Server at http://www.gokgs.com/]RE[W+Resign];B[cc]BL[1789.879];W[gg]WL[1792.648];B[ca]BL[1772.694];W[ge]WL[1787.75];B[ad]BL[1764.549];W[bd]WL[1753.164];B[ab]BL[1750.349];W[cd]WL[1703.366];B[bh]BL[1711.53];W[eh]WL[1695.496];B[bf]BL[1697.054];W[cf]WL[1674.699];B[fe]BL[1677.371];W[ff]WL[1664.598];B[hf]BL[1663.687];W[fd]WL[1649.58];B[ee]BL[1658.333];W[ed]WL[1620.258];B[de]BL[1640.48];W[dd]WL[1530.993];B[gd]BL[1625.806];W[ef]WL[1474.27];B[df]BL[1556.493];W[dg]WL[1459.307];B[bc]BL[1450.349];W[da]WL[1366.786];B[dc]BL[1402.309];W[ec]WL[1339.208];B[be]BL[1383.01];W[ce]WL[1331.405];B[ea]BL[1349.314];W[eb]WL[1230.421];B[db]BL[1316.642];W[fa]WL[1215.527];B[fb]BL[1289.665];W[da]WL[1145.297];B[ee]BL[1256.769];W[de]WL[1094.622];B[ea]BL[1217.724];W[bg]WL[999.251];B[ga]BL[1206.357];W[af]WL[966.754];B[ag]BL[1150.092];W[ae]WL[952.056](;B[ac]BL[1144.522]C[DP: ?ros88 [?\]: sorry don't worryDP: ok :)];W[ha]WL[825.204];B[hb]BL[1086.315];W[gb]WL[741.829];B[gc]BL[1074.154];W[hd]WL[663.946];B[fc]BL[1050.013];W[he]WL[634.611];B[ia]BL[1032.357];W[ic]WL[624.195];B[ie]BL[1012.855];W[hg]WL[588.634];B[fh]BL[903.484];W[gh]WL[560.257];B[fg]BL[819.406];W[if]WL[523.19];B[ig]BL[808.733];W[fi]WL[463.468];B[gi]BL[681.441];W[eg]WL[455.786];B[id]BL[585.117];W[ih]WL[397.4];B[hc]BL[574.444];W[if]WL[346.226];B[ch]BL[474.541];W[ah]WL[329.759];B[di]BL[473.799];W[dh]WL[300.946];B[ci]BL[459.447];W[ai]WL[284.695]C[ros88 [?\]: gracias x la partida me rindoDP: gracias a vosDP: un placer])(;B[ac]BL[990.879]))
 						</div>
                     </div>

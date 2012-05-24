@@ -293,17 +293,18 @@
 *   Canvas 2D Engine Styles   *
                              */
 
-	canvas.BGCanvas {
+	canvas.CanvasLayer {
 		position: absolute;
 		top: 0px;
 		left: 0px;
-		/*background-color: rgba(255, 0, 0, 0.5);*/
 	}
 
 	canvas.StoneCanvas {
 		position: absolute;
 		top: 0px;
 		left: 0px;
+		z-index: 0;
+		display: none;
 		/*background-color: rgba(0, 0, 255, 0.5);*/
 	}
 

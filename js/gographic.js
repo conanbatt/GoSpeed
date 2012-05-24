@@ -20,6 +20,7 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
+		//this.engine = new HTMLEngine(this, args);
 		this.engine = new Canvas2DEngine(this, args);
 	},
 
@@ -29,8 +30,8 @@ GoGraphic.prototype = {
                               */
 	put_stone: function(color, row, col) {
 		// Draw
-		var stones = this.engine.draw_stone(color, row, col);
 		this.engine.clean_t_stones();
+		var stones = this.engine.draw_stone(color, row, col);
 
 		// Store stone register
 		this.grid[row][col] = stones;

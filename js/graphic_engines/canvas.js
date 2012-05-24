@@ -1,3 +1,5 @@
+requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 function Canvas2DEngine(manager, args) {
 	this.init.call(this, manager, args);
@@ -13,27 +15,168 @@ Canvas2DEngine.prototype = {
 /*
 *   Board drawing primitives   *
                               */
+	// Stones
 	draw_stone: function(color, row, col) {
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "Stone" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		this.div_board.appendChild(stone);
-
-		var shadow = document.createElement("div");
-		shadow.className = "Shadow";
-		shadow.style.left = (stoneLeft + SHADOW_SIDE * SHADOW_LEFT) + "px";
-		shadow.style.top = (stoneTop + SHADOW_TOP) + "px";
-		this.div_board.appendChild(shadow);
-
+		this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
+		this.shadow_ct.drawImage(this.shadow, col * this.stone_size, row * this.stone_size);
 		return {
-			stone: stone,
-			shadow: shadow,
+			stone: {
+				color: color,
+				row: row,
+				col: col,
+			},
 		};
 	},
 
+	remove_stone: function(target) {
+		if (target.stone != undefined) {
+			this.stone_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size + 1, this.stone_size + 1);
+			this.shadow_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size + 1, this.stone_size + 1);
+		}
+	},
+
+	// Last Stone Markers
+	draw_last_stone_wait_marker: function(put) {
+		this.clear_last_stone_markers();
+		// Setup
+		var x = Math.floor(put.col * this.stone_size + this.stone_size / 2.0);
+		var y = Math.floor(put.row * this.stone_size + this.stone_size / 2.0);
+		var size = Math.floor(this.stone_size / 4.0);
+		this.last_stone_wait_marker = {
+			row: put.row,
+			col: put.col,
+			lw: Math.floor(this.stone_size / 20.0),
+			ss: (put.color == BLACK ? "#FFF" : "#000"),
+			x: x,
+			y: y,
+			size: size,
+			angle: 0,
+		};
+		if (this.last_stone_wait_marker.lw % 2 == 1) {
+			this.last_stone_wait_marker.x += 0.5;
+			this.last_stone_wait_marker.y += 0.5;
+		}
+		this.animate_last_stone_wait_marker();
+	},
+
+	animate_last_stone_wait_marker: function() {
+		var ct = this.marker_ct;
+		var m = this.last_stone_wait_marker;
+		if (m != undefined) {
+			ct.clearRect(m.col * this.stone_size, m.row * this.stone_size, this.stone_size, this.stone_size);
+			ct.save();
+				ct.translate(m.x, m.y);
+				ct.rotate(m.angle);
+				ct.lineWidth = m.lw;
+				ct.strokeStyle = m.ss;
+				ct.strokeRect(m.size / -2.0, m.size / -2.0, m.size, m.size);
+			ct.restore();
+			m.angle = (m.angle + Math.PI / 90 % Math.PI * 2)
+			requestAnimationFrame(this.binder(this.animate_last_stone_wait_marker, this));
+		}
+	},
+
+	draw_last_stone_marker: function(put) {
+		this.clear_last_stone_markers();
+		// Setup
+		var lw = Math.floor(this.stone_size / 20.0);
+		var x = Math.floor(put.col * this.stone_size + this.stone_size * 0.375);
+		var y = Math.floor(put.row * this.stone_size + this.stone_size * 0.375); // put.row * this.stone_size + this.stone_size / 2.0 - this.stone_size / 8.0
+		if (lw % 2 == 1) {
+			x += 0.5;
+			y += 0.5;
+		}
+
+		var ct = this.marker_ct;
+		ct.save();
+			if (put.color == BLACK) {
+				ct.strokeStyle = "#FFF";
+			} else {
+				ct.strokeStyle = "#000";
+			}
+			ct.lineWidth = lw;
+			ct.strokeRect(x, y, Math.floor(this.stone_size / 4.0), Math.floor(this.stone_size / 4.0));
+		ct.restore();
+		this.last_stone_marker = {
+			row: put.row,
+			col: put.col,
+		};
+	},
+
+	clear_last_stone_markers: function() {
+		if (this.last_stone_wait_marker != undefined) {
+			var clear = {
+				row: this.last_stone_wait_marker.row,
+				col: this.last_stone_wait_marker.col,
+			};
+			this.last_stone_wait_marker = undefined;
+			this.marker_ct.clearRect(clear.col * this.stone_size, clear.row * this.stone_size, this.stone_size, this.stone_size);
+		}
+		if (this.last_stone_marker != undefined) {
+			this.marker_ct.clearRect(this.last_stone_marker.col * this.stone_size, this.last_stone_marker.row * this.stone_size, this.stone_size, this.stone_size);
+			this.last_stone_marker = undefined;
+		}
+	},
+
+	// Coord Markers
+	draw_coord_marker: function(row, col) {
+		var lw = Math.floor(this.stone_size / 10.0);
+		var x = Math.floor(col * this.stone_size + this.stone_size / 2.0);
+		var y = Math.floor(row * this.stone_size + this.stone_size / 2.0);
+		if (lw % 2 == 1) {
+			x += 0.5;
+			y += 0.5;
+		}
+
+		var ct = this.marker_ct;
+		ct.save();
+			ct.lineWidth = lw;
+			ct.strokeStyle = "rgba(64, 160, 64, 1)";
+			ct.arc(x, y, this.stone_size / 4.0, 0, 2 * Math.PI, false);
+			ct.stroke();
+		ct.restore();
+		this.coord_marker = {
+			row: row,
+			col: col,
+		}
+	},
+
+	clear_coord_marker: function() {
+		if (this.coord_marker != undefined) {
+			this.marker_ct.clearRect(this.coord_marker.col * this.stone_size, this.coord_marker.row * this.stone_size, this.stone_size, this.stone_size);
+			this.coord_marker = undefined;
+		}
+	},
+
+	// Ko
+	draw_ko: function(ko) {
+		var lw = Math.floor(this.stone_size / 10.0);
+		var x = Math.floor(ko.col * this.stone_size + this.stone_size / 4.0);
+		var y = Math.floor(ko.row * this.stone_size + this.stone_size / 4.0);
+		if (lw % 2 == 1) {
+			x += 0.5;
+			y += 0.5;
+		}
+
+		var ct = this.stone_ct;
+		ct.save();
+			ct.lineWidth = lw;
+			ct.strokeRect(x, y, this.stone_size / 2.0, this.stone_size / 2.0);
+		ct.restore();
+		this.ko = {
+			row: ko.row,
+			col: ko.col,
+		}
+	},
+
+	clear_ko: function() {
+		if (this.ko != undefined) {
+			this.stone_ct.clearRect(this.ko.col * this.stone_size, this.ko.row * this.stone_size, this.stone_size, this.stone_size);
+			this.ko = undefined;
+		}
+	},
+
+	// Little Stones
 	draw_little_stone: function(color, row, col) {
 		var stone = document.createElement("div");
 		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
@@ -46,56 +189,11 @@ Canvas2DEngine.prototype = {
 		return stone;
 	},
 
-	draw_last_stone_wait_marker: function(put) {
-		this.clear_last_stone_markers();
-		this.last_stone_wait[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone_wait[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone_wait[put.color].style.display = "block";
-	},
-
-	draw_last_stone_marker: function(put) {
-		this.clear_last_stone_markers();
-		this.last_stone[put.color].style.left = (put.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone[put.color].style.top = (put.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.last_stone[put.color].style.display = "block";
-	},
-
-	clear_last_stone_markers: function() {
-		this.last_stone[WHITE].style.display = "none";
-		this.last_stone[BLACK].style.display = "none";
-		this.last_stone_wait[WHITE].style.display = "none";
-		this.last_stone_wait[BLACK].style.display = "none";
-	},
-
-	draw_coord_marker: function(row, col) {
-		this.coord_marker.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.coord_marker.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.coord_marker.style.display = "block";
-	},
-
-	clear_coord_marker: function() {
-		this.coord_marker.style.display = "none";
-	},
-
-	draw_ko: function(ko) {
-		this.ko.style.left = (ko.col * STONE_SIZE + BOARD_BOUND) + "px";
-		this.ko.style.top = (ko.row * STONE_SIZE + BOARD_BOUND) + "px";
-		this.ko.style.display = "block";
-	},
-
-	clear_ko: function() {
-		this.ko.style.display = "none";
-	},
-
-	remove_stone: function(stone, shadow) {
-		this.div_board.removeChild(stone);
-		this.div_board.removeChild(shadow);
-	},
-
 	remove_little_stone: function(little_stone) {
 		this.div_board.removeChild(little_stone);
 	},
 
+	// ----
 	draw_number: function(stone, num) {
 		stone.innerHTML = num;
 	},
@@ -110,19 +208,26 @@ Canvas2DEngine.prototype = {
 		shadow.style.display = "block";
 	},
 
+	// Transparent Stone
 	draw_transparent_stone: function(color, row, col) {
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "StoneT" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		stone.style.display = "block";
-		this.div_board.appendChild(stone);
-
-		return stone;
+		this.stone_ct.save();
+		this.stone_ct.globalAlpha = 0.5;
+		this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
+		this.stone_ct.restore();
+		this.last_t_stone = {
+			row: row,
+			col: col,
+		};
 	},
 
+	clear_last_transparent_stone: function() {
+		if (this.last_t_stone != undefined) {
+			this.stone_ct.clearRect(this.last_t_stone.col * this.stone_size, this.last_t_stone.row * this.stone_size, this.stone_size + 1, this.stone_size + 1);
+			this.last_t_stone = undefined;
+		}
+	},
+
+	// Transparent stone numbers
 	draw_t_stone_number: function(color, number) {
 		this.t_stones[color].innerHTML = number;
 	},
@@ -136,41 +241,54 @@ Canvas2DEngine.prototype = {
 		this.div_board.removeChild(t_stone);
 	},
 
-	draw_hoshi: function(row, col) {
-		this.bg_ct.beginPath();
-		this.bg_ct.arc(col * this.stone_size + this.bound_size, row * this.stone_size + this.bound_size, 2.5, 0, 2 * Math.PI, false);
-		this.bg_ct.closePath();
-		this.bg_ct.fillStyle = "rgba(0, 0, 0, 1)";
-		this.bg_ct.fill();
-	},
-
 	draw_bg: function() {
-		this.bg_ct.lineWidth = 1;
-		this.bg_ct.save();
-		this.bg_ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
-		for (var i = 0, li = this.size - 1; i < li; ++i) {
-			for (var j = 0, lj = this.size - 1; j < lj; ++j) {
-				this.bg_ct.strokeRect(i * this.stone_size + this.bound_size, j * this.stone_size + this.bound_size, this.stone_size, this.stone_size);
-				if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
-					if (this.size == 9) {
-						if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
-							this.draw_hoshi(i, j)
-						}
-					} else if (this.size == 13) {
-						if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
-							this.draw_hoshi(i, j)
-						}
-					} else if (this.size == 19) {
-						if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
-							this.draw_hoshi(i, j)
+		// Context
+		var ct = this.board_ct;
+		var bound_adjustment = this.bound_size + this.stone_size / 2.0 + 0.5;
+
+		// Push
+		ct.save();
+
+			// Setup
+			ct.lineWidth = 1;
+			ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
+
+			// Draw lines and hoshis
+			for (var i = 0, li = this.size - 1; i < li; ++i) {
+				for (var j = 0, lj = this.size - 1; j < lj; ++j) {
+					ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
+					if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
+						if (this.size == 9) {
+							if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
+								this.draw_hoshi(i, j)
+							}
+						} else if (this.size == 13) {
+							if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
+								this.draw_hoshi(i, j)
+							}
+						} else if (this.size == 19) {
+							if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
+								this.draw_hoshi(i, j)
+							}
 						}
 					}
 				}
 			}
-		}
-		this.bg_ct.drawImage(this.board_bg, 1, 1, this.last_width - 2, this.last_height -2, 0, 0, this.last_width, this.last_height);
 
-		this.bg_ct.restore();
+			// Draw wood texture
+			ct.drawImage(this.board_bg, 1, 1, this.board_bg.width - 2, this.board_bg.height - 2, 0, 0, this.last_width, this.last_height);
+
+		// Pop
+		ct.restore();
+	},
+
+	draw_hoshi: function(row, col) {
+		var bound_adjustment = this.bound_size + this.stone_size / 2.0 + 0.5;
+		this.board_ct.beginPath();
+		this.board_ct.arc(col * this.stone_size + bound_adjustment, row * this.stone_size + bound_adjustment, 2.5, 0, 2 * Math.PI, false);
+		this.board_ct.closePath();
+		this.board_ct.fillStyle = "rgba(0, 0, 0, 1)";
+		this.board_ct.fill();
 	},
 
 	render: function(size) {
@@ -181,35 +299,28 @@ Canvas2DEngine.prototype = {
 		this.last_height = this.div_board.offsetHeight;
 
 		// Stone size
-		this.stone_size = Math.floor(this.last_width / (this.size + 0.5));
+		this.stone_size = Math.floor(this.last_width / (this.size + 1));
 
-			// Tiene que ser par para que las líneas del tablero se vean bien
+			// It has to be even so the board lines fit in one pixel
 			if (this.stone_size % 2 == 1) {
-				this.stone_size--;
+				this.stone_size++;
 			}
 
 		// Bound size
-		this.bound_size = (this.last_width - this.stone_size * (this.size - 1)) / 2;
+		this.bound_size = Math.floor((this.last_width - this.stone_size * (this.size)) / 2);
 
-		// Background Canvas
-		this.bg_canvas = this.create_elem("canvas", "BGCanvas");
-		this.bg_canvas.width = this.last_width;
-		this.bg_canvas.height = this.last_height;
-		this.bg_canvas.style.zIndex = "5";
-		this.bg_ct = this.bg_canvas.getContext("2d");
-		this.bg_ct.lineWidth = 1;
-		this.bg_ct.lineCap = "square";
-		this.bg_ct.lineJoin = "square";
+		// Layers
+			// Board
+			this.create_layer("board", "0");
 
-		// Stone Canvas
-		this.stone_canvas = this.create_elem("canvas", "StoneCanvas");
-		this.stone_canvas.style.width = this.last_width + "px";
-		this.stone_canvas.style.height= this.last_height+ "px";
-		this.stone_canvas.style.zIndex = "10";
-		this.stone_ct = this.stone_canvas.getContext("2d");
-		this.stone_ct.lineWidth = 1;
-		this.stone_ct.lineCap = "square";
-		this.stone_ct.lineJoin = "square";
+			// Shadow
+			this.create_layer("shadow", "1", this.bound_size - 0.132554909 * this.stone_size, this.bound_size + 0.076530612 * this.stone_size);
+
+			// Stone
+			this.create_layer("stone", "2", this.bound_size, this.bound_size);
+
+			// Marker
+			this.create_layer("marker", "3", this.bound_size, this.bound_size);
 
 		// Background Image
 		this.board_bg = new Image();
@@ -225,42 +336,46 @@ Canvas2DEngine.prototype = {
 		this.board_bg.src = tmp_path + "img/WoodClear.png";
 
 
+		// Stones
+		this.stones = {};
+
+			// Black
+			this.stones[BLACK] = this.create_elem("canvas", "StoneCanvas");
+			this.stones[BLACK].width = this.stone_size;
+			this.stones[BLACK].height = this.stone_size;
+			this.draw_stone_source(BLACK);
+
+			// White Stone
+			this.stones[WHITE] = this.create_elem("canvas", "StoneCanvas");
+			this.stones[WHITE].width = this.stone_size;
+			this.stones[WHITE].height = this.stone_size;
+			this.draw_stone_source(WHITE);
+
+		// Shadow
+		this.shadow = this.create_elem("canvas", "StoneCanvas");
+		this.shadow.width = this.stone_size;
+		this.shadow.height = this.stone_size;
+		this.draw_shadow_source();
+
 		/*
-		// Transparent Stones
-		this.t_stones = {};
-		this.t_stones[WHITE] = this.create_elem("div", "StoneTW", true);
-		this.t_stones[BLACK] = this.create_elem("div", "StoneTB", true);
-
-		this.t_little = {};
-		this.t_little[WHITE] = this.create_elem("div", "LittleStoneTW", true);
-		this.t_little[BLACK] = this.create_elem("div", "LittleStoneTB", true);
-
 		// Revive stones
 		this.r_stones = {};
 		this.r_stones[WHITE] = this.create_elem("div", "ReviveStoneW", true);
 		this.r_stones[BLACK] = this.create_elem("div", "ReviveStoneB", true);
-
-		// Last stone markers
-		this.last_stone = {};
-		this.last_stone[WHITE] = this.create_elem("div", "LastStoneW", true);
-		this.last_stone[BLACK] = this.create_elem("div", "LastStoneB", true);
 
 		// Last stone wait markers
 		this.last_stone_wait = {};
 		this.last_stone_wait[WHITE] = this.create_elem("div", "LastStoneWaitW", true);
 		this.last_stone_wait[BLACK] = this.create_elem("div", "LastStoneWaitB", true);
 
-		// Ko
-		this.ko = this.create_elem("div", "Ko");
-
 		// Coord Marker
 		this.coord_marker = this.create_elem("div", "CoordMarker", true);
+		*/
 
 		// Bind mouse handlers
 		this.div_board.onclick = this.binder(this.click_handler, this, null);
 		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
 		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
-		*/
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {
@@ -273,17 +388,127 @@ Canvas2DEngine.prototype = {
 		return elem;
 	},
 
+	create_layer: function(name, zindex, offset_x, offset_y) {
+		this[name + "_canvas"] = this.create_elem("canvas", "CanvasLayer");
+		this[name + "_canvas"].width = this.last_width;
+		this[name + "_canvas"].height = this.last_height;
+		this[name + "_canvas"].style.zIndex = zindex;
+		this[name + "_ct"] = this[name + "_canvas"].getContext("2d");
+		this[name + "_ct"].lineWidth = 1;
+		this[name + "_ct"].lineCap = "square";
+		this[name + "_ct"].lineJoin = "square";
+		if (offset_x != undefined && offset_y != undefined) {
+			this[name + "_ct"].translate(offset_x, offset_y);
+		}
+	},
+
+	draw_stone_source: function(color) {
+		var ct = this.stones[color].getContext("2d");
+		var draw_size = this.stone_size - 2;
+
+		ct.save();
+			// Setup
+			ct.translate(this.stone_size / 2.0, this.stone_size / 2.0);
+
+			// Path
+			ct.beginPath();
+			ct.arc(0, 0, draw_size / 2.0, 0, 2 * Math.PI, false);
+			ct.closePath();
+
+			// Base
+			var grBase = ct.createRadialGradient(0.05612244897959184 * draw_size, -0.025510204081632654 * draw_size, 0, 0.05612244897959184 * draw_size, -0.025510204081632654 * draw_size, 0.5408163265306123 * draw_size);
+			if (color == BLACK) {
+				grBase.addColorStop(0, "rgb(20, 20, 20)");
+				grBase.addColorStop(0.94, "rgb(51, 51, 51)");
+				grBase.addColorStop(1, "rgb(40, 40, 40)");
+			} else {
+				grBase.addColorStop(0, "rgb(255, 255, 255)");
+				grBase.addColorStop(0.94, "rgb(204, 204, 204)");
+				grBase.addColorStop(1, "rgb(170, 170, 170)");
+			}
+			ct.fillStyle = grBase;
+			ct.fill();
+
+			// Glow
+			ct.save();
+				ct.globalCompositeOperation = "source-atop"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
+
+				ct.beginPath();
+				ct.moveTo(0.239795918 * draw_size, -0.443877551 * draw_size);
+				ct.bezierCurveTo(0.101836469 * draw_size, -0.395557286 * draw_size, -0.005216602 * draw_size, -0.100167796 * draw_size, 0.033163265 * draw_size, -0.019132653 * draw_size);
+				ct.bezierCurveTo(0.07154313265306123 * draw_size, 0.061902489795918364 * draw_size, 0.3453348163265306 * draw_size, 0.08444043877551019 * draw_size, 0.4744897959183674 * draw_size, 0.02295918367346939 * draw_size);
+				ct.bezierCurveTo(0.6036447959183674 * draw_size, -0.038522071428571426 * draw_size, 0.37775536734693876 * draw_size, -0.49219781530612244 * draw_size, 0.23979591836734693 * draw_size, -0.44387755102040816 * draw_size);
+				ct.closePath();
+
+				var grBase = ct.createLinearGradient(0, 0, 0.30612244897959184 * draw_size, -0.20408163265306123 * draw_size);
+				if (color == BLACK) {
+					grBase.addColorStop(0, "rgba(180, 180, 180, 0.02)");
+					grBase.addColorStop(1, "rgba(180, 180, 180, 0.09)");
+				} else {
+					grBase.addColorStop(0, "rgba(255, 255, 255, 0.2)");
+					grBase.addColorStop(1, "rgba(255, 255, 255, 0.5)");
+				}
+				ct.fillStyle = grBase;
+				ct.fill();
+			ct.restore();
+
+			// Outline
+			ct.lineWidth = 0.02 * draw_size;
+			ct.beginPath();
+			ct.moveTo(draw_size / 2.0, 0);
+			ct.arc(0, 0, draw_size / 2.0, 0, 2 * Math.PI, false);
+			ct.closePath();
+			ct.stroke();
+
+		ct.restore();
+	},
+
+	draw_shadow_source: function() {
+		var ct = this.shadow.getContext("2d");
+		var draw_size = this.stone_size - 2;
+
+		ct.save();
+			// Setup
+			ct.translate(draw_size / 2.0 + 1, draw_size / 2.0 + 1);
+			ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
+
+			ct.rotate(-Math.PI / 6);
+			//ct.scale(1.1, 1.05);
+			//ct.translate(-0.15306122448979592 * draw_size, 0);
+
+			// Path
+			ct.beginPath();
+			ct.arc(0, 0, draw_size / 2.0, 0, 2*Math.PI, false);
+			ct.closePath();
+
+			// Fill
+			var grBase = ct.createLinearGradient(-0.5612244897959183 * draw_size, 0, 0.05102040816326531 * draw_size, 0);
+			grBase.addColorStop(1, "rgba(0, 0, 0, 0.7)");
+			grBase.addColorStop(0, "rgba(0, 0, 0, 0)");
+			ct.fillStyle = grBase;
+			ct.fill();
+
+		ct.restore();
+	},
+
 	clean_t_stones: function() {
+		this.clear_last_transparent_stone();
+		/*
 		this.t_stones[WHITE].style.display = "none";
 		this.t_stones[BLACK].style.display = "none";
 		this.t_little[WHITE].style.display = "none";
 		this.t_little[BLACK].style.display = "none";
 		this.r_stones[WHITE].style.display = "none";
 		this.r_stones[BLACK].style.display = "none";
+		*/
 	},
 
 	clear: function() {
-		this.max_bound = this.manager.game.board.size * STONE_SIZE + BOARD_BOUND;
+		this.ko = undefined;
+		this.last_stone_wait_marker = undefined;
+		this.last_stone_marker = undefined;
+		this.coord_marker = undefined;
+		this.last_t_stone = undefined;
 		this.div_board.innerHTML = "";
 	},
 
@@ -309,9 +534,9 @@ Canvas2DEngine.prototype = {
 
 		var boundedX = pageX - this.div_board.offsetLeft + 1;
 		var boundedY = pageY - this.div_board.offsetTop + 1;
-		if (boundedX > BOARD_BOUND && boundedX < this.max_bound && boundedY > BOARD_BOUND && boundedY < this.max_bound) {
-			var gridX = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var gridY = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+		if (boundedX > this.bound_size && boundedX < this.div_board.offsetWidth - this.bound_size && boundedY > this.bound_size && boundedY < this.div_board.offsetHeight - this.bound_size) {
+			var gridX = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
+			var gridY = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
 
 			// XXX TODO FIXME RGF WTF IS THIS DOING HERE?!!?
 			if (this.manager.game.callbacks.rgf_board_click != undefined) {
@@ -334,6 +559,9 @@ Canvas2DEngine.prototype = {
 	},
 
 	mousemove_handler: function(mouse) {
+		this.clean_t_stones();
+
+		// Nothing if not connected
 		if (!this.manager.game.connected) {
 			return false;
 		}
@@ -352,44 +580,51 @@ Canvas2DEngine.prototype = {
 		var t_stone;
 
 		if (this.manager.game.mode == "count" || (this.manager.game.mode == "count_online" && this.manager.game.my_colour != "O")) {
-			this.clean_t_stones();
 			var boundedX = pageX - this.div_board.offsetLeft + 1;
 			var boundedY = pageY - this.div_board.offsetTop + 1;
-			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
+			if (boundedX <= this.bound_size || boundedX >= this.div_board.scrollWidth - this.bound_size || boundedY <= this.bound_size || boundedY >= this.div_board.scrollHeight - this.bound_size) {
 				return false;
 			}
 
-			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+			var col = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
+			var row = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
 
 			var tmp_color = this.manager.game.board.get_pos(row, col);
 			if (typeof tmp_color === "string") {
+				/*
 				if (event.shiftKey) {
 					t_stone = this.r_stone[tmp_color];
 				} else {
 					t_stone = this.t_little[tmp_color];
 				}
+				*/
 			} else {
 				return false;
 			}
+			this.draw_transparent_stone(tmp_color, row, col);
+			/*
 			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
 			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
 			t_stone.style.display = "block";
+			*/
 			return false;
 
 		} else {
 
 			switch (this.manager.game.mode) {
 				case "free":
-					t_stone = this.t_stones[WHITE];
+					//t_stone = this.t_stones[WHITE];
+					t_stone = WHITE;
 				break;
 				case "play":
 				case "variation":
-					t_stone = this.t_stones[this.manager.game.get_next_move()];
+					//t_stone = this.t_stones[this.manager.game.get_next_move()];
+					t_stone = this.manager.game.get_next_move();
 				break;
 				case "play_online":
 					if (this.manager.game.is_my_turn()) {
-						t_stone = this.t_stones[this.manager.game.get_next_move()];
+						//t_stone = this.t_stones[this.manager.game.get_next_move()];
+						t_stone = this.manager.game.get_next_move();
 					} else {
 						t_stone = null;
 					}
@@ -403,34 +638,42 @@ Canvas2DEngine.prototype = {
 
 			var boundedX = pageX - this.div_board.offsetLeft + 1;
 			var boundedY = pageY - this.div_board.offsetTop + 1;
-			if (boundedX <= BOARD_BOUND || boundedX >= this.max_bound || boundedY <= BOARD_BOUND || boundedY >= this.max_bound) {
-				t_stone.style.display = "none";
+
+			if (boundedX <= this.bound_size || boundedX >= this.div_board.scrollWidth - this.bound_size || boundedY <= this.bound_size || boundedY >= this.div_board.scrollHeight - this.bound_size) {
+				this.clean_t_stones();
+				//t_stone.style.display = "none";
 				return false;
 			}
 
-			var col = parseInt((boundedX - BOARD_BOUND) / STONE_SIZE, 10);
-			var row = parseInt((boundedY - BOARD_BOUND) / STONE_SIZE, 10);
+			var col = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
+			var row = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
 
 			if (this.manager.game.board.get_pos(row, col) != undefined) {
-				t_stone.style.display = "none";
+				//t_stone.style.display = "none";
+				this.clean_t_stones();
 				return false;
 			}
 
 			if (this.manager.game.board.pos_is_ko(row, col)) {
-				t_stone.style.display = "none";
+				//t_stone.style.display = "none";
+				this.clean_t_stones();
 				return false;
 			}
 
 			var tmp_play = new Play(this.manager.game.get_next_move(), row, col);
 			this.manager.game.board.play_eat(tmp_play);
 			if (this.manager.game.board.play_check_suicide(tmp_play)) {
-				t_stone.style.display = "none";
+				//t_stone.style.display = "none";
+				this.clean_t_stones();
 				return false;
 			}
 
+			this.draw_transparent_stone(t_stone, row, col);
+			/*
 			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
 			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
 			t_stone.style.display = "block";
+			*/
 		}
 	},
 

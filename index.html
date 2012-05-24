@@ -83,14 +83,14 @@
 
             div#board-container {
                 float: left;
-                width: 495px;
-                height: 495px;
+                width: 500px;
+                height: 500px;
             }
 
 			div#board1 {
 				margin: 0px auto;
-                width: 495px;
-                height: 495px;
+                width: 500px;
+                height: 500px;
 			}
 
             div#button-container {
@@ -236,9 +236,9 @@
                                 </th>
                                 <td>
                                     <select id="size_selector" onchange="gospeed.change_size(Number(this.value));">
-                                        <option value="9">9x9</option>
+                                        <option value="9" selected="selected">9x9</option>
                                         <option value="13">13x13</option>
-                                        <option value="19" selected="selected">19x19</option>
+                                        <option value="19">19x19</option>
                                     </select>
                                 </td>
                                 <td>
@@ -337,6 +337,7 @@
 				div_id_board: "board1",
 				div_id_tree: "arbol",
 				shower: "graphic",
+				/*
 				time_settings: {
 					name: "Byoyomi",
 					settings: {
@@ -347,6 +348,7 @@
 					div_id_clock_w: "div_id_clock_w",
 					div_id_clock_b: "div_id_clock_b",
 				},
+				*/
 				div_id_captured_w: "div_id_captured_w",
 				div_id_captured_b: "div_id_captured_b",
 				div_id_score_w: "div_id_score_w",

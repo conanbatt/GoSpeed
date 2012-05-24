@@ -96,9 +96,13 @@ HTMLEngine.prototype = {
 		this.ko.style.display = "none";
 	},
 
-	remove_stone: function(stone, shadow) {
-		this.div_board.removeChild(stone);
-		this.div_board.removeChild(shadow);
+	remove_stone: function(target) {
+		if (target.stone != undefined) {
+			this.div_board.removeChild(target.stone);
+		}
+		if (target.shadow != undefined) {
+			this.div_board.removeChild(target.shadow);
+		}
 	},
 
 	remove_little_stone: function(little_stone) {

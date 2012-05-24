@@ -68,8 +68,8 @@ GoGraphic.prototype = {
 
 	remove_stone: function(row, col) {
 		var target = this.grid[row][col];
-		if (target != undefined && target.stone != undefined && target.shadow != undefined) {
-			this.engine.remove_stone(target.stone, target.shadow);
+		if (target != undefined) {
+			this.engine.remove_stone(target);
 			if (target.little_stone == undefined) {
 				this.grid[row][col] = undefined;
 			} else {

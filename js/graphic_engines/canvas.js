@@ -11,6 +11,19 @@ Canvas2DEngine.prototype = {
 
 		// Validation
 		this.validate_and_load_divs(args);
+
+		// Image fetching
+		this.board_bg = new Image();
+		var that = this;
+		this.board_bg.onload = function() {
+			that.bg_loaded = true;
+		}
+		var tmp_path = "";
+		if (this.manager.game.server_path_gospeed_root != undefined) {
+			tmp_path = this.manager.game.server_path_gospeed_root;
+		}
+		this.board_bg.src = tmp_path + "img/WoodClear.png";
+
 	},
 /*
 *   Board drawing primitives   *
@@ -242,44 +255,48 @@ Canvas2DEngine.prototype = {
 	},
 
 	draw_bg: function() {
-		// Context
-		var ct = this.board_ct;
-		var bound_adjustment = this.bound_size + this.stone_size / 2.0 + 0.5;
+		if (this.bg_loaded) {
+			// Context
+			var ct = this.board_ct;
+			var bound_adjustment = this.bound_size + this.stone_size / 2.0 + 0.5;
 
-		// Push
-		ct.save();
+			// Push
+			ct.save();
 
-			// Setup
-			ct.lineWidth = 1;
-			ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
+				// Setup
+				ct.lineWidth = 1;
+				ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
 
-			// Draw lines and hoshis
-			for (var i = 0, li = this.size - 1; i < li; ++i) {
-				for (var j = 0, lj = this.size - 1; j < lj; ++j) {
-					ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
-					if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
-						if (this.size == 9) {
-							if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
-								this.draw_hoshi(i, j)
-							}
-						} else if (this.size == 13) {
-							if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
-								this.draw_hoshi(i, j)
-							}
-						} else if (this.size == 19) {
-							if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
-								this.draw_hoshi(i, j)
+				// Draw lines and hoshis
+				for (var i = 0, li = this.size - 1; i < li; ++i) {
+					for (var j = 0, lj = this.size - 1; j < lj; ++j) {
+						ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
+						if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
+							if (this.size == 9) {
+								if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
+									this.draw_hoshi(i, j)
+								}
+							} else if (this.size == 13) {
+								if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
+									this.draw_hoshi(i, j)
+								}
+							} else if (this.size == 19) {
+								if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
+									this.draw_hoshi(i, j)
+								}
 							}
 						}
 					}
 				}
-			}
 
-			// Draw wood texture
-			ct.drawImage(this.board_bg, 1, 1, this.board_bg.width - 2, this.board_bg.height - 2, 0, 0, this.last_width, this.last_height);
+				// Draw wood texture
+				ct.drawImage(this.board_bg, 1, 1, this.board_bg.width - 2, this.board_bg.height - 2, 0, 0, this.last_width, this.last_height);
 
-		// Pop
-		ct.restore();
+			// Pop
+			ct.restore();
+		} else {
+			window.setTimeout(this.binder(this.draw_bg, this), 100);
+		}
 	},
 
 	draw_hoshi: function(row, col) {
@@ -322,19 +339,6 @@ Canvas2DEngine.prototype = {
 			// Marker
 			this.create_layer("marker", "3", this.bound_size, this.bound_size);
 
-		// Background Image
-		this.board_bg = new Image();
-		var that = this;
-		this.board_bg.onload = function() {
-			that.draw_bg.call(that);
-		}
-
-		var tmp_path = "";
-		if (this.manager.game.server_path_gospeed_root != undefined) {
-			tmp_path = this.manager.game.server_path_gospeed_root;
-		}
-		this.board_bg.src = tmp_path + "img/WoodClear.png";
-
 
 		// Stones
 		this.stones = {};
@@ -356,6 +360,9 @@ Canvas2DEngine.prototype = {
 		this.shadow.width = this.stone_size;
 		this.shadow.height = this.stone_size;
 		this.draw_shadow_source();
+
+		// Background
+		this.draw_bg();
 
 		/*
 		// Revive stones
@@ -503,13 +510,22 @@ Canvas2DEngine.prototype = {
 		*/
 	},
 
-	clear: function() {
+	clear: function(hard) {
 		this.ko = undefined;
 		this.last_stone_wait_marker = undefined;
 		this.last_stone_marker = undefined;
 		this.coord_marker = undefined;
 		this.last_t_stone = undefined;
-		this.div_board.innerHTML = "";
+		if (hard) {
+			this.div_board.innerHTML = "";
+			this.div_board.onclick = undefined;
+			this.div_board.onmousemove = undefined;
+			this.div_board.onmouseout = undefined;
+		} else {
+			this.stone_ct.clearRect(0, 0, this.last_width, this.last_height);
+			this.shadow_ct.clearRect(0, 0, this.last_width, this.last_height);
+			this.marker_ct.clearRect(0, 0, this.last_width, this.last_height);
+		}
 	},
 
 

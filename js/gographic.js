@@ -155,12 +155,12 @@ GoGraphic.prototype = {
 		this.update_comments();
 	},
 
-	clear: function() {
+	clear: function(hard) {
 		this.grid = Array(this.game.board.size);
 		for (var row = 0 ; row < this.game.board.size ; row++) {
 			this.grid[row] = Array(this.game.board.size);
 		}
-		this.engine.clear();
+		this.engine.clear(hard);
 	},
 
 
@@ -391,9 +391,11 @@ GoGraphic.prototype = {
 		}
 	},
 
-	redraw: function() {
-		this.clear();
-		this.render();
+	redraw: function(hard) {
+		this.clear(hard);
+		if (hard) {
+			this.render();
+		}
 		var color;
 		for (var i = 0, li = this.game.board.size; i < li; ++i) {
 			for (var j = 0; j < li; ++j) {

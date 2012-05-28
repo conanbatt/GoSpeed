@@ -889,7 +889,7 @@ GoSpeed.prototype = {
 		}
 		if (this.board.size != size) {
 			this.board.size = size;
-			this.clear();
+			this.clear(true);
 			this.render();
 			this.render_tree();
 		}
@@ -941,7 +941,7 @@ GoSpeed.prototype = {
 
 		// Clear shower
 		if (this.shower != undefined) {
-			this.shower.clear();
+			this.shower.clear(true);
 		}
 	},
 

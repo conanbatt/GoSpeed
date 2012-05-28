@@ -233,6 +233,9 @@ HTMLEngine.prototype = {
 	clear: function() {
 		this.max_bound = this.manager.game.board.size * STONE_SIZE + BOARD_BOUND;
 		this.div_board.innerHTML = "";
+		this.div_board.onclick = undefined;
+		this.div_board.onmousemove = undefined;
+		this.div_board.onmouseout = undefined;
 	},
 
 

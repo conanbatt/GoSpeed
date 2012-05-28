@@ -93,8 +93,20 @@ Canvas2DEngine.prototype = {
 		this.clear_last_stone_markers();
 		// Setup
 		var lw = Math.floor(this.stone_size / 20.0);
-		var x = Math.floor(put.col * this.stone_size + this.stone_size * 0.375);
-		var y = Math.floor(put.row * this.stone_size + this.stone_size * 0.375); // put.row * this.stone_size + this.stone_size / 2.0 - this.stone_size / 8.0
+		var size = Math.floor(this.stone_size / 4.0);
+		// Pre-Fix to grid
+		if (lw % 2 == 1) {
+			if (size % 2 == 1) {
+				size++;
+			}
+		} else {
+			if (size % 2 == 0) {
+				size++;
+			}
+		}
+		var x = Math.floor(put.col * this.stone_size + this.stone_size * 0.5 - size * 0.5 + lw * 0.5);
+		var y = Math.floor(put.row * this.stone_size + this.stone_size * 0.5 - size * 0.5 + lw * 0.5);
+		// Fix to grid
 		if (lw % 2 == 1) {
 			x += 0.5;
 			y += 0.5;
@@ -108,7 +120,7 @@ Canvas2DEngine.prototype = {
 				ct.strokeStyle = "#000";
 			}
 			ct.lineWidth = lw;
-			ct.strokeRect(x, y, Math.floor(this.stone_size / 4.0), Math.floor(this.stone_size / 4.0));
+			ct.strokeRect(x, y, size, size);
 		ct.restore();
 		this.last_stone_marker = {
 			row: put.row,

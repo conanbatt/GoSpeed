@@ -43,8 +43,8 @@ Canvas2DEngine.prototype = {
 
 	remove_stone: function(target) {
 		if (target.stone != undefined) {
-			this.stone_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size + 1, this.stone_size + 1);
-			this.shadow_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size + 1, this.stone_size + 1);
+			this.stone_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size, this.stone_size);
+			this.shadow_ct.clearRect(this.stone_size * target.stone.col, this.stone_size * target.stone.row, this.stone_size, this.stone_size);
 		}
 	},
 
@@ -235,7 +235,7 @@ Canvas2DEngine.prototype = {
 
 	clear_last_transparent_stone: function() {
 		if (this.last_t_stone != undefined) {
-			this.stone_ct.clearRect(this.last_t_stone.col * this.stone_size, this.last_t_stone.row * this.stone_size, this.stone_size + 1, this.stone_size + 1);
+			this.stone_ct.clearRect(this.last_t_stone.col * this.stone_size, this.last_t_stone.row * this.stone_size, this.stone_size, this.stone_size);
 			this.last_t_stone = undefined;
 		}
 	},
@@ -411,7 +411,7 @@ Canvas2DEngine.prototype = {
 
 	draw_stone_source: function(color) {
 		var ct = this.stones[color].getContext("2d");
-		var draw_size = this.stone_size - 2;
+		var draw_size = this.stone_size;
 
 		ct.save();
 			// Setup
@@ -458,14 +458,6 @@ Canvas2DEngine.prototype = {
 				ct.fillStyle = grBase;
 				ct.fill();
 			ct.restore();
-
-			// Outline
-			ct.lineWidth = 0.02 * draw_size;
-			ct.beginPath();
-			ct.moveTo(draw_size / 2.0, 0);
-			ct.arc(0, 0, draw_size / 2.0, 0, 2 * Math.PI, false);
-			ct.closePath();
-			ct.stroke();
 
 		ct.restore();
 	},

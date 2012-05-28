@@ -486,7 +486,7 @@ SGFParser.prototype = {
 						reconstruct = true;
 					} else {
 						if (!this.same_move(sgf_node.next[i], tree_node.next[i])) {
-							throw new Error("Different moves loaded in the same place...");
+							throw new Error("Different moves loaded in the same place...\n\nLoaded: " + this.moves_loaded + "\n\nNew: " + moves);
 						}
 						tmp_sgf_stash.unshift(sgf_node.next[i]);
 						tmp_tree_stash.unshift(tree_node.next[i]);

@@ -76,15 +76,16 @@ Canvas2DEngine.prototype = {
 		var ct = this.marker_ct;
 		var m = this.last_stone_wait_marker;
 		if (m != undefined) {
-			ct.clearRect(m.col * this.stone_size, m.row * this.stone_size, this.stone_size, this.stone_size);
 			ct.save();
 				ct.translate(m.x, m.y);
 				ct.rotate(m.angle);
+				ct.clearRect(m.size * -0.5 - m.lw, m.size * -0.5 - m.lw, m.size + m.lw * 2, m.size + m.lw * 2);
+				ct.rotate(Math.PI / 90);
 				ct.lineWidth = m.lw;
 				ct.strokeStyle = m.ss;
 				ct.strokeRect(m.size / -2.0, m.size / -2.0, m.size, m.size);
 			ct.restore();
-			m.angle = (m.angle + Math.PI / 90 % Math.PI * 2)
+			m.angle = (m.angle + Math.PI / 90) % (Math.PI * 2);
 			requestAnimationFrame(this.binder(this.animate_last_stone_wait_marker, this));
 		}
 	},
@@ -123,24 +124,35 @@ Canvas2DEngine.prototype = {
 			ct.strokeRect(x, y, size, size);
 		ct.restore();
 		this.last_stone_marker = {
+			color: put.color,
 			row: put.row,
 			col: put.col,
 		};
 	},
 
-	clear_last_stone_markers: function() {
-		if (this.last_stone_wait_marker != undefined) {
-			var clear = {
-				row: this.last_stone_wait_marker.row,
-				col: this.last_stone_wait_marker.col,
-			};
-			this.last_stone_wait_marker = undefined;
-			this.marker_ct.clearRect(clear.col * this.stone_size, clear.row * this.stone_size, this.stone_size, this.stone_size);
-		}
+	clear_last_stone_marker: function() {
 		if (this.last_stone_marker != undefined) {
-			this.marker_ct.clearRect(this.last_stone_marker.col * this.stone_size, this.last_stone_marker.row * this.stone_size, this.stone_size, this.stone_size);
+			var row = this.last_stone_marker.row;
+			var col = this.last_stone_marker.col;
 			this.last_stone_marker = undefined;
+			this.marker_ct.clearRect(col * this.stone_size, row * this.stone_size, this.stone_size, this.stone_size);
+			this.redraw_markers(row, col);
 		}
+	},
+
+	clear_last_stone_wait_marker: function() {
+		if (this.last_stone_wait_marker != undefined) {
+			var row = this.last_stone_wait_marker.row;
+			var col = this.last_stone_wait_marker.col;
+			this.last_stone_wait_marker = undefined;
+			this.marker_ct.clearRect(col * this.stone_size, row * this.stone_size, this.stone_size, this.stone_size);
+			this.redraw_markers(row, col);
+		}
+	},
+
+	clear_last_stone_markers: function() {
+		this.clear_last_stone_marker();
+		this.clear_last_stone_wait_marker();
 	},
 
 	// Coord Markers
@@ -157,7 +169,8 @@ Canvas2DEngine.prototype = {
 		ct.save();
 			ct.lineWidth = lw;
 			ct.strokeStyle = "rgba(64, 160, 64, 1)";
-			ct.arc(x, y, this.stone_size / 4.0, 0, 2 * Math.PI, false);
+			ct.moveTo(x + this.stone_size / 3.0, y);
+			ct.arc(x, y, this.stone_size / 3.0, 0, 2 * Math.PI, false);
 			ct.stroke();
 		ct.restore();
 		this.coord_marker = {
@@ -168,8 +181,27 @@ Canvas2DEngine.prototype = {
 
 	clear_coord_marker: function() {
 		if (this.coord_marker != undefined) {
-			this.marker_ct.clearRect(this.coord_marker.col * this.stone_size, this.coord_marker.row * this.stone_size, this.stone_size, this.stone_size);
+			var row = this.coord_marker.row;
+			var col = this.coord_marker.col;
 			this.coord_marker = undefined;
+			this.marker_ct.clearRect(col * this.stone_size, row * this.stone_size, this.stone_size, this.stone_size);
+			this.redraw_markers(row, col);
+		}
+	},
+
+	// Fix markers
+	redraw_markers: function(row, col) {
+		// Last Stone Marker
+		if (this.last_stone_marker != undefined) {
+			if (this.last_stone_marker.row == row && this.last_stone_marker.col == col) {
+				this.draw_last_stone_marker(this.last_stone_marker);
+			}
+		}
+		// Coord Marker
+		if (this.coord_marker != undefined) {
+			if (this.coord_marker.row == row && this.coord_marker.col == col) {
+				this.draw_coord_marker(row, col);
+			}
 		}
 	},
 

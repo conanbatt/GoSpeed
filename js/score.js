@@ -78,7 +78,17 @@ Score.prototype = {
 		/*
 		// Hellrider version, maybe too agressive.
 		var deads = this.connected_component(row, col).deads;
-		var group = deads[BLACK].concat(deads[WHITE]);
+		deads[color].push({color: color, row: row, col: col});
+		this.dead_groups.push(deads[WHITE]);
+		this.dead_groups.push(deads[BLACK]);
+
+		var dead_color = (color == BLACK ? BLACK_DEAD : WHITE_DEAD);
+		for (var i = 0, li = deads[WHITE].length; i < li; ++i) {
+			this.grid[deads[WHITE][i].row][deads[WHITE][i].col] = WHITE;
+		}
+		for (var i = 0, li = deads[BLACK].length; i < li; ++i) {
+			this.grid[deads[BLACK][i].row][deads[BLACK][i].col] = BLACK;
+		}
 		*/
 		var group = this.connected_component(row, col).deads[color];
 		group.push({color: color, row: row, col: col});
@@ -112,6 +122,27 @@ Score.prototype = {
 			}
 		}
 		return true;
+	},
+
+	can_kill_stone: function(color, row, col) {
+		if (color == BLACK) {
+			if (this.grid[row][col] == BLACK_DEAD) {
+				return false;
+			}
+			this.grid[row][col] = BLACK_DEAD;
+		} else {
+			if (this.grid[row][col] == WHITE_DEAD) {
+				return false;
+			}
+			this.grid[row][col] = WHITE_DEAD;
+		}
+
+		this.clear_visited();
+		var res = this.connected_component(row, col);
+
+		this.grid[row][col] = color;
+
+		return !(res.dead_count[BLACK] > 0 && res.dead_count[WHITE] > 0);
 	},
 
 	clear_visited: function() {
@@ -307,6 +338,12 @@ Score.prototype = {
 				}
 			}
 		}
+
+		/*
+		if (conexa.owner == null) {
+			conexa.owner = NO_OWNER;
+		}
+		*/
 
 		return conexa;
 	}

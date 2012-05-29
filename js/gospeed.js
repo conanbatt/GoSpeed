@@ -439,7 +439,9 @@ GoSpeed.prototype = {
 				if (shift) {
 					bChanged = this.score.revive_stone(target, row, col);
 				} else {
-					bChanged = this.score.kill_stone(target, row, col);
+					if (this.score.can_kill_stone(target, row, col)) {
+						bChanged = this.score.kill_stone(target, row, col);
+					}
 				}
 				this.draw_score();
 				if (this.mode == "count_online") {

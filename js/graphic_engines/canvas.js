@@ -713,6 +713,9 @@ Canvas2DEngine.prototype = {
 					}
 					t_stone = "revive";
 				} else {
+					if (!this.manager.game.score.can_kill_stone(tmp_color, row, col)) {
+						return false;
+					}
 					t_stone = "kill";
 				}
 			} else {

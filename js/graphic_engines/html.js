@@ -318,6 +318,9 @@ HTMLEngine.prototype = {
 				if (event.shiftKey) {
 					t_stone = this.r_stones[tmp_color];
 				} else {
+					if (!this.manager.game.score.can_kill_stone(tmp_color, row, col)) {
+						return false;
+					}
 					t_stone = this.t_little[(tmp_color == BLACK ? WHITE : BLACK)];
 				}
 			} else {

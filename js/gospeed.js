@@ -904,7 +904,7 @@ GoSpeed.prototype = {
 		this.komi = komi;
 	},
 
-	clear: function() {
+	clear: function(hard) {
 		// Grid
 		this.board.grid = Array(this.board.size);
 		for (var row = 0 ; row < this.board.size ; row++) {
@@ -943,7 +943,7 @@ GoSpeed.prototype = {
 
 		// Clear shower
 		if (this.shower != undefined) {
-			this.shower.clear(true);
+			this.shower.clear(hard);
 		}
 	},
 

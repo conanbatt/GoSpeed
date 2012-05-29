@@ -93,7 +93,6 @@ GoGraphic.prototype = {
 	},
 
 	draw_number: function(play, num) {
-		this.engine.clear_last_stone_markers();
 		if (play instanceof Play) {
 			if (play.put) {
 				var pos = this.grid[play.put.row][play.put.col];
@@ -422,17 +421,19 @@ GoGraphic.prototype = {
 				node = node.prev;
 			}
 
+			this.engine.clear_last_stone_markers();
+
 			var num = 1;
 			// XXX TODO FIXME: UGLY HARDCODED [0] -> i dont have last_next on variations...
 			while(node.next[0]) {
 				if (node.play) {
-					this.engine.draw_number(node.play, num);
+					this.draw_number(node.play, num);
 				}
 				node = node.next[0];
 				num++;
 			}
 			if (node.play) {
-				this.engine.draw_number(node.play, num);
+				this.draw_number(node.play, num);
 			}
 		}
 	},

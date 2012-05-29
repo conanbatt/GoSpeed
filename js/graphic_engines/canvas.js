@@ -266,7 +266,14 @@ Canvas2DEngine.prototype = {
 
 	// Variation Numbers
 	draw_number: function(stone, num) {
-		stone.innerHTML = num;
+		this.stone_ct.save();
+			//this.stone_ct.globalAlpha = 0.75;
+			this.stone_ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Shojumaru";
+			this.stone_ct.fillStyle = (stone.color == "B" ? "#FFF" : "#000");
+			this.stone_ct.textAlign = "center";
+			this.stone_ct.textBaseline = "middle";
+			this.stone_ct.fillText(num, (stone.col + 0.5) * this.stone_size, (stone.row + 0.5) * this.stone_size);
+		this.stone_ct.restore();
 	},
 
 	// Transparent Stone

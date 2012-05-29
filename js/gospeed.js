@@ -79,7 +79,7 @@ GoSpeed.prototype = {
 		}
 
 	// Render
-		this.render();
+		this.render(true);
 	},
 
 //	Game Seek
@@ -890,7 +890,7 @@ GoSpeed.prototype = {
 		if (this.board.size != size) {
 			this.board.size = size;
 			this.clear(true);
-			this.render();
+			this.render(true);
 			this.render_tree();
 		}
 	},
@@ -945,9 +945,9 @@ GoSpeed.prototype = {
 		}
 	},
 
-	render: function() {
+	render: function(hard) {
 		if (this.shower) {
-			this.shower.render();
+			this.shower.render(hard);
 		}
 	},
 

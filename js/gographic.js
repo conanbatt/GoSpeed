@@ -145,8 +145,8 @@ GoGraphic.prototype = {
 		this.engine.show_stone(target.stone, target.shadow);
 	},
 
-	render: function() {
-		this.engine.render(this.game.board.size);
+	render: function(hard) {
+		this.engine.render(this.game.board.size, hard);
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
@@ -400,9 +400,8 @@ GoGraphic.prototype = {
 
 	redraw: function(hard) {
 		this.clear(hard);
-		if (hard) {
-			this.render();
-		}
+		this.render(hard);
+
 		var color;
 		for (var i = 0, li = this.game.board.size; i < li; ++i) {
 			for (var j = 0; j < li; ++j) {

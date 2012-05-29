@@ -423,7 +423,11 @@ Canvas2DEngine.prototype = {
 		this.board_ct.fill();
 	},
 
-	render: function(size) {
+	render: function(size, hard) {
+		if (!hard) {
+			return false;
+		}
+
 		// Setup
 		this.size = size;
 		this.div_board.style.position = "relative";

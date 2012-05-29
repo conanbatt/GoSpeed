@@ -250,11 +250,6 @@ Canvas2DEngine.prototype = {
 		this.div_board.removeChild(little_stone);
 	},
 
-	// ----
-	draw_number: function(stone, num) {
-		stone.innerHTML = num;
-	},
-
 	hide_stone: function(stone, shadow) {
 		stone.style.display = "none";
 		shadow.style.display = "none";
@@ -265,13 +260,31 @@ Canvas2DEngine.prototype = {
 		shadow.style.display = "block";
 	},
 
+	remove_transparent_stone: function(t_stone) {
+		this.div_board.removeChild(t_stone);
+	},
+
+	// Variation Numbers
+	draw_number: function(stone, num) {
+		stone.innerHTML = num;
+	},
+
 	// Transparent Stone
 	draw_transparent_stone: function(color, row, col) {
 		this.stone_ct.save();
-		this.stone_ct.globalAlpha = 0.5;
-		this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
+			this.stone_ct.globalAlpha = 0.5;
+			this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
+			if (this.t_stone_number != undefined) {
+				this.stone_ct.globalAlpha = 0.75;
+				this.stone_ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Shojumaru";
+				this.stone_ct.fillStyle = (color == "B" ? "#FFF" : "#000");
+				this.stone_ct.textAlign = "center";
+				this.stone_ct.textBaseline = "middle";
+				this.stone_ct.fillText(this.t_stone_number, (col + 0.5) * this.stone_size, (row + 0.5) * this.stone_size);
+			}
 		this.stone_ct.restore();
 		this.last_t_stone = {
+			color: color,
 			row: row,
 			col: col,
 		};
@@ -284,20 +297,38 @@ Canvas2DEngine.prototype = {
 		}
 	},
 
+	clean_t_stones: function() {
+		this.clear_last_transparent_stone();
+		/*
+		this.t_stones[WHITE].style.display = "none";
+		this.t_stones[BLACK].style.display = "none";
+		this.t_little[WHITE].style.display = "none";
+		this.t_little[BLACK].style.display = "none";
+		this.r_stones[WHITE].style.display = "none";
+		this.r_stones[BLACK].style.display = "none";
+		*/
+	},
+
+	redraw_transparent_stone: function() {
+		if (this.last_t_stone != undefined) {
+			var tmp = this.last_t_stone;
+			this.clear_last_transparent_stone();
+			this.draw_transparent_stone(tmp.color, tmp.row, tmp.col);
+		}
+	},
+
 	// Transparent stone numbers
 	draw_t_stone_number: function(color, number) {
-		this.t_stones[color].innerHTML = number;
+		this.t_stone_number = number;
+		this.redraw_transparent_stone();
 	},
 
 	clear_t_stone_numbers: function() {
-		this.t_stones[WHITE].innerHTML = "";
-		this.t_stones[BLACK].innerHTML = "";
+		this.t_stone_number = undefined;
+		this.redraw_transparent_stone();
 	},
 
-	remove_transparent_stone: function(t_stone) {
-		this.div_board.removeChild(t_stone);
-	},
-
+	// Background
 	draw_bg: function() {
 		if (this.bg_loaded) {
 			// Context
@@ -532,18 +563,6 @@ Canvas2DEngine.prototype = {
 			ct.fill();
 
 		ct.restore();
-	},
-
-	clean_t_stones: function() {
-		this.clear_last_transparent_stone();
-		/*
-		this.t_stones[WHITE].style.display = "none";
-		this.t_stones[BLACK].style.display = "none";
-		this.t_little[WHITE].style.display = "none";
-		this.t_little[BLACK].style.display = "none";
-		this.r_stones[WHITE].style.display = "none";
-		this.r_stones[BLACK].style.display = "none";
-		*/
 	},
 
 	clear: function(hard) {

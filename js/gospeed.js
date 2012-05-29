@@ -1318,8 +1318,8 @@ GoSpeed.prototype = {
 		var score = this.score.calculate_score();
 		this.score.calculate_result(this.get_captured_count(), this.komi);
 		if (this.shower != undefined) {
-			this.shower.draw_dead_groups(this.score.dead_groups);
 			this.shower.clear_score();
+			this.shower.draw_dead_groups(this.score.dead_groups);
 			this.shower.draw_score(score);
 			this.shower.update_score(this.score.score);
 			this.shower.update_result(this.score.result);

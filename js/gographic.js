@@ -20,8 +20,8 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
-		//this.engine = new HTMLEngine(this, args);
-		this.engine = new Canvas2DEngine(this, args);
+		this.engine = new HTMLEngine(this, args);
+		//this.engine = new Canvas2DEngine(this, args);
 	},
 
 
@@ -121,21 +121,25 @@ GoGraphic.prototype = {
 		this.engine.hide_stone(this.grid[row][col].stone, this.grid[row][col].shadow);
 
 		// Draw the dead one
-		var t_stone = this.draw_transparent_stone(color, row, col);
+		var t_stone = this.engine.draw_transparent_stone(color, row, col);
 
 		// Store register
 		this.grid[row][col].t_stone = t_stone;
 	},
 
 	stone_revive: function(color, row, col) {
-		// Remove stone if exists
+		// Remove transparent and little stones if exists
 		var target = this.grid[row][col];
+
 		if (target.t_stone != undefined) {
 			this.engine.remove_transparent_stone(target.t_stone);
+			target.t_stone = undefined;
 		}
 
-		// Clear register
-		target.t_stone = undefined;
+		if (target.little_stone != undefined) {
+			this.engine.remove_little_stone(target.little_stone);
+			target.little_stone = undefined;
+		}
 
 		// Show original stone
 		this.engine.show_stone(target.stone, target.shadow);
@@ -320,6 +324,10 @@ GoGraphic.prototype = {
 		} else {
 			this.engine.clear_ko();
 		}
+	},
+
+	clear_ko: function() {
+		this.engine.clear_ko();
 	},
 
 	draw_play: function(play, wait) {

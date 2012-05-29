@@ -235,33 +235,68 @@ Canvas2DEngine.prototype = {
 
 	// Little Stones
 	draw_little_stone: function(color, row, col) {
-		var stone = document.createElement("div");
-		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
-		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
-		stone.className = "LittleStone" + color;
-		stone.style.left = stoneLeft + "px";
-		stone.style.top = stoneTop + "px";
-		this.div_board.appendChild(stone);
-
-		return stone;
+		this.stone_ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, (col + 0.3) * this.stone_size, (row + 0.3) * this.stone_size, 0.4 * this.stone_size, 0.4 * this.stone_size);
+		return {
+			color: color,
+			row: row,
+			col: col,
+		};
 	},
 
 	remove_little_stone: function(little_stone) {
-		this.div_board.removeChild(little_stone);
+		this.stone_ct.clearRect((little_stone.col + 0.3) * this.stone_size, (little_stone.row + 0.3) * this.stone_size, this.stone_size * 0.4, this.stone_size * 0.4);
+	},
+
+	draw_t_little_stone: function(color, row, col) {
+		var ct = this.marker_ct;
+
+		ct.save();
+			ct.globalAlpha = 0.5;
+			ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, (col + 0.3) * this.stone_size, (row + 0.3) * this.stone_size, 0.4 * this.stone_size, 0.4 * this.stone_size);
+		ct.restore();
+		this.last_t_little_stone = {
+			color: color,
+			row: row,
+			col: col,
+		};
+	},
+
+	clear_last_t_little_stone: function() {
+		if (this.last_t_little_stone != undefined) {
+			this.marker_ct.clearRect((this.last_t_little_stone.col + 0.3) * this.stone_size, (this.last_t_little_stone.row + 0.3) * this.stone_size, this.stone_size * 0.4, this.stone_size * 0.4);
+			this.last_t_little_stone = undefined;
+		}
+	},
+
+	draw_revive_stone: function(color, row, col) {
+		var ct = this.marker_ct;
+		ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
+		this.last_revive_stone = {
+			color: color,
+			row: row,
+			col: col,
+		};
+	},
+
+	clear_last_revive_stone: function() {
+		if (this.last_revive_stone != undefined) {
+			this.marker_ct.clearRect(this.last_revive_stone.col * this.stone_size, this.last_revive_stone.row * this.stone_size, this.stone_size, this.stone_size);
+			this.last_revive_stone = undefined;
+		}
 	},
 
 	hide_stone: function(stone, shadow) {
-		stone.style.display = "none";
-		shadow.style.display = "none";
+		this.remove_stone({
+			stone: stone,
+		});
 	},
 
 	show_stone: function(stone, shadow) {
-		stone.style.display = "block";
-		shadow.style.display = "block";
+		this.draw_stone(stone.color, stone.row, stone.col);
 	},
 
 	remove_transparent_stone: function(t_stone) {
-		this.div_board.removeChild(t_stone);
+		this.stone_ct.clearRect(t_stone.col * this.stone_size, t_stone.row * this.stone_size, this.stone_size, this.stone_size);
 	},
 
 	// Variation Numbers
@@ -277,11 +312,11 @@ Canvas2DEngine.prototype = {
 	},
 
 	// Transparent Stone
-	draw_transparent_stone: function(color, row, col) {
+	draw_transparent_stone: function(color, row, col, trace) {
 		this.stone_ct.save();
 			this.stone_ct.globalAlpha = 0.5;
 			this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
-			if (this.t_stone_number != undefined) {
+			if (this.t_stone_number != undefined && trace) {
 				this.stone_ct.globalAlpha = 0.75;
 				this.stone_ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Shojumaru";
 				this.stone_ct.fillStyle = (color == "B" ? "#FFF" : "#000");
@@ -290,11 +325,15 @@ Canvas2DEngine.prototype = {
 				this.stone_ct.fillText(this.t_stone_number, (col + 0.5) * this.stone_size, (row + 0.5) * this.stone_size);
 			}
 		this.stone_ct.restore();
-		this.last_t_stone = {
+		var t_stone = {
 			color: color,
 			row: row,
 			col: col,
 		};
+		if (trace) {
+			this.last_t_stone = t_stone;
+		}
+		return t_stone;
 	},
 
 	clear_last_transparent_stone: function() {
@@ -306,21 +345,15 @@ Canvas2DEngine.prototype = {
 
 	clean_t_stones: function() {
 		this.clear_last_transparent_stone();
-		/*
-		this.t_stones[WHITE].style.display = "none";
-		this.t_stones[BLACK].style.display = "none";
-		this.t_little[WHITE].style.display = "none";
-		this.t_little[BLACK].style.display = "none";
-		this.r_stones[WHITE].style.display = "none";
-		this.r_stones[BLACK].style.display = "none";
-		*/
+		this.clear_last_t_little_stone();
+		this.clear_last_revive_stone();
 	},
 
 	redraw_transparent_stone: function() {
 		if (this.last_t_stone != undefined) {
 			var tmp = this.last_t_stone;
 			this.clear_last_transparent_stone();
-			this.draw_transparent_stone(tmp.color, tmp.row, tmp.col);
+			this.draw_transparent_stone(tmp.color, tmp.row, tmp.col, true);
 		}
 	},
 
@@ -669,22 +702,19 @@ Canvas2DEngine.prototype = {
 
 			var tmp_color = this.manager.game.board.get_pos(row, col);
 			if (typeof tmp_color === "string") {
-				/*
 				if (event.shiftKey) {
-					t_stone = this.r_stone[tmp_color];
+					t_stone = "revive";
 				} else {
-					t_stone = this.t_little[tmp_color];
+					t_stone = "kill";
 				}
-				*/
 			} else {
 				return false;
 			}
-			this.draw_transparent_stone(tmp_color, row, col);
-			/*
-			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";
-			t_stone.style.display = "block";
-			*/
+			if (t_stone == "revive") {
+				this.draw_revive_stone(tmp_color, row, col);
+			} else {
+				this.draw_t_little_stone((tmp_color == BLACK ? WHITE : BLACK), row, col);
+			}
 			return false;
 
 		} else {
@@ -746,7 +776,7 @@ Canvas2DEngine.prototype = {
 				return false;
 			}
 
-			this.draw_transparent_stone(t_stone, row, col);
+			this.draw_transparent_stone(t_stone, row, col, true);
 			/*
 			t_stone.style.left = (col * STONE_SIZE + BOARD_BOUND) + "px";
 			t_stone.style.top = (row * STONE_SIZE + BOARD_BOUND) + "px";

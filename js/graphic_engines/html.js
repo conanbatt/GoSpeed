@@ -316,9 +316,9 @@ HTMLEngine.prototype = {
 			var tmp_color = this.manager.game.board.get_pos(row, col);
 			if (typeof tmp_color === "string") {
 				if (event.shiftKey) {
-					t_stone = this.r_stone[tmp_color];
+					t_stone = this.r_stones[tmp_color];
 				} else {
-					t_stone = this.t_little[tmp_color];
+					t_stone = this.t_little[(tmp_color == BLACK ? WHITE : BLACK)];
 				}
 			} else {
 				return false;

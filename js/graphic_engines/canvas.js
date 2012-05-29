@@ -646,6 +646,7 @@ Canvas2DEngine.prototype = {
 		var boundedX = pageX - this.div_board.offsetLeft + 1;
 		var boundedY = pageY - this.div_board.offsetTop + 1;
 		if (boundedX > this.bound_size && boundedX < this.div_board.offsetWidth - this.bound_size && boundedY > this.bound_size && boundedY < this.div_board.offsetHeight - this.bound_size) {
+			this.clean_t_stones();
 			var gridX = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
 			var gridY = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
 
@@ -703,6 +704,9 @@ Canvas2DEngine.prototype = {
 			var tmp_color = this.manager.game.board.get_pos(row, col);
 			if (typeof tmp_color === "string") {
 				if (event.shiftKey) {
+					if (!this.manager.can_revive(row, col)) {
+						return false;
+					}
 					t_stone = "revive";
 				} else {
 					t_stone = "kill";

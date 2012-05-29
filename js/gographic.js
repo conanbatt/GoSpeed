@@ -20,8 +20,8 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
-		this.engine = new HTMLEngine(this, args);
-		//this.engine = new Canvas2DEngine(this, args);
+		//this.engine = new HTMLEngine(this, args);
+		this.engine = new Canvas2DEngine(this, args);
 	},
 
 
@@ -444,6 +444,11 @@ GoGraphic.prototype = {
 				this.draw_number(node.play, num);
 			}
 		}
+	},
+
+	can_revive: function(row, col) {
+		var target = this.grid[row][col];
+		return (target != undefined && target.t_stone != undefined);
 	},
 
 

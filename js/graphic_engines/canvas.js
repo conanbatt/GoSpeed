@@ -55,10 +55,14 @@ Canvas2DEngine.prototype = {
 		var x = put.col * this.stone_size + this.stone_size / 2.0;
 		var y = put.row * this.stone_size + this.stone_size / 2.0;
 		var size = Math.floor(this.stone_size / 4.0);
+		var lw = Math.floor(this.stone_size / 20.0);
+		if (lw == 0) {
+			lw++;
+		}
 		this.last_stone_wait_marker = {
 			row: put.row,
 			col: put.col,
-			lw: Math.floor(this.stone_size / 20.0),
+			lw: lw,
 			ss: (put.color == BLACK ? "#FFF" : "#000"),
 			x: x,
 			y: y,
@@ -90,6 +94,9 @@ Canvas2DEngine.prototype = {
 		this.clear_last_stone_markers();
 		// Setup
 		var lw = Math.floor(this.stone_size / 20.0);
+		if (lw == 0) {
+			lw++;
+		}
 		var size = Math.floor(this.stone_size / 4.0);
 		// Pre-Fix to grid
 		if (lw % 2 == 1) {
@@ -201,6 +208,9 @@ Canvas2DEngine.prototype = {
 	draw_ko: function(ko) {
 		// Setup
 		var lw = Math.floor(this.stone_size / 10.0);
+		if (lw == 0) {
+			lw++;
+		}
 		var size = Math.floor(this.stone_size / 2.0);
 		// Pre-Fix to grid
 		if (lw % 2 == 1) {

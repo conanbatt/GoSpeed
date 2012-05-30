@@ -914,6 +914,10 @@ GoSpeed.prototype = {
 		// Timer
 		this.time.clear();
 
+		// Score
+		this.score = undefined;
+		this.mode = "play";
+
 		// SGFParser
 		if (this.sgf != undefined) {
 			this.sgf.init(this.sgf.sgf);

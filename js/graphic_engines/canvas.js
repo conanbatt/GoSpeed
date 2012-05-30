@@ -22,7 +22,7 @@ Canvas2DEngine.prototype = {
 		if (this.manager.game.server_path_gospeed_root != undefined) {
 			tmp_path = this.manager.game.server_path_gospeed_root;
 		}
-		this.board_bg.src = tmp_path + "img/WoodClear.png";
+		this.board_bg.src = tmp_path + "img/WoodClearBig.jpg";
 
 	},
 /*
@@ -420,7 +420,7 @@ Canvas2DEngine.prototype = {
 				}
 
 				// Draw wood texture
-				ct.drawImage(this.board_bg, 1, 1, this.board_bg.width - 2, this.board_bg.height - 2, 0, 0, this.last_width, this.last_height);
+				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
 
 			// Pop
 			ct.restore();

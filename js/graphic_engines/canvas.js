@@ -454,6 +454,7 @@ Canvas2DEngine.prototype = {
 
 		// Bound size
 		this.bound_size = Math.floor((this.last_width - this.stone_size * (this.size)) / 2);
+		this.bound_size_real = (this.last_width - this.stone_size * (this.size)) / 2;
 
 		// Layers
 			// Board
@@ -662,10 +663,10 @@ Canvas2DEngine.prototype = {
 
 		var boundedX = pageX - this.div_board.offsetLeft + 1;
 		var boundedY = pageY - this.div_board.offsetTop + 1;
-		if (boundedX > this.bound_size && boundedX < this.div_board.offsetWidth - this.bound_size && boundedY > this.bound_size && boundedY < this.div_board.offsetHeight - this.bound_size) {
+		if (boundedX > this.bound_size_real && boundedX < this.div_board.offsetWidth - this.bound_size_real && boundedY > this.bound_size_real && boundedY < this.div_board.offsetHeight - this.bound_size_real) {
 			this.clean_t_stones();
-			var gridX = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
-			var gridY = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
+			var gridX = parseInt((boundedX - this.bound_size_real) / this.stone_size, 10);
+			var gridY = parseInt((boundedY - this.bound_size_real) / this.stone_size, 10);
 
 			// XXX TODO FIXME RGF WTF IS THIS DOING HERE?!!?
 			if (this.manager.game.callbacks.rgf_board_click != undefined) {
@@ -711,12 +712,12 @@ Canvas2DEngine.prototype = {
 		if (this.manager.game.mode == "count" || (this.manager.game.mode == "count_online" && this.manager.game.my_colour != "O")) {
 			var boundedX = pageX - this.div_board.offsetLeft + 1;
 			var boundedY = pageY - this.div_board.offsetTop + 1;
-			if (boundedX <= this.bound_size || boundedX >= this.div_board.scrollWidth - this.bound_size || boundedY <= this.bound_size || boundedY >= this.div_board.scrollHeight - this.bound_size) {
+			if (boundedX <= this.bound_size_real || boundedX >= this.div_board.scrollWidth - this.bound_size_real || boundedY <= this.bound_size_real || boundedY >= this.div_board.scrollHeight - this.bound_size_real) {
 				return false;
 			}
 
-			var col = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
-			var row = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
+			var col = parseInt((boundedX - this.bound_size_real) / this.stone_size, 10);
+			var row = parseInt((boundedY - this.bound_size_real) / this.stone_size, 10);
 
 			var tmp_color = this.manager.game.board.get_pos(row, col);
 			if (typeof tmp_color === "string") {
@@ -771,14 +772,14 @@ Canvas2DEngine.prototype = {
 			var boundedX = pageX - this.div_board.offsetLeft + 1;
 			var boundedY = pageY - this.div_board.offsetTop + 1;
 
-			if (boundedX <= this.bound_size || boundedX >= this.div_board.scrollWidth - this.bound_size || boundedY <= this.bound_size || boundedY >= this.div_board.scrollHeight - this.bound_size) {
+			if (boundedX <= this.bound_size_real || boundedX >= this.div_board.scrollWidth - this.bound_size_real || boundedY <= this.bound_size_real || boundedY >= this.div_board.scrollHeight - this.bound_size_real) {
 				this.clean_t_stones();
 				//t_stone.style.display = "none";
 				return false;
 			}
 
-			var col = parseInt((boundedX - this.bound_size) / this.stone_size, 10);
-			var row = parseInt((boundedY - this.bound_size) / this.stone_size, 10);
+			var col = parseInt((boundedX - this.bound_size_real) / this.stone_size, 10);
+			var row = parseInt((boundedY - this.bound_size_real) / this.stone_size, 10);
 
 			if (this.manager.game.board.get_pos(row, col) != undefined) {
 				//t_stone.style.display = "none";

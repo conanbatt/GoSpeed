@@ -52,8 +52,8 @@ Canvas2DEngine.prototype = {
 	draw_last_stone_wait_marker: function(put) {
 		this.clear_last_stone_markers();
 		// Setup
-		var x = Math.floor(put.col * this.stone_size + this.stone_size / 2.0);
-		var y = Math.floor(put.row * this.stone_size + this.stone_size / 2.0);
+		var x = put.col * this.stone_size + this.stone_size / 2.0;
+		var y = put.row * this.stone_size + this.stone_size / 2.0;
 		var size = Math.floor(this.stone_size / 4.0);
 		this.last_stone_wait_marker = {
 			row: put.row,
@@ -65,10 +65,6 @@ Canvas2DEngine.prototype = {
 			size: size,
 			angle: 0,
 		};
-		if (this.last_stone_wait_marker.lw % 2 == 1) {
-			this.last_stone_wait_marker.x += 0.5;
-			this.last_stone_wait_marker.y += 0.5;
-		}
 		this.animate_last_stone_wait_marker();
 	},
 
@@ -105,8 +101,8 @@ Canvas2DEngine.prototype = {
 				size++;
 			}
 		}
-		var x = Math.floor(put.col * this.stone_size + this.stone_size * 0.5 - size * 0.5 + lw * 0.5);
-		var y = Math.floor(put.row * this.stone_size + this.stone_size * 0.5 - size * 0.5 + lw * 0.5);
+		var x = Math.floor((put.col + 0.375) * this.stone_size); // put.col * this.stone_size + this.stone_size * 0.5 - size * 0.5
+		var y = Math.floor((put.row + 0.375) * this.stone_size); // put.row * this.stone_size + this.stone_size * 0.5 - size * 0.5
 		// Fix to grid
 		if (lw % 2 == 1) {
 			x += 0.5;
@@ -158,12 +154,8 @@ Canvas2DEngine.prototype = {
 	// Coord Markers
 	draw_coord_marker: function(row, col) {
 		var lw = Math.floor(this.stone_size / 10.0);
-		var x = Math.floor(col * this.stone_size + this.stone_size / 2.0);
-		var y = Math.floor(row * this.stone_size + this.stone_size / 2.0);
-		if (lw % 2 == 1) {
-			x += 0.5;
-			y += 0.5;
-		}
+		var x = col * this.stone_size + this.stone_size / 2.0;
+		var y = row * this.stone_size + this.stone_size / 2.0;
 
 		var ct = this.marker_ct;
 		ct.save();
@@ -207,9 +199,22 @@ Canvas2DEngine.prototype = {
 
 	// Ko
 	draw_ko: function(ko) {
+		// Setup
 		var lw = Math.floor(this.stone_size / 10.0);
-		var x = Math.floor(ko.col * this.stone_size + this.stone_size / 4.0);
-		var y = Math.floor(ko.row * this.stone_size + this.stone_size / 4.0);
+		var size = Math.floor(this.stone_size / 2.0);
+		// Pre-Fix to grid
+		if (lw % 2 == 1) {
+			if (size % 2 == 1) {
+				size++;
+			}
+		} else {
+			if (size % 2 == 0) {
+				size++;
+			}
+		}
+		var x = Math.floor((ko.col + 0.25) * this.stone_size); // put.col * this.stone_size + this.stone_size * 0.5 - size * 0.5
+		var y = Math.floor((ko.row + 0.25) * this.stone_size); // put.row * this.stone_size + this.stone_size * 0.5 - size * 0.5
+		// Fix to grid
 		if (lw % 2 == 1) {
 			x += 0.5;
 			y += 0.5;
@@ -218,7 +223,7 @@ Canvas2DEngine.prototype = {
 		var ct = this.stone_ct;
 		ct.save();
 			ct.lineWidth = lw;
-			ct.strokeRect(x, y, this.stone_size / 2.0, this.stone_size / 2.0);
+			ct.strokeRect(x, y, size, size);
 		ct.restore();
 		this.ko = {
 			row: ko.row,
@@ -235,7 +240,7 @@ Canvas2DEngine.prototype = {
 
 	// Little Stones
 	draw_little_stone: function(color, row, col) {
-		this.stone_ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, (col + 0.3) * this.stone_size, (row + 0.3) * this.stone_size, 0.4 * this.stone_size, 0.4 * this.stone_size);
+		this.stone_ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, col * this.stone_size + this.little_stone_bound, row * this.stone_size + this.little_stone_bound, this.little_stone_size, this.little_stone_size);
 		return {
 			color: color,
 			row: row,
@@ -244,7 +249,7 @@ Canvas2DEngine.prototype = {
 	},
 
 	remove_little_stone: function(little_stone) {
-		this.stone_ct.clearRect((little_stone.col + 0.3) * this.stone_size, (little_stone.row + 0.3) * this.stone_size, this.stone_size * 0.4, this.stone_size * 0.4);
+		this.stone_ct.clearRect(little_stone.col * this.stone_size + this.little_stone_bound, little_stone.row * this.stone_size + this.little_stone_bound, this.little_stone_size, this.little_stone_size);
 	},
 
 	draw_t_little_stone: function(color, row, col) {
@@ -252,7 +257,7 @@ Canvas2DEngine.prototype = {
 
 		ct.save();
 			ct.globalAlpha = 0.5;
-			ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, (col + 0.3) * this.stone_size, (row + 0.3) * this.stone_size, 0.4 * this.stone_size, 0.4 * this.stone_size);
+			ct.drawImage(this.stones[color], 0, 0, this.stone_size, this.stone_size, col * this.stone_size + this.little_stone_bound, row * this.stone_size + this.little_stone_bound, this.little_stone_size, this.little_stone_size);
 		ct.restore();
 		this.last_t_little_stone = {
 			color: color,
@@ -263,7 +268,7 @@ Canvas2DEngine.prototype = {
 
 	clear_last_t_little_stone: function() {
 		if (this.last_t_little_stone != undefined) {
-			this.marker_ct.clearRect((this.last_t_little_stone.col + 0.3) * this.stone_size, (this.last_t_little_stone.row + 0.3) * this.stone_size, this.stone_size * 0.4, this.stone_size * 0.4);
+			this.marker_ct.clearRect(this.last_t_little_stone.col * this.stone_size + this.little_stone_bound, this.last_t_little_stone.row * this.stone_size + this.little_stone_bound, this.little_stone_size, this.little_stone_size);
 			this.last_t_little_stone = undefined;
 		}
 	},
@@ -373,7 +378,7 @@ Canvas2DEngine.prototype = {
 		if (this.bg_loaded) {
 			// Context
 			var ct = this.board_ct;
-			var bound_adjustment = this.bound_size + this.stone_size / 2.0 + 0.5;
+			var bound_adjustment = this.bound_size + this.stone_size / 2.0;
 
 			// Push
 			ct.save();
@@ -436,11 +441,16 @@ Canvas2DEngine.prototype = {
 
 		// Stone size
 		this.stone_size = Math.floor(this.last_width / (this.size + 1));
+		// It has to be odd so the stone fits with the board lines
+		if (this.stone_size % 2 == 0) {
+			this.stone_size--;
+		}
 
-			// It has to be even so the board lines fit in one pixel
-			if (this.stone_size % 2 == 1) {
-				this.stone_size++;
-			}
+		// Little stone size
+		this.little_stone_size = Math.floor(this.stone_size * 0.4);
+		this.little_stone_size += (this.little_stone_size % 2 == 0 ? 1 : 0);
+		this.little_stone_bound = (this.stone_size - this.little_stone_size) * 0.5;
+
 
 		// Bound size
 		this.bound_size = Math.floor((this.last_width - this.stone_size * (this.size)) / 2);
@@ -615,6 +625,9 @@ Canvas2DEngine.prototype = {
 		this.last_stone_marker = undefined;
 		this.coord_marker = undefined;
 		this.last_t_stone = undefined;
+		this.last_t_little_stone = undefined;
+		this.last_revive_stone = undefined;
+		this.t_stone_number = undefined;
 		if (hard) {
 			this.div_board.innerHTML = "";
 			this.div_board.onclick = undefined;

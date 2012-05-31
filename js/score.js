@@ -28,7 +28,7 @@ Score.prototype = {
 		var size = this.grid.length;
 		var s = "[\n";
 		for (var row in this.grid) {
-			s += "[";
+			s += "["
 			for (var col in this.grid[row]) {
 				s += '"' + this.grid[row][col] + '", ';
 			}
@@ -116,7 +116,7 @@ Score.prototype = {
 				//break; // TODO: check if enabling this could help with performance.
 				         // The fact is that it was enabled before the bug, and it was disabled to fix it.
 				         // but now that the stones are all marked in the grid, and thus is not possible to have a repeated dead_group, this might be unhelpful.
-				         // NOTE: with the stones marked, IS IT IMPOSSIBLE TO HAVE DUPLICATED DEAD GROUPS????
+						 // NOTE: with the stones marked, IS IT IMPOSSIBLE TO HAVE DUPLICATED DEAD GROUPS????
 			} else {
 				i++;
 			}
@@ -189,35 +189,10 @@ Score.prototype = {
 		var item;
 		for (var index in result.groups) {
 			item = result.groups[index];
-			if(this.ruleset == 'Chinese') {
-				if (item.owner == BLACK) {
-					result.black_points += item.score + (item.dead_count.W * this._deadStonesMultiplier);
-				} else if (item.owner == WHITE) {
-					result.white_points += item.score + (item.dead_count.B * this._deadStonesMultiplier);
-				}
-			}
-			if(this.ruleset == 'Japanese') {
-				if (item.owner == BLACK || item.owner == WHITE) {
-					//check the empty intersections surrounded by the group = is it one or more empty intersections? 2+ = alive, not seki for sure
-					one_eye = !this.other_empty_space(item, result.groups);
-					//if only one eye, check if it's a living shape: if it's a dead shape, it's a seki, the points don't count
-					living_shape = (one_eye && this.living_shape(item.empty));
-					if (item.owner == BLACK) {
-						if(one_eye && !living_shape) {
-							result.black_points += item.dead_count.W;
-							item.owner = NO_OWNER;
-						} else {
-							result.black_points += item.score + (item.dead_count.W * this._deadStonesMultiplier);
-						}
-					} else if (item.owner == WHITE) {
-						if(one_eye && !living_shape) {
-							result.white_points += item.dead_count.B;
-							item.owner = NO_OWNER;
-						} else {
-							result.white_points += item.score + (item.dead_count.B * this._deadStonesMultiplier);
-						}
-					}
-				}
+			if (item.owner == BLACK) {
+				result.black_points += item.score + (item.dead_count.W * this._deadStonesMultiplier);
+			} else if (item.owner == WHITE) {
+				result.white_points += item.score + (item.dead_count.B * this._deadStonesMultiplier);
 			}
 		}
 
@@ -274,8 +249,6 @@ Score.prototype = {
 		var conexa = {
 			owner: null,
 			score: 0,
-			empty: [],
-			owner_coordinate: null,
 			deads: {
 				B: [],
 				W: [],
@@ -302,25 +275,27 @@ Score.prototype = {
 				case (EMPTY): {
 					conexa.score++;
 					conexa.coords.push({row: x, col: y});
-					conexa.empty.push([x, y]);
 					this.visited[x][y] = READY;
+
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					break;
 				}
 				case (BLACK_DEAD): {
 					conexa.dead_count.B++;
 					conexa.coords.push({row: x, col: y});
-					conexa.empty.push([x, y]);
 					this.visited[x][y] = READY;
+
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+
 					break;
 				}
 				case (WHITE_DEAD): {
 					conexa.dead_count.W++;
 					conexa.coords.push({row: x, col: y});
-					conexa.empty.push([x, y]);
 					this.visited[x][y] = READY;
+
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
+
 					break;
 				}
 				case(BLACK): {
@@ -329,11 +304,11 @@ Score.prototype = {
 						conexa.dead_count.B++;
 						conexa.coords.push({row: x, col: y});
 						this.visited[x][y] = READY;
+
 						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					} else {
 						if (!conexa.owner) {
 							conexa.owner = BLACK;
-							conexa.owner_coordinate = [x, y];
 						} else {
 							if (conexa.owner == WHITE) {
 								conexa.owner = NO_OWNER;
@@ -348,11 +323,11 @@ Score.prototype = {
 						conexa.dead_count.W++;
 						conexa.coords.push({row: x, col: y});
 						this.visited[x][y] = READY;
+
 						stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					} else {
 						if (!conexa.owner) {
 							conexa.owner = WHITE;
-							conexa.owner_coordinate = [x, y];
 						} else {
 							if (conexa.owner == BLACK) {
 								conexa.owner = NO_OWNER;
@@ -364,98 +339,13 @@ Score.prototype = {
 			}
 		}
 
+		/*
+		if (conexa.owner == null) {
+			conexa.owner = NO_OWNER;
+		}
+		*/
+
 		return conexa;
-	},
-
-	living_shape: function(shape) {
-		//http://senseis.xmp.net/?path=EyesCollection&page=TableOfEyeShapes
-		//it's assumed that alive and unsettled shapes are alive, otherwise the group would be marked as dead / the game wouldn't be over
-		if(shape.length <= 2) { return false; }
-		if(shape.length == 4){
-			//squared four recognition
-			var max_x_abs = 0; var max_y_abs = 0;
-			var starting_point = shape.shift();
-			while (current_coord = shape.shift()) {
-				if(Math.abs(current_coord[0] - starting_point[0]) > max_x_abs) { max_x_abs = Math.abs(current_coord[0] - starting_point[0]); }
-				if(Math.abs(current_coord[1] - starting_point[1]) > max_y_abs) { max_y_abs = Math.abs(current_coord[1] - starting_point[1]); }
-			}
-			if(max_x_abs == 1 && max_y_abs == 1) { return false; }
-		}
-		return true;
-	},
-
-	same_group: function(coor_a, coor_b) {
-		var board = this.grid;
-		var size = board.length;
-		var stack_coord = [coor_a];
-		var owner = board[coor_a[0]][coor_a[1]];
-		var size = this.grid.length;
-		var visited = Array(size);
-		for (var row = 0 ; row < size ; row++) {
-			visited[row] = Array(size);
-		}
-		while (current_coord = stack_coord.shift()) {
-			x = current_coord[0]; y = current_coord[1];
-			if ( x < 0 || x >= size || y < 0 || y >= size) { continue; }
-			if (visited[x][y] != undefined) { continue; }
-			visited[x][y] = READY;
-			switch (board[x][y]) {
-				case (owner): {
-					if(x == coor_b[0] && y == coor_b[1]) { return true; }
-					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
-					//possible clean kosumis
-					if(this.indirectly_connected_stones([x,y],[x+1,y+1])) { stack_coord.concat([[x+1, y+1]]); }
-					if(this.indirectly_connected_stones([x,y],[x-1,y-1])) { stack_coord.concat([[x-1, y-1]]); }
-					if(this.indirectly_connected_stones([x,y],[x+1,y-1])) { stack_coord.concat([[x+1, y-1]]); }
-					if(this.indirectly_connected_stones([x,y],[x-1,y+1])) { stack_coord.concat([[x-1, y+1]]); }
-					//possible clean bamboo joints
-					if(this.indirectly_connected_stones([x,y],[x,y+2])) { stack_coord.concat([[x, y+2]]); }
-					if(this.indirectly_connected_stones([x,y],[x+2,y])) { stack_coord.concat([[x+2, y]]); }
-					if(this.indirectly_connected_stones([x,y],[x-2,y])) { stack_coord.concat([[x-2, y]]); }
-					if(this.indirectly_connected_stones([x,y],[x,y-2])) { stack_coord.concat([[x, y-2]]); }
-					break;
-				}
-			}
-		}
-		return false;
-	},
-
-	indirectly_connected_stones: function(coor_a, coor_b) {
-		var board = this.grid;
-		var size = board.length;
-		var owner = board[coor_a[0]][coor_a[1]];
-		var xa = coor_a[0]; var xb = coor_a[1];
-		var ya = coor_b[0]; var yb = coor_b[1];
-		var delta_x = xb-xa; var delta_y = yb-ya;
-		if ( xa < 0 || xa >= size || ya < 0 || ya >= size) { return false; }
-		if ( xb < 0 || xb >= size || yb < 0 || yb >= size) { return false; }
-		//kosumi: both spots must be empty
-		if((delta_x == 1 && delta_y == 1) || (delta_x == 1 && delta_y == -1) || (delta_x == -1 && delta_y == 1) || (delta_x == -1 && delta_y == -1)) {
-			if(board[xa+delta_x][ya] == EMPTY && board[xa][ya+delta_y] == EMPTY) { return true; }
-		}
-		//bamboo joint
-		if((delta_x == 2 && delta_y == 0) || (delta_x == 0 && delta_y == 2) || (delta_x == -2 && delta_y == 0) || (delta_x == 0 && delta_y == -2)) {
-			if(delta_x == 0) {
-				if(xa-1 >=0	&& board[xa-1][ya+delta_y] == owner && board[xa-1][ya+delta_y] == owner) { return true; }
-				if(xa+1 < size && board[xa+1][ya+delta_y] == owner && board[xa+1][ya+delta_y] == owner) { return true; }
-			}
-			if(delta_y == 0) {
-				if(ya-1 >=0	&& board[xa+delta_x][ya-1] == owner && board[xa+delta_x][ya-1] == owner) { return true; }
-				if(ya+1 < size && board[xa+delta_x][ya+1] == owner && board[xa+delta_x][ya+1] == owner) { return true; }
-			}
-		}
-		return false;
-	},
-
-	other_empty_space: function(group, all_groups) {
-		var g;
-		for(var index in all_groups) {
-			g = all_groups[index];
-			if(g == group) { continue; }
-			if(g.owner == group.owner) {
-				if(this.same_group(g.owner_coordinate, group.owner_coordinate)) { return true; }
-			}
-		}
-		return false;
 	}
+
 };

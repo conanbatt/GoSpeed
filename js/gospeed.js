@@ -23,16 +23,6 @@ GoSpeed.prototype = {
 	// Timer
 		this.time = new GoTime(this, args.time_settings);
 
-	// Shower
-		// Define the showing engine
-		if (args.shower != undefined) {
-			if (args.shower == "basic") {
-				this.shower = new GoShower(this, args);
-			} else if (args.shower == "graphic") {
-				this.shower = new GoGraphic(this, args);
-			}
-		}
-
 	// GameTree
 		var that = this;
 		this.game_tree = new GameTree(args.div_id_tree, function(path) {
@@ -76,6 +66,16 @@ GoSpeed.prototype = {
 		}
 		if (args.server_path_game_end != undefined) {
 			this.server_path_game_end = args.server_path_game_end;
+		}
+
+	// Shower
+		// Define the showing engine
+		if (args.shower != undefined) {
+			if (args.shower == "basic") {
+				this.shower = new GoShower(this, args);
+			} else if (args.shower == "graphic") {
+				this.shower = new GoGraphic(this, args);
+			}
 		}
 
 	// Render

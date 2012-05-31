@@ -168,8 +168,9 @@ Canvas2DEngine.prototype = {
 		ct.save();
 			ct.lineWidth = lw;
 			ct.strokeStyle = "rgba(64, 160, 64, 1)";
-			ct.moveTo(x + this.stone_size / 3.0, y);
+			ct.beginPath();
 			ct.arc(x, y, this.stone_size / 3.0, 0, 2 * Math.PI, false);
+			ct.closePath();
 			ct.stroke();
 		ct.restore();
 		this.coord_marker = {

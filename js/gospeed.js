@@ -10,22 +10,22 @@ GoSpeed.prototype = {
 	init: function() {
 	// Validation
 		var validator = new GoValidate(arguments);
-		var args = validator.args;
+		this.args = validator.args;
 
 	// Board
-		this.board = new GoBan(this, args);
+		this.board = new GoBan(this, this.args);
 
 	// Setup
-		this.mode = args.mode;
-		this.ruleset = args.ruleset;
-		this.komi = args.komi;
+		this.mode = this.args.mode;
+		this.ruleset = this.args.ruleset;
+		this.komi = this.args.komi;
 
 	// Timer
-		this.time = new GoTime(this, args.time_settings);
+		this.time = new GoTime(this, this.args.time_settings);
 
 	// GameTree
 		var that = this;
-		this.game_tree = new GameTree(args.div_id_tree, function(path) {
+		this.game_tree = new GameTree(this.args.div_id_tree, function(path) {
 			if (that.callbacks.send_focus != undefined) {
 				that.callbacks.send_focus(path);
 			} else {
@@ -34,11 +34,11 @@ GoSpeed.prototype = {
 		});
 
 	// Online
-		if (args.my_colour != undefined) {
-			this.my_colour = args.my_colour;
+		if (this.args.my_colour != undefined) {
+			this.my_colour = this.args.my_colour;
 		}
-		if (args.my_nick != undefined) {
-			this.my_nick = args.my_nick;
+		if (this.args.my_nick != undefined) {
+			this.my_nick = this.args.my_nick;
 		}
 		this.connected = (this.mode != "play_online" && this.mode != "count_online");
 
@@ -52,29 +52,29 @@ GoSpeed.prototype = {
 		this.turn_count = 0;
 
 	// Callbacks
-		this.callbacks = args.callbacks || {};
+		this.callbacks = this.args.callbacks || {};
 
 	// Paths
-		if (args.server_path_gospeed_root != undefined) {
-			this.server_path_gospeed_root = args.server_path_gospeed_root;
+		if (this.args.server_path_gospeed_root != undefined) {
+			this.server_path_gospeed_root = this.args.server_path_gospeed_root;
 		}
-		if (args.server_path_absolute_url != undefined) {
-			this.server_path_absolute_url = args.server_path_absolute_url;
+		if (this.args.server_path_absolute_url != undefined) {
+			this.server_path_absolute_url = this.args.server_path_absolute_url;
 		}
-		if (args.server_path_game_move != undefined) {
-			this.server_path_game_move = args.server_path_game_move;
+		if (this.args.server_path_game_move != undefined) {
+			this.server_path_game_move = this.args.server_path_game_move;
 		}
-		if (args.server_path_game_end != undefined) {
-			this.server_path_game_end = args.server_path_game_end;
+		if (this.args.server_path_game_end != undefined) {
+			this.server_path_game_end = this.args.server_path_game_end;
 		}
 
 	// Shower
 		// Define the showing engine
-		if (args.shower != undefined) {
-			if (args.shower == "basic") {
-				this.shower = new GoShower(this, args);
-			} else if (args.shower == "graphic") {
-				this.shower = new GoGraphic(this, args);
+		if (this.args.shower != undefined) {
+			if (this.args.shower == "basic") {
+				this.shower = new GoShower(this, this.args);
+			} else if (this.args.shower == "graphic") {
+				this.shower = new GoGraphic(this, this.args);
 			}
 		}
 
@@ -916,7 +916,11 @@ GoSpeed.prototype = {
 
 		// Score
 		this.score = undefined;
-		this.mode = "play";
+		if (this.args.mode != undefined) {
+			this.mode = this.args.mode;
+		} else {
+			this.mode = "play";
+		}
 
 		// SGFParser
 		if (this.sgf != undefined) {

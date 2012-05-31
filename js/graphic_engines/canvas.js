@@ -451,6 +451,7 @@ Canvas2DEngine.prototype = {
 		// Setup
 		this.size = size;
 		this.div_board.style.position = "relative";
+		this.div_board.className = "Canvas";
 		this.last_width = this.div_board.offsetWidth;
 		this.last_height = this.div_board.offsetHeight;
 

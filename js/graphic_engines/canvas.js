@@ -849,4 +849,9 @@ Canvas2DEngine.prototype = {
 		this.manager.test_and_store_div(args, "div_id_board", this, "div_board", true);
 	},
 
+	is_supported: function() {
+		var elem = document.createElement('canvas');
+		return !!(elem.getContext && elem.getContext('2d'));
+	}
+
 }

@@ -20,8 +20,13 @@ GoGraphic.prototype = {
 		}
 
 		// Engine
-		//this.engine = new HTMLEngine(this, args);
-		this.engine = new Canvas2DEngine(this, args);
+		if (typeof Canvas2DEngine != "undefined" && Canvas2DEngine.prototype.is_supported()) {
+			this.engine = new Canvas2DEngine(this, args);
+		} else if (typeof HTMLEnigne != "undefined") {
+			this.engine = new HTMLEngine(this, args);
+		} else {
+			throw new Error("No graphic engine has been provided.");
+		}
 	},
 
 

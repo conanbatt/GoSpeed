@@ -318,8 +318,8 @@ Canvas2DEngine.prototype = {
 	// Variation Numbers
 	draw_number: function(stone, num) {
 		this.stone_ct.save();
-			//this.stone_ct.globalAlpha = 0.75;
-			this.stone_ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Shojumaru";
+			this.stone_ct.globalAlpha = 0.75;
+			this.stone_ct.font = "" + Math.floor(this.stone_size * 0.5) + "px Monospace"; // Shojumaru
 			this.stone_ct.fillStyle = (stone.color == "B" ? "#FFF" : "#000");
 			this.stone_ct.textAlign = "center";
 			this.stone_ct.textBaseline = "middle";
@@ -334,7 +334,7 @@ Canvas2DEngine.prototype = {
 			this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
 			if (this.t_stone_number != undefined && trace) {
 				this.stone_ct.globalAlpha = 0.75;
-				this.stone_ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Shojumaru";
+				this.stone_ct.font = "" + Math.floor(this.stone_size * 0.5) + "px Monospace"; // Shojumaru (bold)
 				this.stone_ct.fillStyle = (color == "B" ? "#FFF" : "#000");
 				this.stone_ct.textAlign = "center";
 				this.stone_ct.textBaseline = "middle";

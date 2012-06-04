@@ -394,9 +394,11 @@ Canvas2DEngine.prototype = {
 			// Push
 			ct.save();
 
+				// Draw wood texture
+				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
+
 				// Setup
 				ct.lineWidth = 1;
-				ct.globalCompositeOperation = "destination-over"; // Los objetos puestos a continuación afectan sólo lo que se haya puesto anteriormente
 
 				// Draw lines and hoshis
 				for (var i = 0, li = this.size - 1; i < li; ++i) {
@@ -420,8 +422,28 @@ Canvas2DEngine.prototype = {
 					}
 				}
 
-				// Draw wood texture
-				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
+				// Highlights n' Shadows
+				ct.globalAlpha = 0.2;
+				ct.lineWidth = 1;
+				ct.strokeStyle = "#FFF";
+				ct.beginPath();
+				ct.moveTo(0.5, 0.5);
+				ct.lineTo(this.last_width - 0.5, 0.5);
+				ct.lineTo(this.last_width - 0.5, this.last_height - 0.5);
+				ct.moveTo(1.5, 1.5);
+				ct.lineTo(this.last_width - 1.5, 1.5);
+				ct.lineTo(this.last_width - 1.5, this.last_height - 1.5);
+				ct.stroke();
+
+				ct.strokeStyle = "#000";
+				ct.beginPath();
+				ct.moveTo(this.last_width - 1.5, this.last_height - 0.5);
+				ct.lineTo(0.5, this.last_height - 0.5);
+				ct.lineTo(0.5, 1.5);
+				ct.moveTo(this.last_width - 2.5, this.last_height - 1.5);
+				ct.lineTo(1.5, this.last_height - 1.5);
+				ct.lineTo(1.5, 2.5);
+				ct.stroke();
 
 			// Pop
 			ct.restore();

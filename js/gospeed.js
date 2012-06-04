@@ -97,6 +97,7 @@ GoSpeed.prototype = {
 			this.board.undo_play(node.play);
 			if (!no_redraw) {
 				if (this.shower) {
+					this.shower.clear_ko();
 					this.shower.undraw_play(node.play);
 					// Place last stone marker
 					if (this.game_tree.actual_move.play instanceof Play) {

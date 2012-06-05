@@ -150,8 +150,8 @@ GoGraphic.prototype = {
 		this.engine.show_stone(target.stone, target.shadow);
 	},
 
-	render: function(hard) {
-		this.engine.render(this.game.board.size, hard);
+	render: function(hard, show_coords) {
+		this.engine.render(this.game.board.size, hard, show_coords);
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
@@ -403,9 +403,9 @@ GoGraphic.prototype = {
 		}
 	},
 
-	redraw: function(hard) {
+	redraw: function(hard, show_coords) {
 		this.clear(hard);
-		this.render(hard);
+		this.render(hard, show_coords);
 
 		var color;
 		for (var i = 0, li = this.game.board.size; i < li; ++i) {

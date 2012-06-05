@@ -79,7 +79,7 @@ GoSpeed.prototype = {
 		}
 
 	// Render
-		this.render(true);
+		this.render(true, this.args.show_coords);
 	},
 
 //	Game Seek
@@ -893,7 +893,7 @@ GoSpeed.prototype = {
 		if (this.board.size != size) {
 			this.board.size = size;
 			this.clear(true);
-			this.render(true);
+			this.render(true, this.args.show_coords);
 			this.render_tree();
 		}
 	},
@@ -956,9 +956,9 @@ GoSpeed.prototype = {
 		}
 	},
 
-	render: function(hard) {
+	render: function(hard, show_coords) {
 		if (this.shower) {
-			this.shower.render(hard);
+			this.shower.render(hard, show_coords);
 		}
 	},
 

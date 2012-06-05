@@ -385,7 +385,7 @@ Canvas2DEngine.prototype = {
 	},
 
 	// Background
-	draw_bg: function() {
+	draw_bg: function(show_coords) {
 		if (this.bg_loaded) {
 			// Context
 			var ct = this.board_ct;
@@ -394,61 +394,119 @@ Canvas2DEngine.prototype = {
 			// Push
 			ct.save();
 
-				// Draw wood texture
+			if (show_coords) {
+				// First shadow rectangle
+				ct.fillStyle = "rgba(0, 0, 0, 0.2)";
+				ct.fillRect(0, 0, this.last_width, this.last_height);
+
+				ct.globalCompositeOperation = "destination-out";
+
+				// Cut letters (hard to soft shadow)
+				ct.fillStyle = "#000";
+				ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu"; // Shojumaru
+				ct.textAlign = "center";
+				ct.textBaseline = "middle";
+
+				var shadow_padding = Math.ceil(this.stone_size * 0.03);
+				for (var i = 0, li = this.size; i < li; ++i) {
+					var letter = String.fromCharCode(65 + (i > 7 ? i + 1 : i));
+					ct.fillText(letter, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5) - shadow_padding, Math.floor(this.bound_size * 0.5) + shadow_padding);
+					ct.fillText(letter, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5) - shadow_padding, Math.floor(this.last_height - this.bound_size * 0.5) + shadow_padding);
+					ct.fillText(this.size - i, Math.floor(this.bound_size * 0.5) - shadow_padding, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5) + shadow_padding);
+					ct.fillText(this.size - i, Math.floor(this.last_width - this.bound_size * 0.5) - shadow_padding, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5) + shadow_padding);
+				}
+
+				ct.globalCompositeOperation = "destination-over";
+
+				// Second shadow rectangle (soft shadow bg)
+				ct.fillStyle = "rgba(0, 0, 0, 0.2)";
+				ct.fillRect(0, 0, this.last_width, this.last_height);
+				ct.fillStyle = "#000";
+
+				// Background wood texture (after soft shadow)
 				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
 
-				// Setup
-				ct.lineWidth = 1;
+				ct.globalCompositeOperation = "source-over";
 
-				// Draw lines and hoshis
-				for (var i = 0, li = this.size - 1; i < li; ++i) {
-					for (var j = 0, lj = this.size - 1; j < lj; ++j) {
-						ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
-						if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
-							if (this.size == 9) {
-								if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
-									this.draw_hoshi(i, j)
-								}
-							} else if (this.size == 13) {
-								if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
-									this.draw_hoshi(i, j)
-								}
-							} else if (this.size == 19) {
-								if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
-									this.draw_hoshi(i, j)
-								}
+				// Foreground wood texture with letters carved
+				var tmp_canvas = document.createElement("canvas");
+				tmp_canvas.style.backgroundColor = "#000";
+				tmp_canvas.width = this.last_width;
+				tmp_canvas.height = this.last_height;
+				var ct2 = tmp_canvas.getContext("2d");
+				ct2.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
+				ct2.globalCompositeOperation = "destination-out";
+
+				ct2.fillStyle = "#000";
+				ct2.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu"; // Shojumaru
+				ct2.textAlign = "center";
+				ct2.textBaseline = "middle";
+				for (var i = 0, li = this.size; i < li; ++i) {
+					var letter = String.fromCharCode(65 + (i > 7 ? i + 1 : i));
+					ct2.fillText(letter, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5), Math.floor(this.bound_size * 0.5));
+					ct2.fillText(letter, Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5), Math.floor(this.last_height - this.bound_size * 0.5));
+					ct2.fillText(this.size - i, Math.floor(this.bound_size * 0.5), Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5));
+					ct2.fillText(this.size - i, Math.floor(this.last_width - this.bound_size * 0.5), Math.floor(this.bound_size + i * this.stone_size + this.stone_size * 0.5));
+				}
+
+				ct.globalCompositeOperation = "source-over";
+
+				// Draw foreground over background
+				ct.drawImage(tmp_canvas, 0, 0);
+			} else {
+				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
+			}
+
+			// Draw lines and hoshis
+			ct.lineWidth = 1;
+			for (var i = 0, li = this.size - 1; i < li; ++i) {
+				for (var j = 0, lj = this.size - 1; j < lj; ++j) {
+					ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
+					if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
+						if (this.size == 9) {
+							if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {
+								this.draw_hoshi(i, j)
+							}
+						} else if (this.size == 13) {
+							if (i % 3 == 0 && j % 3 == 0 && (i + j) % 3 == 0) {
+								this.draw_hoshi(i, j)
+							}
+						} else if (this.size == 19) {
+							if (i % 6 == 3 && j % 6 == 3 && (i + j) % 6 == 0) {
+								this.draw_hoshi(i, j)
 							}
 						}
 					}
 				}
+			}
 
-				// Highlights n' Shadows
-				ct.globalAlpha = 0.2;
-				ct.lineWidth = 1;
-				ct.strokeStyle = "#FFF";
-				ct.beginPath();
-				ct.moveTo(0.5, 0.5);
-				ct.lineTo(this.last_width - 0.5, 0.5);
-				ct.lineTo(this.last_width - 0.5, this.last_height - 0.5);
-				ct.moveTo(1.5, 1.5);
-				ct.lineTo(this.last_width - 1.5, 1.5);
-				ct.lineTo(this.last_width - 1.5, this.last_height - 1.5);
-				ct.stroke();
+			// Highlights n' Shadows
+			ct.globalAlpha = 0.2;
+			ct.lineWidth = 1;
+			ct.strokeStyle = "#FFF";
+			ct.beginPath();
+			ct.moveTo(0.5, 0.5);
+			ct.lineTo(this.last_width - 0.5, 0.5);
+			ct.lineTo(this.last_width - 0.5, this.last_height - 0.5);
+			ct.moveTo(1.5, 1.5);
+			ct.lineTo(this.last_width - 1.5, 1.5);
+			ct.lineTo(this.last_width - 1.5, this.last_height - 1.5);
+			ct.stroke();
 
-				ct.strokeStyle = "#000";
-				ct.beginPath();
-				ct.moveTo(this.last_width - 1.5, this.last_height - 0.5);
-				ct.lineTo(0.5, this.last_height - 0.5);
-				ct.lineTo(0.5, 1.5);
-				ct.moveTo(this.last_width - 2.5, this.last_height - 1.5);
-				ct.lineTo(1.5, this.last_height - 1.5);
-				ct.lineTo(1.5, 2.5);
-				ct.stroke();
+			ct.strokeStyle = "#000";
+			ct.beginPath();
+			ct.moveTo(this.last_width - 1.5, this.last_height - 0.5);
+			ct.lineTo(0.5, this.last_height - 0.5);
+			ct.lineTo(0.5, 1.5);
+			ct.moveTo(this.last_width - 2.5, this.last_height - 1.5);
+			ct.lineTo(1.5, this.last_height - 1.5);
+			ct.lineTo(1.5, 2.5);
+			ct.stroke();
 
 			// Pop
 			ct.restore();
 		} else {
-			window.setTimeout(this.binder(this.draw_bg, this), 100);
+			window.setTimeout(this.binder(this.draw_bg, this, [show_coords]), 100);
 		}
 	},
 
@@ -465,7 +523,7 @@ Canvas2DEngine.prototype = {
 		this.board_ct.fill();
 	},
 
-	render: function(size, hard) {
+	render: function(size, hard, show_coords) {
 		if (!hard) {
 			return false;
 		}
@@ -478,7 +536,7 @@ Canvas2DEngine.prototype = {
 		this.last_height = this.div_board.offsetHeight;
 
 		// Stone size
-		this.stone_size = Math.floor(this.last_width / (this.size + 1));
+		this.stone_size = Math.floor(this.last_width / (this.size + 1 + (show_coords ? 1 : 0)));
 		// It has to be odd so the stone fits with the board lines
 		if (this.stone_size % 2 == 0) {
 			this.stone_size--;
@@ -530,7 +588,7 @@ Canvas2DEngine.prototype = {
 		this.draw_shadow_source();
 
 		// Background
-		this.draw_bg();
+		this.draw_bg(show_coords);
 
 		/*
 		// Revive stones
@@ -684,7 +742,7 @@ Canvas2DEngine.prototype = {
 *   Event handling   *
                     */
 	binder: function (method, object, args) {
-		return function(orig_args) { method.apply(object, [orig_args].concat(args)); };
+		return function(orig_args) { method.apply(object, args); };
 	},
 
 	click_handler: function(mouse) {

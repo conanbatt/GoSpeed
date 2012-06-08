@@ -384,7 +384,7 @@ Score.prototype = {
 		return true;
 	},
 
-	same_group: function(coor_a, coor_b) {
+	same_group: function(coor_a, coor_b, b_empty_spaces) {
 		var board = this.grid;
 		var size = board.length;
 		var stack_coord = [coor_a];
@@ -404,10 +404,10 @@ Score.prototype = {
 					if(x == coor_b[0] && y == coor_b[1]) { return true; }
 					stack_coord = stack_coord.concat([[x-1, y], [x+1, y], [x, y-1], [x, y+1]]);
 					//possible clean kosumis
-					if(this.indirectly_connected_stones([x,y],[x+1,y+1])) {  stack_coord = stack_coord.concat([[x+1, y+1]]); }
-					if(this.indirectly_connected_stones([x,y],[x-1,y-1])) {  stack_coord = stack_coord.concat([[x-1, y-1]]); }
-					if(this.indirectly_connected_stones([x,y],[x+1,y-1])) {  stack_coord = stack_coord.concat([[x+1, y-1]]); }
-					if(this.indirectly_connected_stones([x,y],[x-1,y+1])) {  stack_coord = stack_coord.concat([[x-1, y+1]]); }
+					if(this.indirectly_connected_stones([x,y],[x+1,y+1], b_empty_spaces)) {  stack_coord = stack_coord.concat([[x+1, y+1]]); }
+					if(this.indirectly_connected_stones([x,y],[x-1,y-1], b_empty_spaces)) {  stack_coord = stack_coord.concat([[x-1, y-1]]); }
+					if(this.indirectly_connected_stones([x,y],[x+1,y-1], b_empty_spaces)) {  stack_coord = stack_coord.concat([[x+1, y-1]]); }
+					if(this.indirectly_connected_stones([x,y],[x-1,y+1], b_empty_spaces)) {  stack_coord = stack_coord.concat([[x-1, y+1]]); }
 					//possible clean bamboo joints
 					if(this.indirectly_connected_stones([x,y],[x,y+2])) {  stack_coord = stack_coord.concat([[x, y+2]]); }
 					if(this.indirectly_connected_stones([x,y],[x+2,y])) {  stack_coord = stack_coord.concat([[x+2, y]]); }
@@ -420,7 +420,7 @@ Score.prototype = {
 		return false;
 	},
 
-	indirectly_connected_stones: function(coor_a, coor_b) {
+	indirectly_connected_stones: function(coor_a, coor_b, b_empty_spaces) {
 		var board = this.grid;
 		var size = board.length;
 		var xa = coor_a[0]; var xb = coor_b[0];
@@ -428,22 +428,26 @@ Score.prototype = {
 		var delta_x = xb-xa; var delta_y = yb-ya;
 		if ( xa < 0 || xa >= size || ya < 0 || ya >= size) { return false; }
 		if ( xb < 0 || xb >= size || yb < 0 || yb >= size) { return false; }
-    var owner = board[coor_a[0]][coor_a[1]];
-    var other_owner =  board[coor_b[0]][coor_b[1]];
-    if ( owner != other_owner) { return false; } 
-		//kosumi: one of the spots must be empty!
+		var owner = board[coor_a[0]][coor_a[1]];
+		var other_owner = board[coor_b[0]][coor_b[1]];
+		if ( owner != other_owner) { return false; }
+		//kosumi: one of the spots must be empty! but... this empty spot must not be the empty space currently being investigated (b_empty_spaces)
 		if((delta_x == 1 && delta_y == 1) || (delta_x == 1 && delta_y == -1) || (delta_x == -1 && delta_y == 1) || (delta_x == -1 && delta_y == -1)) {
-			if(board[xa+delta_x][ya] == EMPTY || board[xa][ya+delta_y] == EMPTY) { return true; }
+			if(b_empty_spaces.length != 1) {
+				if(board[xa+delta_x][ya] == EMPTY || board[xa][ya+delta_y] == EMPTY) { return true; }
+			} else {
+				if((board[xa+delta_x][ya] == EMPTY && (b_empty_spaces[0][0] != xa+delta_x && b_empty_spaces[0][1] != ya) ) || (board[xa][ya+delta_y] == EMPTY) && (b_empty_spaces[0][0] != xa && b_empty_spaces[0][1] != ya+delta_y)) { return true; }
+			}
 		}
 		//bamboo joint: the spot in between must be empty!
 		if((delta_x == 2 && delta_y == 0) || (delta_x == 0 && delta_y == 2) || (delta_x == -2 && delta_y == 0) || (delta_x == 0 && delta_y == -2)) {
 			if(delta_x == 0) {
-        if(board[xa][ya+delta_y/2] != EMPTY) { return false; }
+				if(board[xa][ya+delta_y/2] != EMPTY) { return false; }
 				if(xa-1 >=0	 && board[xa-1][ya+delta_y] == owner && board[xa-1][ya] == owner) { return true; }
 				if(xa+1 < size && board[xa+1][ya+delta_y] == owner && board[xa+1][ya] == owner) { return true; }
 			}
 			if(delta_y == 0) {
-        if(board[xa+delta_y/2][ya] != EMPTY) { return false; }
+				if(board[xa+delta_y/2][ya] != EMPTY) { return false; }
 				if(ya-1 >=0	&& board[xa+delta_x][ya-1] == owner && board[xa][ya-1] == owner) { return true; }
 				if(ya+1 < size && board[xa+delta_x][ya+1] == owner && board[xa][ya+1] == owner) { return true; }
 			}
@@ -457,7 +461,7 @@ Score.prototype = {
 			g = all_groups[index];
 			if(g == group) { continue; }
 			if(g.owner == group.owner) {
-				if(this.same_group(g.owner_coordinate, group.owner_coordinate)) { return true; }
+				if(this.same_group(g.owner_coordinate, group.owner_coordinate, group.empty)) { return true; }
 			}
 		}
 		return false;

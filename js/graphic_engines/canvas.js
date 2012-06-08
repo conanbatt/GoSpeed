@@ -591,9 +591,9 @@ Canvas2DEngine.prototype = {
 		this.draw_bg(show_coords);
 
 		// Bind mouse handlers
-		this.div_board.onclick = this.binder(this.click_handler, this, null);
-		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);
-		this.div_board.onmouseout = this.binder(this.mouseout_handler, this, null);
+		this.div_board.onclick = this.binder(this.click_handler, this);
+		this.div_board.onmousemove = this.binder(this.mousemove_handler, this);
+		this.div_board.onmouseout = this.binder(this.mouseout_handler, this);
 	},
 
 	create_elem: function(sTag, sClass, bHidden) {
@@ -727,7 +727,18 @@ Canvas2DEngine.prototype = {
 *   Event handling   *
                     */
 	binder: function (method, object, args) {
-		return function(orig_args) { method.apply(object, args); };
+		return function(orig_args) {
+			var final_args = [];
+			for (var i = 0, li = arguments.length; i < li; ++i) {
+				final_args.push(arguments[i]);
+			}
+			if (args != undefined) {
+				for (var j = 0, lj = args.length; j < lj; ++j) {
+					final_args.push(args[j]);
+				}
+			}
+			method.apply(object, final_args);
+		};
 	},
 
 	click_handler: function(mouse) {

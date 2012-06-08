@@ -403,7 +403,7 @@ Canvas2DEngine.prototype = {
 
 				// Cut letters (hard to soft shadow)
 				ct.fillStyle = "#000";
-				ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu"; // Shojumaru
+				ct.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu, Sans, Monospace"; // Shojumaru
 				ct.textAlign = "center";
 				ct.textBaseline = "middle";
 
@@ -438,7 +438,7 @@ Canvas2DEngine.prototype = {
 				ct2.globalCompositeOperation = "destination-out";
 
 				ct2.fillStyle = "#000";
-				ct2.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu"; // Shojumaru
+				ct2.font = "bold " + Math.floor(this.stone_size * 0.5) + "px Ubuntu, Sans, Monospace"; // Shojumaru
 				ct2.textAlign = "center";
 				ct2.textBaseline = "middle";
 				for (var i = 0, li = this.size; i < li; ++i) {

@@ -590,21 +590,6 @@ Canvas2DEngine.prototype = {
 		// Background
 		this.draw_bg(show_coords);
 
-		/*
-		// Revive stones
-		this.r_stones = {};
-		this.r_stones[WHITE] = this.create_elem("div", "ReviveStoneW", true);
-		this.r_stones[BLACK] = this.create_elem("div", "ReviveStoneB", true);
-
-		// Last stone wait markers
-		this.last_stone_wait = {};
-		this.last_stone_wait[WHITE] = this.create_elem("div", "LastStoneWaitW", true);
-		this.last_stone_wait[BLACK] = this.create_elem("div", "LastStoneWaitB", true);
-
-		// Coord Marker
-		this.coord_marker = this.create_elem("div", "CoordMarker", true);
-		*/
-
 		// Bind mouse handlers
 		this.div_board.onclick = this.binder(this.click_handler, this, null);
 		this.div_board.onmousemove = this.binder(this.mousemove_handler, this, null);

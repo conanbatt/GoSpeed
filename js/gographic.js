@@ -404,25 +404,36 @@ GoGraphic.prototype = {
 	},
 
 	redraw: function(hard, show_coords) {
-		this.clear(hard);
-		this.render(hard, show_coords);
+		this.engine.clear(hard);
+		this.engine.render(this.game.board.size, hard, show_coords);
 
-		var color;
 		for (var i = 0, li = this.game.board.size; i < li; ++i) {
 			for (var j = 0; j < li; ++j) {
-				color = this.game.board.grid[i][j];
-				if (color != undefined) {
-					this.put_stone(color, i, j);
+				var pos = this.grid[i][j];
+				if (pos != undefined) {
+					if (pos.t_stone != undefined) {
+						this.engine.draw_transparent_stone(pos.t_stone.color, pos.t_stone.row, pos.t_stone.col);
+					} else {
+						if (pos.stone != undefined) {
+							this.engine.draw_stone(pos.stone.color, pos.stone.row, pos.stone.col);
+						}
+					}
+					if (pos.little_stone != undefined) {
+						this.engine.draw_little_stone(pos.little_stone.color, pos.little_stone.row, pos.little_stone.col);
+					}
 				}
 			}
 		}
+
 		var node = this.game.game_tree.actual_move;
-		this.refresh_ko(node.play);
 		this.update_captures(node.play);
 		this.update_move_number(node);
 		this.update_comments();
-		if (node.play instanceof Play) {
-			this.engine.draw_last_stone_marker(node.play.put);
+		if (this.game.mode != "count" && this.game.mode != "count_online") {
+			if (node.play instanceof Play) {
+				this.refresh_ko(node.play);
+				this.engine.draw_last_stone_marker(node.play.put);
+			}
 		}
 	},
 

@@ -512,9 +512,12 @@ Canvas2DEngine.prototype = {
 
 	draw_hoshi: function(row, col) {
 		var bound_adjustment = this.bound_size + this.stone_size / 2.0;
-		var radius = this.stone_size / 20;
+		var radius = this.stone_size / 15;
 		if (radius < 1.5) {
 			radius = 1.5;
+		}
+		if (radius > 3) {
+			radius = 3;
 		}
 		this.board_ct.beginPath();
 		this.board_ct.arc(col * this.stone_size + bound_adjustment, row * this.stone_size + bound_adjustment, radius, 0, 2 * Math.PI, false);

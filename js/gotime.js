@@ -106,7 +106,7 @@ GoTime.prototype = {
 				if (this.game.server_path_absolute_url != undefined && this.game.server_path_game_end != undefined) {
 					$.post(this.game.server_path_absolute_url + this.game.server_path_game_end, {result: "time_loss"}, function(data, textStatus) {
 						if (textStatus == "success") {
-							if (KAYAGLOBAL != undefined) {
+							if (typeof KAYAGLOBAL != "undefined") {
 								KAYAGLOBAL.play_sound("outoftime");
 							}
 							that.clock.stop();

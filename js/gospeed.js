@@ -322,7 +322,7 @@ GoSpeed.prototype = {
 						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 					}
-					if (KAYAGLOBAL != undefined) {
+					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
 					// TODO: turn count sucks monkey ass
@@ -601,7 +601,7 @@ GoSpeed.prototype = {
 					this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
 					// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
 				}
-				if (KAYAGLOBAL != undefined) {
+				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");
 				}
 				// TODO: turn count sucks monkey ass
@@ -1113,7 +1113,7 @@ GoSpeed.prototype = {
 			}
 
 			// Play sound!
-			if (KAYAGLOBAL != undefined) {
+			if (typeof KAYAGLOBAL != "undefined") {
 				if (move_added.play instanceof Play) {
 					KAYAGLOBAL.play_sound(move_added.play.put.color);
 				} else if (move_added.play instanceof Pass) {
@@ -1174,7 +1174,7 @@ GoSpeed.prototype = {
 			}
 
 			// Play sound!
-			if (KAYAGLOBAL != undefined) {
+			if (typeof KAYAGLOBAL != "undefined") {
 				if (move_added.play instanceof Play) {
 					KAYAGLOBAL.play_sound(move_added.play.put.color);
 				} else if (move_added.play instanceof Pass) {

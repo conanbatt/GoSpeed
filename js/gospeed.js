@@ -1134,8 +1134,14 @@ GoSpeed.prototype = {
 			if (typeof KAYAGLOBAL != "undefined") {
 				if (move_added.play instanceof Play) {
 					KAYAGLOBAL.play_sound(move_added.play.put.color);
+					if (this.callbacks.announce_play != undefined) {
+						this.callbacks.announce_play(move_added.play.put.color);
+					}
 				} else if (move_added.play instanceof Pass) {
 					KAYAGLOBAL.play_sound("pass");
+					if (this.callbacks.announce_pass != undefined) {
+						this.callbacks.announce_pass(move_added.play.put.color);
+					}
 				}
 			}
 
@@ -1229,6 +1235,7 @@ GoSpeed.prototype = {
 		this.goto_end();
 		this.handle_score_agreement(data.raw_score_state);
 		this.time.update(data.time_adjustment);
+		this.last_play_announcement();
 
 		// Stop timer when game ends
 		if (data.result != undefined) {
@@ -1236,6 +1243,19 @@ GoSpeed.prototype = {
 		}
 
 		this.status = ST_READY;
+	},
+
+	last_play_announcement: function() {
+		var play = this.game_tree.actual_move.play;
+		if (play instanceof Play) {
+			if (this.callbacks.announce_play) {
+				this.callbacks.announce_play(play.put.color);
+			}
+		} else if (play instanceof Pass) {
+			if (this.callbacks.announce_pass) {
+				this.callbacks.announce_pass(play.put.color);
+			}
+		}
 	},
 
 	juggernaut_data_to_sgf: function(data) {

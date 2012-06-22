@@ -145,6 +145,10 @@ Score.prototype = {
 		return !(res.dead_count[BLACK] > 0 && res.dead_count[WHITE] > 0);
 	},
 
+	can_revive_stone: function(color, row, col) {
+		return !(this.grid[row][col] == BLACK || this.grid[row][col] == WHITE);
+	},
+
 	clear_visited: function() {
 		// Visited grid (to avoid changes in Score.grid)
 		var size = this.grid.length;

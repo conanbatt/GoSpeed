@@ -441,21 +441,32 @@ GoSpeed.prototype = {
 				if (target == undefined) {
 					return false;
 				}
-				if (this.shower != undefined) {
-					this.shower.clear_dead_groups(this.score.dead_groups);
-				}
-				var bChanged;
-				if (shift) {
-					bChanged = this.score.revive_stone(target, row, col);
-				} else {
-					if (this.score.can_kill_stone(target, row, col)) {
-						bChanged = this.score.kill_stone(target, row, col);
+				if (this.mode == "count") {
+					if (this.shower != undefined) {
+						this.shower.clear_dead_groups(this.score.dead_groups);
 					}
-				}
-				this.draw_score();
-				if (this.mode == "count_online") {
+					if (shift) {
+						this.score.revive_stone(target, row, col);
+					} else {
+						if (this.score.can_kill_stone(target, row, col)) {
+							this.score.kill_stone(target, row, col);
+						}
+					}
+					this.draw_score();
+				} else {
+					var bChanged; // True if can revive or kill stone.
+					// Check
+					if (shift) {
+						bChanged = this.score.can_revive_stone(target, row, col);
+					} else {
+						bChanged = this.score.can_kill_stone(target, row, col);
+					}
+					// POST
 					if (bChanged) {
-						this.send_score_state(row, col, shift);
+						if (this.callbacks.send_score_state != undefined) {
+							this.status = ST_WAITING;
+							this.callbacks.send_score_state(";" + (shift ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]");
+						}
 					}
 				}
 			break;
@@ -1064,12 +1075,6 @@ GoSpeed.prototype = {
 		}
 
 		return res;
-	},
-
-	send_score_state: function(row, col, alive) {
-		if (this.server_path_absolute_url != undefined && this.server_path_game_move != undefined) {
-			$.post(this.server_path_absolute_url + this.server_path_game_move, {score_state: ";" + (alive ? 'A' : 'D') + "[" + this.pos_to_sgf_coord(row, col) + "]"});
-		}
 	},
 
 	confirm_play: function() {

@@ -787,7 +787,7 @@ Canvas2DEngine.prototype = {
 		this.clean_t_stones();
 
 		// Nothing if not connected
-		if (!this.manager.game.connected) {
+		if (!this.manager.game.connected || this.manager.game.status != ST_READY) {
 			return false;
 		}
 

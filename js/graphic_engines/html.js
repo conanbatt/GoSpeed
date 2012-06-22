@@ -285,7 +285,7 @@ HTMLEngine.prototype = {
 	},
 
 	mousemove_handler: function(mouse) {
-		if (!this.manager.game.connected) {
+		if (!this.manager.game.connected || this.manager.game.status != ST_READY) {
 			return false;
 		}
 

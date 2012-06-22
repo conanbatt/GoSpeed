@@ -1,6 +1,9 @@
 var TRACK_ONLINE = 0;
 var TRACK_OFFLINE = 1;
 var TRACK_VARIATION = 2;
+var ST_LOADING = 0;
+var ST_WAITING = 1;
+var ST_READY = 2;
 
 function GoSpeed(args) {
 	this.init.apply(this, [args]);
@@ -8,6 +11,8 @@ function GoSpeed(args) {
 
 GoSpeed.prototype = {
 	init: function() {
+		this.status = ST_LOADING;
+
 	// Validation
 		var validator = new GoValidate(arguments);
 		this.args = validator.args;
@@ -80,6 +85,8 @@ GoSpeed.prototype = {
 
 	// Render
 		this.render(true, this.args.show_coords);
+
+		this.status = ST_READY;
 	},
 
 //	Game Seek
@@ -271,7 +278,7 @@ GoSpeed.prototype = {
 		}
 
 		// Check connection
-		if (!this.connected) {
+		if (!this.connected || this.status != ST_READY) {
 			return false;
 		}
 
@@ -330,6 +337,7 @@ GoSpeed.prototype = {
 
 					// Send Play Callback
 					if (this.callbacks.send_play != undefined) {
+						this.status = ST_WAITING;
 						this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
 					}
 
@@ -609,6 +617,7 @@ GoSpeed.prototype = {
 
 				// Send Play Callback
 				if (this.callbacks.send_play != undefined) {
+					this.status = ST_WAITING;
 					this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
 				}
 
@@ -984,6 +993,10 @@ GoSpeed.prototype = {
 		this.connected = false;
 	},
 
+	set_ready: function() {
+		this.status = ST_READY;
+	},
+
 	string_to_play: function(data) {
 		var row_patt = /^[A-Z]/;
 		var row = row_patt.exec(data)[0];
@@ -1129,6 +1142,8 @@ GoSpeed.prototype = {
 				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
 			}
+
+			this.status = ST_READY;
 		}
 	},
 
@@ -1214,6 +1229,8 @@ GoSpeed.prototype = {
 		if (data.result != undefined) {
 			this.time.stop();
 		}
+
+		this.status = ST_READY;
 	},
 
 	juggernaut_data_to_sgf: function(data) {

@@ -1,3 +1,5 @@
+QUnit.config.reorder = false;
+
 var BOARD_SIZE = 13;
 var BOARD_RULESET = "Chinese";
 var BOARD_MODE = "play_online";
@@ -34,7 +36,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
 		this.gospeed.my_colour = this.server.connect(this.gospeed.my_nick, binder(function() {
-			this.diff_update_game(arguments[0]);
+			this.new_diff_update_game(arguments[0]);
 		}, this.gospeed));
 		this.gospeed.connected = (this.gospeed.my_colour != undefined);
 
@@ -55,7 +57,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
 		this.gospeed2.my_colour = this.server.connect(this.gospeed2.my_nick, binder(function() {
-			this.diff_update_game(arguments[0]);
+			this.new_diff_update_game(arguments[0]);
 		}, this.gospeed2));
 		this.gospeed2.connected = (this.gospeed2.my_colour != undefined);
 

@@ -453,6 +453,7 @@ Canvas2DEngine.prototype = {
 
 			// Draw lines
 			ct.lineWidth = 1;
+			ct.globalAlpha = 0.5;
 			ct.beginPath();
 			for (var i = 0, li = this.size; i < li; ++i) {
 				ct.moveTo(bound_adjustment, i * this.stone_size + bound_adjustment);
@@ -461,6 +462,7 @@ Canvas2DEngine.prototype = {
 				ct.lineTo(i * this.stone_size + bound_adjustment, bound_adjustment + (this.size - 1) * this.stone_size);
 			}
 			ct.stroke();
+			ct.globalAlpha = 1;
 
 			// TODO: there should be a unique math formula to distribute hoshis...
 			// Draw hoshis
@@ -519,8 +521,8 @@ Canvas2DEngine.prototype = {
 	draw_hoshi: function(row, col) {
 		var bound_adjustment = this.bound_size + this.stone_size / 2.0;
 		var radius = this.stone_size / 15;
-		if (radius < 1.5) {
-			radius = 1.5;
+		if (radius < 1) {
+			radius = 1;
 		}
 		if (radius > 3) {
 			radius = 3;

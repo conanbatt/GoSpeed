@@ -54,6 +54,10 @@ Canvas2DEngine.prototype = {
 
 	// Last Stone Markers
 	draw_last_stone_wait_marker: function(put) {
+		if (!this.manager.game.args.draw_markers) {
+			return false;
+		}
+
 		this.clear_last_stone_markers();
 		// Setup
 		var x = put.col * this.stone_size + this.stone_size / 2.0;
@@ -77,6 +81,10 @@ Canvas2DEngine.prototype = {
 	},
 
 	animate_last_stone_wait_marker: function() {
+		if (!this.manager.game.args.draw_markers) {
+			return false;
+		}
+
 		var ct = this.marker_ct;
 		var m = this.last_stone_wait_marker;
 		if (m != undefined) {
@@ -95,6 +103,10 @@ Canvas2DEngine.prototype = {
 	},
 
 	draw_last_stone_marker: function(put) {
+		if (!this.manager.game.args.draw_markers) {
+			return false;
+		}
+
 		this.clear_last_stone_markers();
 		// Setup
 		var lw = Math.floor(this.stone_size / 20.0);

@@ -451,11 +451,21 @@ Canvas2DEngine.prototype = {
 				ct.drawImage(this.board_bg, 0, 0, this.board_bg.width, this.board_bg.height, 0, 0, this.last_width, this.last_height);
 			}
 
-			// Draw lines and hoshis
+			// Draw lines
 			ct.lineWidth = 1;
-			for (var i = 0, li = this.size - 1; i < li; ++i) {
-				for (var j = 0, lj = this.size - 1; j < lj; ++j) {
-					ct.strokeRect(i * this.stone_size + bound_adjustment, j * this.stone_size + bound_adjustment, this.stone_size, this.stone_size);
+			ct.beginPath();
+			for (var i = 0, li = this.size; i < li; ++i) {
+				ct.moveTo(bound_adjustment, i * this.stone_size + bound_adjustment);
+				ct.lineTo(bound_adjustment + (this.size - 1) * this.stone_size, i * this.stone_size + bound_adjustment);
+				ct.moveTo(i * this.stone_size + bound_adjustment, bound_adjustment);
+				ct.lineTo(i * this.stone_size + bound_adjustment, bound_adjustment + (this.size - 1) * this.stone_size);
+			}
+			ct.stroke();
+
+			// TODO: there should be a unique math formula to distribute hoshis...
+			// Draw hoshis
+			for (var i = 0, li = this.size; i < li; ++i) {
+				for (var j = 0; j < li; ++j) {
 					if (i != 0 && j != 0 && i != this.size - 1 && j != this.size - 1) {
 						if (this.size == 9) {
 							if (i % 2 == 0 && j % 2 == 0 && (i + j) % 2 == 0) {

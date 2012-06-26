@@ -8,6 +8,7 @@ function Canvas2DEngine(manager, args) {
 Canvas2DEngine.prototype = {
 	init: function(manager, args) {
 		this.manager = manager;
+		this.args = args;
 
 		// Validation
 		this.validate_and_load_divs(args);
@@ -378,7 +379,7 @@ Canvas2DEngine.prototype = {
 	},
 
 	// Background
-	draw_bg: function(show_coords) {
+	draw_bg: function() {
 		if (this.bg_loaded) {
 			// Context
 			var ct = this.board_ct;
@@ -387,7 +388,7 @@ Canvas2DEngine.prototype = {
 			// Push
 			ct.save();
 
-			if (show_coords) {
+			if (this.args.show_coords) {
 				// First shadow rectangle
 				ct.fillStyle = "rgba(0, 0, 0, 0.2)";
 				ct.fillRect(0, 0, this.last_width, this.last_height);
@@ -474,32 +475,34 @@ Canvas2DEngine.prototype = {
 			}
 
 			// Highlights n' Shadows
-			ct.globalAlpha = 0.2;
-			ct.lineWidth = 1;
-			ct.strokeStyle = "#FFF";
-			ct.beginPath();
-			ct.moveTo(0.5, 0.5);
-			ct.lineTo(this.last_width - 0.5, 0.5);
-			ct.lineTo(this.last_width - 0.5, this.last_height - 0.5);
-			ct.moveTo(1.5, 1.5);
-			ct.lineTo(this.last_width - 1.5, 1.5);
-			ct.lineTo(this.last_width - 1.5, this.last_height - 1.5);
-			ct.stroke();
+			if (this.args.draw_borders) {
+				ct.globalAlpha = 0.2;
+				ct.lineWidth = 1;
+				ct.strokeStyle = "#FFF";
+				ct.beginPath();
+				ct.moveTo(0.5, 0.5);
+				ct.lineTo(this.last_width - 0.5, 0.5);
+				ct.lineTo(this.last_width - 0.5, this.last_height - 0.5);
+				ct.moveTo(1.5, 1.5);
+				ct.lineTo(this.last_width - 1.5, 1.5);
+				ct.lineTo(this.last_width - 1.5, this.last_height - 1.5);
+				ct.stroke();
 
-			ct.strokeStyle = "#000";
-			ct.beginPath();
-			ct.moveTo(this.last_width - 1.5, this.last_height - 0.5);
-			ct.lineTo(0.5, this.last_height - 0.5);
-			ct.lineTo(0.5, 1.5);
-			ct.moveTo(this.last_width - 2.5, this.last_height - 1.5);
-			ct.lineTo(1.5, this.last_height - 1.5);
-			ct.lineTo(1.5, 2.5);
-			ct.stroke();
+				ct.strokeStyle = "#000";
+				ct.beginPath();
+				ct.moveTo(this.last_width - 1.5, this.last_height - 0.5);
+				ct.lineTo(0.5, this.last_height - 0.5);
+				ct.lineTo(0.5, 1.5);
+				ct.moveTo(this.last_width - 2.5, this.last_height - 1.5);
+				ct.lineTo(1.5, this.last_height - 1.5);
+				ct.lineTo(1.5, 2.5);
+				ct.stroke();
+			}
 
 			// Pop
 			ct.restore();
 		} else {
-			window.setTimeout(this.binder(this.draw_bg, this, [show_coords]), 100);
+			window.setTimeout(this.binder(this.draw_bg, this), 100);
 		}
 	},
 
@@ -519,7 +522,7 @@ Canvas2DEngine.prototype = {
 		this.board_ct.fill();
 	},
 
-	render: function(size, hard, show_coords) {
+	render: function(size, hard) {
 		if (!hard) {
 			return false;
 		}
@@ -532,7 +535,7 @@ Canvas2DEngine.prototype = {
 		this.last_height = this.div_board.offsetHeight;
 
 		// Stone size
-		this.stone_size = Math.floor(this.last_width / (this.size + 1 + (show_coords ? 1 : 0)));
+		this.stone_size = Math.floor(this.last_width / (this.size + 1 + (this.args.show_coords ? 1 : 0)));
 		// It has to be odd so the stone fits with the board lines
 		if (this.stone_size % 2 == 0) {
 			this.stone_size--;
@@ -584,7 +587,7 @@ Canvas2DEngine.prototype = {
 		this.draw_shadow_source();
 
 		// Background
-		this.draw_bg(show_coords);
+		this.draw_bg();
 
 		// Bind mouse handlers
 		this.div_board.onclick = this.binder(this.click_handler, this);

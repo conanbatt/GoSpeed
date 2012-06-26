@@ -84,7 +84,7 @@ GoSpeed.prototype = {
 		}
 
 	// Render
-		this.render(true, this.args.show_coords);
+		this.render(true);
 
 		this.status = ST_READY;
 	},
@@ -913,7 +913,7 @@ GoSpeed.prototype = {
 		if (this.board.size != size) {
 			this.board.size = size;
 			this.clear(true);
-			this.render(true, this.args.show_coords);
+			this.render(true);
 			this.render_tree();
 		}
 	},
@@ -976,9 +976,9 @@ GoSpeed.prototype = {
 		}
 	},
 
-	render: function(hard, show_coords) {
+	render: function(hard) {
 		if (this.shower) {
-			this.shower.render(hard, show_coords);
+			this.shower.render(hard);
 		}
 	},
 

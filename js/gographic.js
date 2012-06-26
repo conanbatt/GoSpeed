@@ -157,8 +157,8 @@ GoGraphic.prototype = {
 		this.put_stone(color, row, col);
 	},
 
-	render: function(hard, show_coords) {
-		this.engine.render(this.game.board.size, hard, show_coords);
+	render: function(hard) {
+		this.engine.render(this.game.board.size, hard);
 
 		// Captures
 		this.update_captures(this.game.game_tree.actual_move.play);
@@ -410,9 +410,9 @@ GoGraphic.prototype = {
 		}
 	},
 
-	redraw: function(hard, show_coords) {
+	redraw: function(hard) {
 		this.clear(hard);
-		this.render(hard, show_coords);
+		this.render(hard);
 
 		var color;
 		for (var i = 0, li = this.game.board.size; i < li; ++i) {

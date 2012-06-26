@@ -113,16 +113,6 @@ HTMLEngine.prototype = {
 		stone.innerHTML = num;
 	},
 
-	hide_stone: function(stone, shadow) {
-		stone.style.display = "none";
-		shadow.style.display = "none";
-	},
-
-	show_stone: function(stone, shadow) {
-		stone.style.display = "block";
-		shadow.style.display = "block";
-	},
-
 	draw_transparent_stone: function(color, row, col) {
 		var stone = document.createElement("div");
 		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;

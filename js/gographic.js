@@ -122,13 +122,16 @@ GoGraphic.prototype = {
 	},
 
 	stone_dead: function(color, row, col) {
-		// Hide original stone
-		this.engine.hide_stone(this.grid[row][col].stone, this.grid[row][col].shadow);
+		// Remove original stone
+		this.remove_stone(row, col);
 
 		// Draw the dead one
 		var t_stone = this.engine.draw_transparent_stone(color, row, col);
 
 		// Store register
+		if (this.grid[row][col] == undefined) {
+			this.grid[row][col] = {};
+		}
 		this.grid[row][col].t_stone = t_stone;
 	},
 
@@ -147,7 +150,7 @@ GoGraphic.prototype = {
 		}
 
 		// Show original stone
-		this.engine.show_stone(target.stone, target.shadow);
+		this.put_stone(color, row, col);
 	},
 
 	render: function(hard, show_coords) {

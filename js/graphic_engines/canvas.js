@@ -301,16 +301,6 @@ Canvas2DEngine.prototype = {
 		}
 	},
 
-	hide_stone: function(stone, shadow) {
-		this.remove_stone({
-			stone: stone,
-		});
-	},
-
-	show_stone: function(stone, shadow) {
-		this.draw_stone(stone.color, stone.row, stone.col);
-	},
-
 	remove_transparent_stone: function(t_stone) {
 		this.stone_ct.clearRect(t_stone.col * this.stone_size, t_stone.row * this.stone_size, this.stone_size, this.stone_size);
 	},

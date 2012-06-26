@@ -31,16 +31,21 @@ HTMLEngine.prototype = {
 		stone.style.top = stoneTop + "px";
 		this.div_board.appendChild(stone);
 
+		return {
+			stone: stone,
+		};
+	},
+
+	draw_shadow: function(row, col) {
 		var shadow = document.createElement("div");
+		var stoneLeft = col * STONE_SIZE + BOARD_BOUND;
+		var stoneTop = row * STONE_SIZE + BOARD_BOUND;
 		shadow.className = "Shadow";
 		shadow.style.left = (stoneLeft + SHADOW_SIDE * SHADOW_LEFT) + "px";
 		shadow.style.top = (stoneTop + SHADOW_TOP) + "px";
 		this.div_board.appendChild(shadow);
 
-		return {
-			stone: stone,
-			shadow: shadow,
-		};
+		return shadow;
 	},
 
 	draw_little_stone: function(color, row, col) {

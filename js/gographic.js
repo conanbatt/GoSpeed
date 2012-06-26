@@ -36,10 +36,14 @@ GoGraphic.prototype = {
 	put_stone: function(color, row, col) {
 		// Draw
 		this.engine.clean_t_stones();
-		var stones = this.engine.draw_stone(color, row, col);
+		var objects = this.engine.draw_stone(color, row, col);
+
+		if (this.game.args.draw_shadows) {
+			objects.shadow = this.engine.draw_shadow(row, col);
+		}
 
 		// Store stone register
-		this.grid[row][col] = stones;
+		this.grid[row][col] = objects;
 	},
 
 	put_little_stone: function(color, row, col) {

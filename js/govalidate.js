@@ -133,8 +133,11 @@ GoValidate.prototype = {
 		// Shower
 			this.test(this.args, "shower", "string", ["shower", "graphic"]);
 
-		// Shower
+		// Coordinates
 			this.test(this.args, "show_coords", "boolean");
+
+		// Shadows
+			this.test(this.args, "draw_shadows", "boolean", undefined, true);
 
 		// Colour
 			this.test(this.args, "my_colour", "string", ["B", "W", "A", "O",]);

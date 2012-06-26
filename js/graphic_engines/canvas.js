@@ -31,7 +31,6 @@ Canvas2DEngine.prototype = {
 	// Stones
 	draw_stone: function(color, row, col) {
 		this.stone_ct.drawImage(this.stones[color], col * this.stone_size, row * this.stone_size);
-		this.shadow_ct.drawImage(this.shadow, col * this.stone_size, row * this.stone_size);
 		return {
 			stone: {
 				color: color,
@@ -39,6 +38,10 @@ Canvas2DEngine.prototype = {
 				col: col,
 			},
 		};
+	},
+
+	draw_shadow: function(row, col) {
+		this.shadow_ct.drawImage(this.shadow, col * this.stone_size, row * this.stone_size);
 	},
 
 	remove_stone: function(target) {

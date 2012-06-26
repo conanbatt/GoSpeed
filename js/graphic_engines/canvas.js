@@ -453,7 +453,7 @@ Canvas2DEngine.prototype = {
 
 			// Draw lines
 			ct.lineWidth = 1;
-			ct.globalAlpha = 0.5;
+			ct.globalAlpha = 0.2;
 			ct.beginPath();
 			for (var i = 0, li = this.size; i < li; ++i) {
 				ct.moveTo(bound_adjustment, i * this.stone_size + bound_adjustment);
@@ -550,7 +550,7 @@ Canvas2DEngine.prototype = {
 		this.stone_size = Math.floor(this.last_width / (this.size + 1 + (this.args.show_coords ? 1 : 0)));
 		// It has to be odd so the stone fits with the board lines
 		if (this.stone_size % 2 == 0) {
-			this.stone_size--;
+			//this.stone_size--;
 		}
 
 		// Little stone size

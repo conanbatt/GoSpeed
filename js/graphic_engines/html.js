@@ -19,6 +19,8 @@ HTMLEngine.prototype = {
 		// Board Bound
 		this.max_bound = this.manager.game.board.size * STONE_SIZE + BOARD_BOUND;
 	},
+
+
 /*
 *   Board drawing primitives   *
                               */

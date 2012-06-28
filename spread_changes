@@ -1,10 +1,24 @@
 #!/bin/bash
+if [ $1 ]; then
+	echo "Spreading changes from revision $1 ..."
+	OUT=`git diff --name-status $1 | sed -n 's/^M\t//p'`
+else
+	echo "Spreading changes from actual status..."
+	OUT=`git status --porcelain | sed -n 's/^\ M\ //p'`
+fi
 
-OUT=`git status --porcelain | sed -n 's/^\ M\ //p'`
 for file in $OUT
 do
+	echo -n "Copy $file ... "
 	cp $file /home/polly/git-root/BGS/gospeed/$file
+	if [ $? -eq 0 ]; then
+		echo -e "[\e[00;32mOK\e[00m]";
+	else
+		echo -e "[\e[00;31mError\e[00m]";
+	fi
 done
+
+echo "Done"
 
 
 #redis-server > /dev/null &

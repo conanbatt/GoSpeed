@@ -37,7 +37,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID).innerHTML = "";
 		this.gospeed = new GoSpeed(conf);
 		this.gospeed.my_colour = this.server.connect(this.gospeed.my_nick, binder(function() {
-			this.new_diff_update_game(arguments[0]);
+			this.diff_update_game(arguments[0]);
 		}, this.gospeed));
 		this.gospeed.connected = (this.gospeed.my_colour != undefined);
 
@@ -58,7 +58,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_2).innerHTML = "";
 		this.gospeed2 = new GoSpeed(conf2);
 		this.gospeed2.my_colour = this.server.connect(this.gospeed2.my_nick, binder(function() {
-			this.new_diff_update_game(arguments[0]);
+			this.diff_update_game(arguments[0]);
 		}, this.gospeed2));
 		this.gospeed2.connected = (this.gospeed2.my_colour != undefined);
 
@@ -79,7 +79,7 @@ module("OnlineSuite", {
 		document.getElementById(BOARD_DIV_ID_3).innerHTML = "";
 		this.gospeed3 = new GoSpeed(conf3);
 		this.gospeed3.my_colour = this.server.connect(this.gospeed3.my_nick, binder(function() {
-			this.new_diff_update_game(arguments[0]);
+			this.diff_update_game(arguments[0]);
 		}, this.gospeed3));
 		this.gospeed3.connected = (this.gospeed3.my_colour != undefined);
 

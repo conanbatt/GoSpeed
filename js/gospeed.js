@@ -1089,7 +1089,7 @@ GoSpeed.prototype = {
 		}
 	},
 
-	new_diff_update_game: function(data) {
+	diff_update_game: function(data) {
 		// Check SGF status:
 		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
 			// Not loaded: load from scratch.
@@ -1137,14 +1137,8 @@ GoSpeed.prototype = {
 			if (typeof KAYAGLOBAL != "undefined") {
 				if (move_added.play instanceof Play) {
 					KAYAGLOBAL.play_sound(move_added.play.put.color);
-					if (this.callbacks.announce_play != undefined) {
-						this.callbacks.announce_play(move_added.play.put.color);
-					}
 				} else if (move_added.play instanceof Pass) {
 					KAYAGLOBAL.play_sound("pass");
-					if (this.callbacks.announce_pass != undefined) {
-						this.callbacks.announce_pass(move_added.play.put.color);
-					}
 				}
 			}
 
@@ -1157,66 +1151,10 @@ GoSpeed.prototype = {
 				this.time.update(data.time_adjustment);
 			}
 
+			// Announce callback!
+			this.last_play_announcement();
+
 			this.status = ST_READY;
-		}
-	},
-
-	diff_update_game: function(data) {
-		// Check SGF status:
-		if (this.sgf == undefined || this.sgf == null || this.sgf.status != SGFPARSER_ST_LOADED) {
-			// Not loaded: load from scratch.
-			this.update_game(data);
-		} else {
-			// Loaded: diff update.
-			if (data.result != undefined) {
-				this.time.stop();
-			} else {
-				this.time.pause();
-			}
-
-			// Clear and change size if required
-			if (data.size != undefined && data.size != this.board.size) {
-				this.change_size(Number(data.size));
-			}
-
-			// Compare SGF and add only new moves + update score state if not attached.
-			var move_added = false;
-			if (data.moves != undefined) {
-				if (!this.is_attached()) {
-					this.attach_head(true);
-					move_added = this.sgf.add_moves(this, data.moves, true);
-					// XXX metodo cabeza para soportar UNDO.
-					if (move_added) {
-						this.update_raw_score_state(data.raw_score_state);
-						this.time.update(data.time_adjustment);
-						this.detach_head(true);
-					} else {
-						return this.update_game(data);
-					}
-				} else {
-					move_added = this.sgf.add_moves(this, data.moves);
-					// XXX metodo cabeza para soportar UNDO.
-					if (!move_added) {
-						return this.update_game(data);
-					}
-				}
-			}
-
-			// Play sound!
-			if (typeof KAYAGLOBAL != "undefined") {
-				if (move_added.play instanceof Play) {
-					KAYAGLOBAL.play_sound(move_added.play.put.color);
-				} else if (move_added.play instanceof Pass) {
-					KAYAGLOBAL.play_sound("pass");
-				}
-			}
-
-			if (this.is_attached()) {
-				// Fast forward
-				this.goto_end();
-				this.handle_score_agreement(data.raw_score_state);
-				this.time.update(data.time_adjustment);
-			}
 		}
 	},
 
@@ -1249,14 +1187,16 @@ GoSpeed.prototype = {
 	},
 
 	last_play_announcement: function() {
-		var play = this.game_tree.actual_move.play;
-		if (play instanceof Play) {
-			if (this.callbacks.announce_play) {
-				this.callbacks.announce_play(play.put.color);
-			}
-		} else if (play instanceof Pass) {
-			if (this.callbacks.announce_pass) {
-				this.callbacks.announce_pass(play.put.color);
+		if (this.mode != "count_online" && this.mode != "count") {
+			var play = this.game_tree.actual_move.play;
+			if (play instanceof Play) {
+				if (this.callbacks.announce_play) {
+					this.callbacks.announce_play(play.put.color);
+				}
+			} else if (play instanceof Pass) {
+				if (this.callbacks.announce_pass) {
+					this.callbacks.announce_pass(play.put.color);
+				}
 			}
 		}
 	},

@@ -874,6 +874,9 @@ GoSpeed.prototype = {
 			this.shower.draw_score(score);
 			this.shower.update_score(this.score.score);
 			this.shower.update_result(this.score.result);
+			if (this.callbacks.score_result_updated != undefined) {
+				this.callbacks.score_result_updated(this.score.result);
+			}
 		}
 	},
 
@@ -1376,6 +1379,9 @@ GoSpeed.prototype = {
 			this.shower.draw_score(score);
 			this.shower.update_score(this.score.score);
 			this.shower.update_result(this.score.result);
+			if (this.callbacks.score_result_updated != undefined) {
+				this.callbacks.score_result_updated(this.score.result);
+			}
 		}
 	},
 

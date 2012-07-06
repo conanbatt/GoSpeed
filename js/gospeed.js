@@ -1354,6 +1354,17 @@ GoSpeed.prototype = {
 			this.switch_to_track(TRACK_ONLINE, no_redraw);
 		}
 	},
+
+	clear_variation: function() {
+		var no_redraw = true;
+		while (this.game_tree.actual_move.source >= NODE_OFFLINE) {
+			this.prev(no_redraw);
+		}
+		if (this.shower != undefined) {
+			this.shower.redraw();
+		}
+		this.render_tree();
+	},
 }
 
 // ~ <3

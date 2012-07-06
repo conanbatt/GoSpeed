@@ -179,6 +179,8 @@ GoSpeed.prototype = {
 			this.shower.redraw();
 		}
 		this.render_tree();
+
+		return (count == 0);
 	},
 
 	fast_backward: function(count) {
@@ -189,6 +191,8 @@ GoSpeed.prototype = {
 			this.shower.redraw();
 		}
 		this.render_tree();
+
+		return (count == 0);
 	},
 
 	goto_start: function(no_redraw) {

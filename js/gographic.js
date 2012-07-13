@@ -1,6 +1,11 @@
 var WHITE = "W";
 var BLACK = "B";
 
+var BLACK_POINT = "+";
+var BLACK_DEAD = "N";
+var WHITE_POINT = "-";
+var WHITE_DEAD = "E";
+
 function GoGraphic(game, args) {
 	this.init.call(this, game, args);
 }
@@ -113,17 +118,22 @@ GoGraphic.prototype = {
 	},
 
 	draw_score: function(score) {
-		for (var i = 0, li = score.groups.length; i < li; ++i) {
-			var group = score.groups[i];
-			var owner = group.owner;
-			var coords = group.coords;
-			if (owner == BLACK || owner == WHITE) {
-				for (var j = 0, lj = coords.length; j < lj; ++j) {
-					this.put_little_stone(owner, coords[j].row, coords[j].col);
-				}
+
+               for (var i = 0; i < score.scoring_grid.length; ++i) {
+                       for (var j = 0; j < score.scoring_grid[i].length; ++j){
+			var point = score.scoring_grid[i][j];
+			var owner = undefined;
+			if(point == BLACK_POINT || point == WHITE_DEAD){ 
+                        	owner = BLACK; 
+                        }else if(point == WHITE_POINT || point == BLACK_DEAD){ 
+				owner = WHITE;
 			}
-		}
-	},
+			if(owner){
+                            this.put_little_stone(owner, i, j);
+                        }
+                }
+            }
+        },
 
 	stone_dead: function(color, row, col) {
 		// Remove original stone

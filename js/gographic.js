@@ -113,13 +113,17 @@ GoGraphic.prototype = {
 	},
 
 	draw_score: function(score) {
-		for (var i = 0, li = score.groups.length; i < li; ++i) {
-			var group = score.groups[i];
-			var owner = group.owner;
-			var coords = group.coords;
-			if (owner == BLACK || owner == WHITE) {
-				for (var j = 0, lj = coords.length; j < lj; ++j) {
-					this.put_little_stone(owner, coords[j].row, coords[j].col);
+	   for (var i = 0; i < score.scoring_grid.length; ++i) {
+		   for (var j = 0, lj = score.scoring_grid[i].length; j < lj; ++j){
+				var point = score.scoring_grid[i][j];
+				var owner = undefined;
+				if (point == BLACK_OWNED || point == WHITE_DEAD) {
+					owner = BLACK;
+				} else if (point == WHITE_OWNED || point == BLACK_DEAD) {
+					owner = WHITE;
+				}
+				if (owner) {
+					this.put_little_stone(owner, i, j);
 				}
 			}
 		}

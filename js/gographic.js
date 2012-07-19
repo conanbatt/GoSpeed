@@ -113,8 +113,8 @@ GoGraphic.prototype = {
 	},
 
 	draw_score: function(score) {
-	   for (var i = 0; i < score.scoring_grid.length; ++i) {
-		   for (var j = 0, lj = score.scoring_grid[i].length; j < lj; ++j){
+		for (var i = 0; i < score.scoring_grid.length; ++i) {
+			for (var j = 0, lj = score.scoring_grid[i].length; j < lj; ++j){
 				var point = score.scoring_grid[i][j];
 				var owner = undefined;
 				if (point == BLACK_OWNED || point == WHITE_DEAD) {

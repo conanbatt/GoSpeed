@@ -1,5 +1,12 @@
-requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
-                        window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+// Global animation definition
+requestAnimationFrame = window.requestAnimationFrame ||
+						window.mozRequestAnimationFrame ||
+						window.webkitRequestAnimationFrame ||
+						window.msRequestAnimationFrame ||
+						function (callback, element) {
+							window.setTimeout(callback, 1000 / 60);
+						};
+
 
 function Canvas2DEngine(manager, args) {
 	this.init.call(this, manager, args);

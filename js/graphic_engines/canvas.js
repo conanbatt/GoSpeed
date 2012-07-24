@@ -575,8 +575,18 @@ Canvas2DEngine.prototype = {
 		}
 
 		// Little stone size
-		this.little_stone_size = Math.floor(this.stone_size * 0.4);
-		this.little_stone_size += (this.little_stone_size % 2 == 0 ? 1 : 0);
+		// TODO XXX FIXME: Here the small_board_optimization makes it work for 82px board but
+		// for certain dimensions like 200px the little stones are drawn but not correctly erased.
+		var little_stone_ratio;
+		if (this.args.small_board_optimization) {
+			little_stone_ratio = 0.5;
+		} else {
+			little_stone_ratio = 0.4;
+		}
+		this.little_stone_size = Math.floor(this.stone_size * little_stone_ratio);
+		if (!this.args.small_board_optimization) {
+			this.little_stone_size += (this.little_stone_size % 2 == 0 ? 1 : 0);
+		}
 		this.little_stone_bound = (this.stone_size - this.little_stone_size) * 0.5;
 
 

@@ -1,3 +1,4 @@
+var MOUSE_ADJUST_Y = 0;
 // Global animation definition
 requestAnimationFrame = window.requestAnimationFrame ||
 						window.mozRequestAnimationFrame ||

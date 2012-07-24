@@ -145,6 +145,9 @@ GoValidate.prototype = {
 		// Shadows
 			this.test(this.args, "draw_shadows", "boolean", undefined, true);
 
+		// Small Board Optimization
+			this.test(this.args, "small_board_optimization", "boolean", undefined, false);
+
 		// Colour
 			this.test(this.args, "my_colour", "string", ["B", "W", "A", "O",]);
 

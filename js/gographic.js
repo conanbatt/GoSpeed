@@ -9,6 +9,7 @@ GoGraphic.prototype = {
 	init: function(game, args) {
 		// Setup
 		this.game = game;
+		this.args = args;
 
 		// Validation
 		this.validate_and_load_divs(args);

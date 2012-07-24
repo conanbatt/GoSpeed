@@ -20,6 +20,13 @@ Canvas2DEngine.prototype = {
 		// Validation
 		this.validate_and_load_divs(args);
 
+		// Setup
+		if (this.args.small_board_optimization) {
+			this.hoshi_min_radius = 1;
+		} else {
+			this.hoshi_min_radius = 1.5;
+		}
+
 		// Image fetching
 		this.board_bg = new Image();
 		var that = this;
@@ -460,7 +467,9 @@ Canvas2DEngine.prototype = {
 
 			// Draw lines
 			ct.lineWidth = 1;
-			ct.globalAlpha = 0.2;
+			if (this.args.small_board_optimization) {
+				ct.globalAlpha = 0.2;
+			}
 			ct.beginPath();
 			for (var i = 0, li = this.size; i < li; ++i) {
 				ct.moveTo(bound_adjustment, i * this.stone_size + bound_adjustment);
@@ -469,7 +478,9 @@ Canvas2DEngine.prototype = {
 				ct.lineTo(i * this.stone_size + bound_adjustment, bound_adjustment + (this.size - 1) * this.stone_size);
 			}
 			ct.stroke();
-			ct.globalAlpha = 1;
+			if (this.args.small_board_optimization) {
+				ct.globalAlpha = 1;
+			}
 
 			// TODO: there should be a unique math formula to distribute hoshis...
 			// Draw hoshis
@@ -528,8 +539,8 @@ Canvas2DEngine.prototype = {
 	draw_hoshi: function(row, col) {
 		var bound_adjustment = this.bound_size + this.stone_size / 2.0;
 		var radius = this.stone_size / 15;
-		if (radius < 1) {
-			radius = 1;
+		if (radius < this.hoshi_min_radius) {
+			radius = this.hoshi_min_radius;
 		}
 		if (radius > 3) {
 			radius = 3;
@@ -555,9 +566,12 @@ Canvas2DEngine.prototype = {
 
 		// Stone size
 		this.stone_size = Math.floor(this.last_width / (this.size + 1 + (this.args.show_coords ? 1 : 0)));
-		// It has to be odd so the stone fits with the board lines
-		if (this.stone_size % 2 == 0) {
-			//this.stone_size--;
+
+		if (!this.args.small_board_optimization) {
+			// It has to be odd so the stone fits with the board lines
+			if (this.stone_size % 2 == 0) {
+				this.stone_size--;
+			}
 		}
 
 		// Little stone size

@@ -60,10 +60,13 @@ GoGraphic.prototype = {
 		this.grid[row][col].little_stone = stone;
 	},
 
-	// Patched
 	place_last_stone_marker: function(put) {
-		this.engine.draw_last_stone_marker(put);
+		if (this.args.draw_markers) {
+			this.engine.draw_last_stone_marker(put);
+		}
 	},
+
+	// Patched
 	clear_last_stone_markers: function() {
 		this.engine.clear_last_stone_markers();
 	},
@@ -332,12 +335,17 @@ GoGraphic.prototype = {
 *   Helpers   *
              */
 	confirm_play: function(put) {
-		this.engine.draw_last_stone_marker(put);
+		this.clear_last_stone_marker();
+		if (this.args.draw_markers) {
+			this.place_last_stone_marker(put);
+		}
 	},
 
 	refresh_ko: function(play) {
 		if (play && play.ko) {
-			this.engine.draw_ko(play.ko);
+			if (this.args.draw_markers) {
+				this.engine.draw_ko(play.ko);
+			}
 		} else {
 			this.engine.clear_ko();
 		}
@@ -358,10 +366,12 @@ GoGraphic.prototype = {
 			}
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
-			if (wait) {
-				this.engine.draw_last_stone_wait_marker(play.put);
-			} else {
-				this.engine.draw_last_stone_marker(play.put);
+			if (this.args.draw_markers) {
+				if (wait) {
+					this.engine.draw_last_stone_wait_marker(play.put);
+				} else {
+					this.engine.draw_last_stone_marker(play.put);
+				}
 			}
 			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
 				this.remove_stone(play.remove[s].row, play.remove[s].col);
@@ -436,7 +446,9 @@ GoGraphic.prototype = {
 		if (this.game.mode != "count" && this.game.mode != "count_online") {
 			if (node.play instanceof Play) {
 				this.refresh_ko(node.play);
-				this.engine.draw_last_stone_marker(node.play.put);
+				if (this.args.draw_markers) {
+					this.engine.draw_last_stone_marker(node.play.put);
+				}
 			}
 		} else {
 			this.game.draw_score();

@@ -136,6 +136,9 @@ GoValidate.prototype = {
 		// Coordinates
 			this.test(this.args, "show_coords", "boolean");
 
+		// Markers
+			this.test(this.args, "draw_markers", "boolean", undefined, true);
+
 		// Borders
 			this.test(this.args, "draw_borders", "boolean", undefined, true);
 

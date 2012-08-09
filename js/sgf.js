@@ -630,17 +630,28 @@ SGFParser.prototype = {
 					};
 				break;
 				case "Byoyomi":
-					if (time_left == undefined) {
-						time_left = clock.system.main_time;
-					}
+					var tmp_res;
 					if (overtime_periods == undefined) {
 						overtime_periods = clock.system.periods;
+						if (time_left == undefined) {
+							time_left = clock.system.main_time;
+						}
+						tmp_res = {
+							'main_time': parseFloat(time_left),
+							'periods': parseInt(overtime_periods, 10),
+							'period_time': clock.system.period_time,
+						};
+					} else {
+						if (time_left == undefined) {
+							time_left = clock.system.period_time;
+						}
+						tmp_res = {
+							'main_time': 0,
+							'periods': parseInt(overtime_periods, 10),
+							'period_time': parseFloat(time_left),
+						};
 					}
-					return {
-						'main_time': parseFloat(time_left),
-						'periods': parseInt(overtime_periods, 10),
-						'period_time': clock.system.period_time,
-					};
+					return tmp_res;
 				break;
 			}
 		} else {

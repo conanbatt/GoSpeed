@@ -187,22 +187,22 @@ GoTime.prototype = {
 					color = color_arr[color];
 
 					if (remain[color] != undefined) {
-						// FIXME: this should be divided in two cases: main_time > 0 and main_time <= 0, periods must be a parameter and the handler should decide when to put "SD" as a label
-						// To make that possible we may need to upgrade main_time timers to support a complete remain object.
 						if (remain[color].main_time > 0) {
-							this.game.shower.handle_clock_sound(remain[color].main_time, color);
-							this.game.shower.format_clock_div(remain[color].main_time, color);
+							if (remain[color].main_time > 20) {
+								// Avoid playing countdown in main time... head way...
+								this.game.shower.handle_clock_sound(remain[color].main_time, color);
+							}
 							this.game.shower.write_clock_value(this.format(remain[color].main_time + 0.99, true), color);
-							this.game.shower.draw_t_stone_number(remain[color].main_time, color);
-						} else if (remain[color].periods <= 1) {
-							this.game.shower.handle_clock_sound(remain[color].period_time, color);
-							this.game.shower.format_clock_div(remain[color].period_time, color);
-							this.game.shower.write_clock_value(this.format(remain[color].period_time + 0.99) + ' SD', color);
-							this.game.shower.draw_t_stone_number(remain[color].period_time, color);
 						} else {
+							var period_label;
+							if (remain[color].periods <= 1) {
+								period_label = ' SD';
+							} else {
+								period_label = ' (' + remain[color].periods + ')';
+							}
 							this.game.shower.handle_clock_sound(remain[color].period_time, color);
 							this.game.shower.format_clock_div(remain[color].period_time, color);
-							this.game.shower.write_clock_value(this.format(remain[color].period_time + 0.99) + ' (' + remain[color].periods + ')', color);
+							this.game.shower.write_clock_value(this.format(remain[color].period_time + 0.99) + period_label, color);
 							this.game.shower.draw_t_stone_number(remain[color].period_time, color);
 						}
 					}

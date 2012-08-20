@@ -267,7 +267,6 @@ GoGraphic.prototype = {
 			if (this.game.is_my_turn() && this.game.my_colour == color) {
 				var rc = Math.floor(remain);
 				if (!KAYAGLOBAL.is_playing) {
-					// FIXME: want to find the way to not play countdown on byoyomi main time but yes on period time...
 					if (remain > 0 && remain < 11) {
 						var start = 10 - rc;
 						var delay = (remain - rc) * 1000;

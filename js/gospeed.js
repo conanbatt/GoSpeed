@@ -515,12 +515,31 @@ GoSpeed.prototype = {
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
 	commit_play: function(play, node_source, wait) {
-		this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
-		this.board.make_play(play);
-		if (this.shower) {
-			this.shower.draw_play(play, wait);
-			this.shower.update_captures(play);
-			this.shower.update_move_number(this.game_tree.actual_move);
+		function deepPutEqual(elem1, elem2) {
+			return (
+				elem1.color == elem2.color &&
+				elem1.row == elem2.row &&
+				elem1.col == elem2.col
+			);
+		}
+		var index = -1;
+		var next = this.game_tree.actual_move.next;
+		for (var i = 0, li = next.length; i < li; ++i) {
+			if (deepPutEqual(play.put, next[i].play.put)) {
+				index = i;
+				break;
+			}
+		}
+		if (index != -1) {
+			this.next(index);
+		} else {
+			this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+			this.board.make_play(play);
+			if (this.shower) {
+				this.shower.draw_play(play, wait);
+				this.shower.update_captures(play);
+				this.shower.update_move_number(this.game_tree.actual_move);
+			}
 		}
 	},
 

@@ -4,7 +4,7 @@ if [ $1 ]; then
 	OUT=`git diff --name-status $1 | sed -n 's/^M\t//p'`
 else
 	echo "Spreading changes from actual status..."
-	OUT=`git status --porcelain | sed -n 's/^\ M\ //p'`
+	OUT=`git status --porcelain | sed -n 's/^\(\ M\ \|A\ \ \)//p'`
 fi
 
 for file in $OUT

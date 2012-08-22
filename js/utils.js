@@ -304,6 +304,9 @@ var TREE_DRAW_INTERVAL = 100;
 					if (branch.selected) {
 						elbow.className += " Selected";
 					}
+					if (branch.source >= NODE_OFFLINE) {
+						elbow.className += " Variation";
+					}
 					elbow.style.top = (branch.lvl * 27 + 5) + "px";
 					elbow.style.left = ((node.turn_number - 1) * 27 + 5) + "px";
 					that.div_tree.appendChild(elbow);
@@ -316,6 +319,9 @@ var TREE_DRAW_INTERVAL = 100;
 						vline.className = "VLine";
 						if (branch.selected) {
 							vline.className += " Selected";
+						}
+						if (branch.source >= NODE_OFFLINE) {
+							vline.className += " Variation";
 						}
 						vline.style.top = ((branch.parent_branch.lvl + 1) * 27 + 5) + "px";
 						vline.style.left = ((node.turn_number - 1) * 27 + 5) + "px";
@@ -338,10 +344,13 @@ var TREE_DRAW_INTERVAL = 100;
 				if (node == that.game_tree.actual_move) {
 					div.className += " Current";
 				}
+				if (node.source >= NODE_OFFLINE) {
+					div.className += " Variation";
+				}
 				if (that.goto_method != undefined) {
 					div.onclick = that.binder(function(event) {
 						event.preventDefault();
-						that.goto_method(node.get_path());
+						that.goto_method(node.get_path(), node.source);
 					});
 				}
 				that.div_tree.appendChild(div);
@@ -359,7 +368,7 @@ var TREE_DRAW_INTERVAL = 100;
 			while(node = stash.pop()) {
 				// First collect info about actual branch
 				width = 0;
-				cur_branch = {x: node.elem.turn_number, pos: node.elem.pos, lvl: node.lvl, parent_branch: node.parent_branch};
+				cur_branch = {x: node.elem.turn_number, pos: node.elem.pos, lvl: node.lvl, parent_branch: node.parent_branch, source: node.elem.source};
 				if (node.elem.prev == undefined || node.selected && node.elem.prev.last_next == node.elem) {
 					cur_branch.selected = true;
 				}
@@ -559,3 +568,18 @@ var TREE_DRAW_INTERVAL = 100;
 			return false;
 		}
 
+		function binder(method, object, args) {
+			var binded_function = function() {
+				var tmp_arr = new Array();
+				for (var i = 0, li = arguments.length; i < li; ++i) {
+					tmp_arr.push(arguments[i]);
+				}
+				if (args != undefined) {
+					for (var i = 0, li = args.length; i < li; ++i) {
+						tmp_arr.push(args[i]);
+					}
+				}
+				method.apply(object, tmp_arr);
+			};
+			return binded_function;
+		}

@@ -43,12 +43,17 @@
 
 	a.TreeNode:hover {
 		text-decoration: underline;
+		background-color: #484;
+	}
+
+	a.TreeNode.Variation:hover {
+		text-decoration: underline;
 		background-color: #800;
 	}
 
 	a.TreeNode.Current:hover {
 		text-decoration: none;
-		background-color: #ACA;
+		background-color: #484;
 	}
 
 	a.TreeNode.B {
@@ -70,7 +75,19 @@
 	}
 
 	a.TreeNode.Current {
-		background-color: #ACA;
+		background-color: #484;
+	}
+
+	a.TreeNode.Current.Variation {
+		background-color: #800;
+	}
+
+	a.TreeNode.W.Variation {
+		color: #800;
+	}
+
+	a.TreeNode.B.Variation {
+		color: #FAA;
 	}
 
 	div.Elbow {
@@ -82,9 +99,18 @@
 		background-image: url("../img/t_elbow.png");
 	}
 
+	div.Elbow.Variation {
+		background-image: url("../img/t_red_elbow.png");
+	}
+
 	div.Elbow.Selected {
 		z-index: 1;
 		background-image: url("../img/elbow.png");
+	}
+
+	div.Elbow.Variation.Selected {
+		z-index: 1;
+		background-image: url("../img/red_elbow.png");
 	}
 
 	div.VLine {
@@ -96,9 +122,18 @@
 		background-image: url("../img/t_vline.png");
 	}
 
+	div.VLine.Variation {
+		background-image: url("../img/t_red_vline.png");
+	}
+
 	div.VLine.Selected {
 		z-index: 1;
 		background-image: url("../img/vline.png");
+	}
+
+	div.VLine.Variation.Selected {
+		z-index: 1;
+		background-image: url("../img/red_vline.png");
 	}
 
 	span.Node {

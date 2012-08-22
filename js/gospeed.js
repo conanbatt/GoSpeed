@@ -764,13 +764,20 @@ GoSpeed.prototype = {
 	},
 
 	switch_to_track: function(id, no_redraw) {
+		// Validate target track
 		if (!(this.tracks[id] instanceof Track)) {
 			return false;
 		}
-		this.board.grid = this.tracks[id].grid;
+
+		// Save previous track
 		this.tracks[this.actual_track].head = this.game_tree.actual_move;
+
+		// Load target track
 		this.game_tree.actual_move = this.tracks[id].head;
+		this.board.grid = this.tracks[id].grid;
 		this.actual_track = id;
+
+		// Drawing
 		if (!no_redraw) {
 			if (this.shower != undefined) {
 				this.shower.redraw();

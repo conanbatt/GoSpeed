@@ -1369,15 +1369,17 @@ GoSpeed.prototype = {
 		}
 	},
 
-	clear_variation: function() {
-		var no_redraw = true;
+	clear_variation: function(no_redraw) {
+		var local_no_redraw = true;
 		while (this.game_tree.actual_move.source >= NODE_OFFLINE) {
-			this.prev(no_redraw);
+			this.prev(local_no_redraw);
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
+		if (!no_redraw) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
 		}
-		this.render_tree();
 	},
 
 	handle_game_tree_click: function(path, source) {

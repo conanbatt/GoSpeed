@@ -30,13 +30,7 @@ GoSpeed.prototype = {
 
 	// GameTree
 		var that = this;
-		this.game_tree = new GameTree(this.args.div_id_tree, function(path) {
-			if (that.callbacks.send_focus != undefined) {
-				that.callbacks.send_focus(path);
-			} else {
-				that.goto_path.call(that, path);
-			}
-		});
+		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_game_tree_click, this));
 
 	// Online
 		if (this.args.my_colour != undefined) {
@@ -986,13 +980,7 @@ GoSpeed.prototype = {
 		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
 			var div_id_tree = this.game_tree.graphic.div_tree.id;
 		}
-		this.game_tree = new GameTree(div_id_tree, function(path) {
-			if (that.callbacks.send_focus != undefined) {
-				that.callbacks.send_focus(path);
-			} else {
-				that.goto_path.call(that, path);
-			}
-		});
+		this.game_tree = new GameTree(div_id_tree, binder(this.handle_game_tree_click, this));
 
 		// Tracks
 		this.tracks = [];
@@ -1390,6 +1378,30 @@ GoSpeed.prototype = {
 			this.shower.redraw();
 		}
 		this.render_tree();
+	},
+
+	handle_game_tree_click: function(path, source) {
+		if (this.callbacks.send_focus != undefined) {
+			this.callbacks.send_focus(path, source <= NODE_ONLINE);
+		} else {
+			this.goto_path(path);
+		}
+
+		/*
+		var send_focus = false;
+		if (source <= NODE_ONLINE) {
+			if (this.callbacks.send_focus != undefined) {
+				send_focus = true;
+			}
+		}
+		if (send_focus) {
+			this.attach_head(true);
+			this.callbacks.send_focus(path);
+		} else {
+			this.detach_head();
+			this.goto_path(path);
+		}
+		*/
 	},
 }
 

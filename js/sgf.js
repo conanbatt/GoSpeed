@@ -332,7 +332,7 @@ SGFParser.prototype = {
 		}
 	},
 
-	sgf_to_tree: function(game, sgf_node, tree_node, node_source) {
+	sgf_to_tree: function(game, sgf_node, tree_node, node_source, no_duplicate_branch) {
 		// Push roots to start "recursive-like" iteration.
 		var pend_sgf_node = [];
 		var pend_game_tree_node = [];
@@ -383,17 +383,26 @@ SGFParser.prototype = {
 					}
 				}
 				tmp.time_left = time_left;
-				this.moves_loaded += ";" + tmp.put.color + "[" + move + "]";
-				game.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
-				game.board.make_play(tmp);
-				if (time_left != undefined && !isNaN(time_left) && game.time.clock != undefined) {
-					var rmn = {};
-					rmn[tmp.put.color] = time_left;
-					game.time.clock.set_remain(rmn);
+
+				var index = false;
+				if (no_duplicate_branch) {
+					index = game.game_tree.actual_move.search_next_play(tmp);
 				}
-				if (tmp instanceof Play || tmp instanceof Pass) {
-					// TODO: turn count sucks monkey ass
-					game.turn_count++;
+
+				if (index !== false) {
+					game.next(index, true);
+				} else {
+					game.game_tree.append(new GameNode(tmp, node_source, sgf_node.C));
+					game.board.make_play(tmp);
+					if (time_left != undefined && !isNaN(time_left) && game.time.clock != undefined) {
+						var rmn = {};
+						rmn[tmp.put.color] = time_left;
+						game.time.clock.set_remain(rmn);
+					}
+					if (tmp instanceof Play || tmp instanceof Pass) {
+						// TODO: turn count sucks monkey ass
+						game.turn_count++;
+					}
 				}
 			}
 		// do: push actual_node to pend_game_tree_node

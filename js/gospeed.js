@@ -734,7 +734,7 @@ GoSpeed.prototype = {
 
 				// Parse and load moves.
 				var sgf = new SGFParser("(;FF[4]" + variation + ")");
-				sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION);
+				sgf.sgf_to_tree(this, sgf.root.last_next, this.game_tree.actual_move, NODE_VARIATION, true);
 			}
 
 		// Switch to old track

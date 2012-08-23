@@ -322,14 +322,13 @@ GoSpeed.prototype = {
 					if (tmp_remain !== false) {
 						tmp_play.time_left = tmp_remain[this.get_next_move()];
 					}
+
 					this.commit_play(tmp_play, NODE_ONLINE, true);
-					if (this.sgf != undefined) {
-						this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
-						// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
-					}
+
 					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
+
 					// TODO: turn count sucks monkey ass
 					this.turn_count++;
 
@@ -633,10 +632,7 @@ GoSpeed.prototype = {
 					this.shower.clear_last_stone_markers();
 				}
 
-				if (this.sgf != undefined) {
-					this.sgf.moves_loaded += this.data_to_sgf_node(tmp_play);
-					// TODO: should add wait for server confirmation to this commit (even though the stone has been drawn)
-				}
+
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");
 				}
@@ -1388,22 +1384,6 @@ GoSpeed.prototype = {
 		} else {
 			this.goto_path(path);
 		}
-
-		/*
-		var send_focus = false;
-		if (source <= NODE_ONLINE) {
-			if (this.callbacks.send_focus != undefined) {
-				send_focus = true;
-			}
-		}
-		if (send_focus) {
-			this.attach_head(true);
-			this.callbacks.send_focus(path);
-		} else {
-			this.detach_head();
-			this.goto_path(path);
-		}
-		*/
 	},
 }
 

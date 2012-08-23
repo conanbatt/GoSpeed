@@ -21,6 +21,33 @@ var TREE_DRAW_INTERVAL = 100;
 			s += "\n\t}";
 			return s;
 		},
+
+		softEqual: function(play) {
+			return (
+				play instanceof Play &&
+				play.put.equals(this.put)
+			);
+		},
+
+		hardEqual: function(play) {
+			var res = play instanceof Play;
+			if (res) {
+				for (var item in this) {
+					if (item == "put") {
+						if (!this[item].equals(play[item])) {
+							res = false;
+							break;
+						}
+					} else {
+						if (this[item] != play[item]) {
+							res = false;
+							break;
+						}
+					}
+				}
+			}
+			return res;
+		},
 	}
 
 // Free play
@@ -93,6 +120,13 @@ var TREE_DRAW_INTERVAL = 100;
 			throw new Error("Pass requires a color.");
 		}
 	}
+
+	Pass.prototype.softEqual = function(play) {
+		return (
+			play instanceof Pass &&
+			play.put.color == this.put.color
+		);
+	};
 
 // Game tree
 	function GameTree(div_id_tree, goto_method) {
@@ -479,6 +513,17 @@ var TREE_DRAW_INTERVAL = 100;
 			}
 		}
 		return false;
+	}
+
+	GameNode.prototype.search_next_play = function(play) {
+		var index = false;
+		for (var i = 0, li = this.next.length; i < li; ++i) {
+			if (play.softEqual(this.next[i].play)) {
+				index = i;
+				break;
+			}
+		}
+		return index;
 	}
 
 	GameNode.prototype.get_path = function() {

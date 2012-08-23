@@ -627,7 +627,7 @@ GoSpeed.prototype = {
 					tmp_play.time_left = tmp_remain[color]
 				}
 				this.update_play_captures(tmp_play);
-				this.game_tree.append(new GameNode(tmp_play), NODE_ONLINE, true);
+				this.game_tree.append(new GameNode(tmp_play, NODE_ONLINE), true);
 				if (this.shower != undefined) {
 					this.shower.clear_ko();
 					this.shower.clear_last_stone_markers();

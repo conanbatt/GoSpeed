@@ -512,12 +512,20 @@ GoSpeed.prototype = {
 		if (index !== false) {
 			this.next(index);
 		} else {
-			this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
-			this.board.make_play(play);
-			if (this.shower) {
-				this.shower.draw_play(play, wait);
-				this.shower.update_captures(play);
-				this.shower.update_move_number(this.game_tree.actual_move);
+			if (play instanceof Play) {
+				this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+				this.board.make_play(play);
+				if (this.shower) {
+					this.shower.draw_play(play, wait);
+					this.shower.update_captures(play);
+					this.shower.update_move_number(this.game_tree.actual_move);
+				}
+			} else if (play instanceof Pass) {
+				this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+				if (this.shower != undefined) {
+					this.shower.clear_ko();
+					this.shower.clear_last_stone_markers();
+				}
 			}
 		}
 	},
@@ -583,11 +591,9 @@ GoSpeed.prototype = {
 					tmp_play.time_left = time_left[color];
 				}
 				this.update_play_captures(tmp_play);
-				this.game_tree.append(new GameNode(tmp_play, NODE_OFFLINE), true);
-				if (this.shower != undefined) {
-					this.shower.clear_ko();
-					this.shower.clear_last_stone_markers();
-				}
+
+				// Commit
+				this.commit_play(tmp_play);
 
 				this.time.resume(this.get_next_move());
 
@@ -612,12 +618,9 @@ GoSpeed.prototype = {
 					tmp_play.time_left = tmp_remain[color]
 				}
 				this.update_play_captures(tmp_play);
-				this.game_tree.append(new GameNode(tmp_play, NODE_ONLINE), true);
-				if (this.shower != undefined) {
-					this.shower.clear_ko();
-					this.shower.clear_last_stone_markers();
-				}
 
+				// Commit
+				this.commit_play(tmp_play);
 
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");

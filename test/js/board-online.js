@@ -103,8 +103,8 @@ test("Initialization", function() {
 	ok(!this.gospeed.is_my_turn(), "Board 1: as my_colour is 'W', it is not my turn to play.");
 	ok(this.gospeed2.is_my_turn(), "Board 2: as my_colour is 'B', it is my turn to play.");
 
-	equal(this.gospeed.turn_count, 0, "Board 1: at the beginning turn_count is 0.");
-	equal(this.gospeed2.turn_count, 0, "Board 2: at the beginning turn_count is 0.");
+	equal(this.gospeed.game_tree.actual_move.turn_number, 0, "Board 1: at the beginning turn_number is 0.");
+	equal(this.gospeed2.game_tree.actual_move.turn_number, 0, "Board 2: at the beginning turn_number is 0.");
 });
 
 test("Size", function() {
@@ -154,7 +154,7 @@ test("GameTree", function() {
 });
 
 test("Game", function() {
-	equal(this.gospeed.turn_count, 0, "No moves played, so turn_count is 0.");
+	equal(this.gospeed.game_tree.actual_move.turn_number, 0, "No moves played, so turn_number is 0.");
 	deepEqual(this.gospeed.get_captured_count(), {"B": 0, "W": 0}, "At startup, no captures at all.");
 });
 
@@ -184,7 +184,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 1, 1), "Board 1: actual move is a 'B' stone on (1, 1).");
-			equal(this.gospeed.turn_count, 1, "Board 1: we have had only one turn.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 1, "Board 1: we have had only one turn.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -198,7 +198,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 1, 1), "Board 2: actual move is a 'B' stone on (1, 1).");
-			equal(this.gospeed2.turn_count, 1, "Board 2: we have had only one turn.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 1, "Board 2: we have had only one turn.");
 
 	// Play
 	this.gospeed.play(1, 0);
@@ -215,7 +215,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 1, 0), "Board 1: actual move is a 'W' stone on (1, 0).");
-			equal(this.gospeed.turn_count, 2, "Board 1: we have had 2 turns.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 2, "Board 1: we have had 2 turns.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -229,7 +229,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 1, 0), "Board 2: actual move is a 'W' stone on (1, 0).");
-			equal(this.gospeed2.turn_count, 2, "Board 2: we have had 2 turns.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 2, "Board 2: we have had 2 turns.");
 
 	// Play
 	this.gospeed2.play(0, 2);
@@ -246,7 +246,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 0, 2), "Board 1: actual move is a 'B' stone on (0, 2).");
-			equal(this.gospeed.turn_count, 3, "Board 1: we have had 3 turns.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 3, "Board 1: we have had 3 turns.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -260,7 +260,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 0, 2), "Board 2: actual move is a 'B' stone on (0, 2).");
-			equal(this.gospeed2.turn_count, 3, "Board 2: we have had 3 turns.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 3, "Board 2: we have had 3 turns.");
 
 	// Play
 	this.gospeed.play(0, 1);
@@ -277,7 +277,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'W'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 1: actual move is a 'W' stone on (0, 1).");
-			equal(this.gospeed.turn_count, 4, "Board 1: we have had 4 turns.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 4, "Board 1: we have had 4 turns.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -291,7 +291,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'W'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 2: actual move is a 'W' stone on (0, 1).");
-			equal(this.gospeed2.turn_count, 4, "Board 2: we have had 4 turns.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 4, "Board 2: we have had 4 turns.");
 
 	// Play
 	this.gospeed2.play(0, 0);
@@ -310,7 +310,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "W", "Board 1: next_move is now 'W'.");
 			ok(this.gospeed.is_my_turn(), "Board 1: it's my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("B", 0, 0), "Board 1: actual move is a 'B' stone on (0, 0).");
-			equal(this.gospeed.turn_count, 5, "Board 1: we have had 5 turns.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 5, "Board 1: we have had 5 turns.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -326,7 +326,7 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "W", "Board 2: next_move is now 'W'.");
 			ok(!this.gospeed2.is_my_turn(), "Board 2: it's no longer my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("B", 0, 0), "Board 2: actual move is a 'B' stone on (0, 0).");
-			equal(this.gospeed2.turn_count, 5, "Board 2: we have had 5 turns.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 5, "Board 2: we have had 5 turns.");
 
 
 	deepEqual(this.gospeed.get_captured_count(), {"B": 0, "W": 1}, "Only one white stone captured.");
@@ -358,7 +358,7 @@ test("GamePlay", function() {
 			equal(this.gospeed.get_next_move(), "B", "Board 1: next_move is now 'B'.");
 			ok(!this.gospeed.is_my_turn(), "Board 1: it's not my turn.");
 			deepEqual(this.gospeed.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 1: actual move is a 'W' stone on (0, 1).");
-			equal(this.gospeed.turn_count, 16, "Board 1: we have had 16 turns.");
+			equal(this.gospeed.game_tree.actual_move.turn_number, 16, "Board 1: we have had 16 turns.");
 		// Board 2
 			// Things that must remain untouched
 			equal(this.gospeed2.board.size, BOARD_SIZE, "Board 2: size unmodified.");
@@ -372,6 +372,6 @@ test("GamePlay", function() {
 			equal(this.gospeed2.get_next_move(), "B", "Board 2: next_move is now 'B'.");
 			ok(this.gospeed2.is_my_turn(), "Board 2: it's my turn.");
 			deepEqual(this.gospeed2.game_tree.actual_move.play.put, new Stone("W", 0, 1), "Board 2: actual move is a 'W' stone on (0, 1).");
-			equal(this.gospeed2.turn_count, 16, "Board 2: we have had 16 turns.");
+			equal(this.gospeed2.game_tree.actual_move.turn_number, 16, "Board 2: we have had 16 turns.");
 });
 

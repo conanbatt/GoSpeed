@@ -46,10 +46,6 @@ GoSpeed.prototype = {
 		this.tracks[TRACK_ONLINE] = new Track(this.board.grid, this.game_tree.actual_move);
 		this.actual_track = TRACK_ONLINE;
 
-	// Game
-		// TODO: turn count sucks monkey ass
-		this.turn_count = 0;
-
 	// Callbacks
 		this.callbacks = this.args.callbacks || {};
 
@@ -328,9 +324,6 @@ GoSpeed.prototype = {
 					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
-
-					// TODO: turn count sucks monkey ass
-					this.turn_count++;
 
 					// Send Play Callback
 					if (this.callbacks.send_play != undefined) {
@@ -625,8 +618,6 @@ GoSpeed.prototype = {
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");
 				}
-				// TODO: turn count sucks monkey ass
-				this.turn_count++;
 
 				// Send Play Callback
 				if (this.callbacks.send_play != undefined) {
@@ -971,10 +962,6 @@ GoSpeed.prototype = {
 		this.tracks = [];
 		this.tracks[TRACK_ONLINE] = new Track(this.board.grid, this.game_tree.actual_move);
 		this.actual_track = TRACK_ONLINE;
-
-		// Game
-		// TODO: turn count sucks monkey ass
-		this.turn_count = 0;
 
 		// Clear shower
 		if (this.shower != undefined) {

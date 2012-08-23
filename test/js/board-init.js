@@ -67,7 +67,7 @@ test("GameTree", function() {
 
 test("Online", function() {
 	equal(this.gospeed.my_colour, undefined, "Without argument, online colour is undefined.");
-	equal(this.gospeed.turn_count, 0, "No moves played, so turn_count is 0.");
+	equal(this.gospeed.game_tree.actual_move.turn_number, 0, "No moves played, so turn_number is 0.");
 });
 
 test("Tracks", function() {
@@ -237,7 +237,7 @@ test("GameTree", function() {
 
 test("Online", function() {
 	equal(this.gospeed.my_colour, BOARD_MY_COLOUR, "As configured, my_colour is '" + BOARD_MY_COLOUR + "'.");
-	equal(this.gospeed.turn_count, 0, "No moves played, so turn_count is 0.");
+	equal(this.gospeed.game_tree.actual_move.turn_number, 0, "No moves played, so turn_number is 0.");
 });
 
 test("Paths", function() {

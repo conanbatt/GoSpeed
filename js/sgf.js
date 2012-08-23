@@ -399,10 +399,6 @@ SGFParser.prototype = {
 						rmn[tmp.put.color] = time_left;
 						game.time.clock.set_remain(rmn);
 					}
-					if (tmp instanceof Play || tmp instanceof Pass) {
-						// TODO: turn count sucks monkey ass
-						game.turn_count++;
-					}
 				}
 			}
 		// do: push actual_node to pend_game_tree_node

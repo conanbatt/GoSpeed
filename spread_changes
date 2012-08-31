@@ -10,7 +10,7 @@ fi
 for file in $OUT
 do
 	echo -n "Copy $file ... "
-	cp $file /home/polly/git-root/BGS/gospeed/$file
+	cp $file /home/polly/git-root/BGS/static/gospeed/$file
 	if [ $? -eq 0 ]; then
 		echo -e "[\e[00;32mOK\e[00m]";
 	else

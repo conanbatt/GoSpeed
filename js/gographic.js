@@ -457,24 +457,29 @@ GoGraphic.prototype = {
 	draw_variation_numbers: function() {
 		var node = this.game.game_tree.actual_move;
 		if (node.source == NODE_VARIATION) {
+			var count = 1;
 			while(node.prev && node.prev.source == NODE_VARIATION) {
 				node = node.prev;
+				count++;
 			}
 
 			this.engine.clear_last_stone_markers();
 
-			var num = 1;
-			// XXX TODO FIXME: UGLY HARDCODED [0] -> i dont have last_next on variations...
-			while(node.next[0]) {
+			node = this.game.game_tree.actual_move;
+
+			var trace = [];
+			var tmp_pos;
+			do {
 				if (node.play) {
-					this.draw_number(node.play, num);
+					tmp_pos = this.game.pos_to_sgf_coord(node.play.put.row, node.play.put.col);
+					if (!inArray(tmp_pos, trace)) {
+						this.draw_number(node.play, count);
+						trace.push(tmp_pos);
+					}
 				}
-				node = node.next[0];
-				num++;
-			}
-			if (node.play) {
-				this.draw_number(node.play, num);
-			}
+				node = node.prev;
+				count--;
+			} while(node && node.source == NODE_VARIATION);
 		}
 	},
 

@@ -29,8 +29,7 @@ GoSpeed.prototype = {
 		this.time = new GoTime(this, this.args.time_settings);
 
 	// GameTree
-		var that = this;
-		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_game_tree_click, this));
+		this.init_game_tree(this.args.div_id_tree);
 
 	// Online
 		if (this.args.my_colour != undefined) {
@@ -643,6 +642,10 @@ GoSpeed.prototype = {
 
 
 // Auxiliar functions
+	init_game_tree: function(div) {
+		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_game_tree_click, this));
+	},
+
 	render_tree: function() {
 		this.game_tree.render_tree();
 	},
@@ -952,11 +955,10 @@ GoSpeed.prototype = {
 		}
 
 		// GameTree
-		var that = this;
 		if (this.game_tree.graphic != undefined && this.game_tree.graphic.div_tree != undefined) {
 			var div_id_tree = this.game_tree.graphic.div_tree.id;
 		}
-		this.game_tree = new GameTree(div_id_tree, binder(this.handle_game_tree_click, this));
+		this.init_game_tree(div_id_tree);
 
 		// Tracks
 		this.tracks = [];

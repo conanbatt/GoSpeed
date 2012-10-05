@@ -135,9 +135,10 @@ var TREE_DRAW_INTERVAL = 100;
 		this.root.pos = false;
 		this.root.turn_number = 0;
 		this.actual_move = this.root;
-		if (div_id_tree != undefined) {
-			this.graphic = new GameTreeGraphic(this, div_id_tree, goto_method);
-		}
+
+		// Graphics
+		this.goto_method = goto_method;
+		this.init_graphics(div_id_tree);
 	}
 
 	GameTree.prototype = {
@@ -280,8 +281,16 @@ var TREE_DRAW_INTERVAL = 100;
 			}
 		},
 
+		/*
 		toString: function() {
 			return this.recRunTree(this.root, "", 0, true);
+		},
+		*/
+
+		init_graphics: function(div_id_tree) {
+			if (div_id_tree != undefined) {
+				this.graphic = new GameTreeGraphic(this, div_id_tree, this.goto_method);
+			}
 		},
 	}
 

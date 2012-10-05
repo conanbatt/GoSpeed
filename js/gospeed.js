@@ -459,6 +459,10 @@ GoSpeed.prototype = {
 					}
 				}
 			break;
+			case "estimate":
+				this.estimator.toggleAt(row, col);
+				this.draw_estimation();
+			break;
 		}
 
 		if (bRes) {
@@ -807,7 +811,7 @@ GoSpeed.prototype = {
 
 //	Config commands
 	change_mode: function(mode, no_redraw) {
-		var modes = ["play", "play_online", "free", "variation", "count", "count_online",];
+		var modes = ["play", "play_online", "free", "variation", "count", "count_online", "estimate",];
 		if (typeof mode == "string") {
 			if (!inArray(mode, modes)) {
 				throw new Error("The 'mode' parameter must be in (" + modes + ").");
@@ -822,6 +826,10 @@ GoSpeed.prototype = {
 			if (mode != "free") {
 				this.time.resume(this.get_next_move());
 			}
+		}
+
+		if (this.mode == "estimate" && mode != "estimate") {
+			this.quit_estimating();
 		}
 
 		if (mode == "free") {
@@ -844,6 +852,9 @@ GoSpeed.prototype = {
 			this.mode = mode;
 			this.start_territory_counting();
 			this.time.pause();
+		} else if (this.mode != "estimate" && mode == "estimate") {
+			this.mode = mode;
+			this.start_estimating();
 		} else {
 			this.mode = mode;
 		}
@@ -856,6 +867,23 @@ GoSpeed.prototype = {
 			this.shower.clear_score();
 		}
 		this.score = undefined;
+		if (this.shower != undefined) {
+			if (this.game_tree.actual_move.play instanceof Play) {
+				this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				this.shower.refresh_ko(this.game_tree.actual_move.play);
+			}
+			this.shower.update_score();
+			this.shower.update_result();
+		}
+	},
+
+	// Clean score and set up everything to keep on playing.
+	quit_estimating: function() {
+		if (this.shower != undefined) {
+			this.shower.clear_estimated_dead_stones(this.estimator.clon.getBoardArray());
+			this.shower.clear_score();
+		}
+		this.estimator = undefined;
 		if (this.shower != undefined) {
 			if (this.game_tree.actual_move.play instanceof Play) {
 				this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
@@ -881,6 +909,20 @@ GoSpeed.prototype = {
 				this.callbacks.score_result_updated(this.score.result);
 			}
 		}
+	},
+
+	// Do the first calculation and draw territory.
+	start_estimating: function() {
+		var captures = this.get_captured_count();
+		ScoreBoard.TERRITORY_BLACK = "+";
+		ScoreBoard.TERRITORY_WHITE = "-";
+		this.estimator = new BoardApproximatedAnalysis(this.board.grid, this.komi, captures[BLACK], captures[WHITE]);
+		this.estimator.clon = this.estimator.clone();
+		if (this.shower != undefined) {
+			this.shower.clear_last_stone_markers();
+			this.shower.clear_ko();
+		}
+		this.draw_estimation();
 	},
 
 	change_ruleset: function(ruleset) {
@@ -1313,6 +1355,29 @@ GoSpeed.prototype = {
 			this.shower.update_result(this.score.result);
 			if (this.callbacks.score_result_updated != undefined) {
 				this.callbacks.score_result_updated(this.score.result);
+			}
+		}
+	},
+
+	draw_estimation: function() {
+		if (this.shower != undefined) {
+			this.shower.clear_estimated_dead_stones(this.estimator.clon.getBoardArray());
+		}
+		this.estimator.clon = this.estimator.clone();
+		this.estimator.clon.computeAnalysis();
+		this.estimator.clon.countJapaneseResult();
+		var tmp_board_array = this.estimator.clon.getBoardArray();
+		if (this.shower != undefined) {
+			this.shower.clear_score();
+			this.shower.draw_estimated_dead_stones(tmp_board_array);
+			this.shower.draw_score({scoring_grid: tmp_board_array});
+			this.shower.update_score({
+				"B": this.estimator.clon.getBlackScore(),
+				"W": this.estimator.clon.getWhiteScore(),
+			});
+			this.shower.update_result(this.estimator.clon.getGameResult());
+			if (this.callbacks.score_result_updated != undefined) {
+				this.callbacks.score_result_updated(this.estimator.clon.getGameResult());
 			}
 		}
 	},

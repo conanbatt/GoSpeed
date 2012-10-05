@@ -416,6 +416,30 @@ GoGraphic.prototype = {
 		}
 	},
 
+	draw_estimated_dead_stones: function(board_array) {
+		var target;
+		for (var i = 0, size = board_array.length; i < size; ++i) {
+			for (var j = 0; j < size; ++j) {
+				target = board_array[i][j];
+				if (target == BLACK_DEAD || target == WHITE_DEAD) {
+					this.stone_dead((target == BLACK_DEAD ? BLACK : WHITE), i, j);
+				}
+			}
+		}
+	},
+
+	clear_estimated_dead_stones: function(board_array) {
+		var target;
+		for (var i = 0, size = board_array.length; i < size; ++i) {
+			for (var j = 0; j < size; ++j) {
+				target = board_array[i][j];
+				if (target == BLACK_DEAD || target == WHITE_DEAD) {
+					this.stone_revive((target == BLACK_DEAD ? BLACK : WHITE), i, j);
+				}
+			}
+		}
+	},
+
 	clear_score: function() {
 		for (var row = 0, size = this.game.board.size; row < size ; row++) {
 			for (var col = 0; col < size; col++) {
@@ -443,10 +467,14 @@ GoGraphic.prototype = {
 		this.update_move_number(node);
 		this.update_comments();
 		if (this.game.mode != "count" && this.game.mode != "count_online") {
-			if (node.play instanceof Play) {
-				this.refresh_ko(node.play);
-				if (this.args.draw_markers) {
-					this.engine.draw_last_stone_marker(node.play.put);
+			if (this.game.mode == "estimate") {
+				this.game.draw_estimation();
+			} else {
+				if (node.play instanceof Play) {
+					this.refresh_ko(node.play);
+					if (this.args.draw_markers) {
+						this.engine.draw_last_stone_marker(node.play.put);
+					}
 				}
 			}
 		} else {

@@ -48,6 +48,10 @@ var TREE_DRAW_INTERVAL = 100;
 			}
 			return res;
 		},
+
+		to_sgf: function() {
+			return this.put.color + "[" + GoSpeed.prototype.pos_to_sgf_coord(this.put.row, this.put.col) + "]";
+		},
 	}
 
 // Free play
@@ -108,7 +112,32 @@ var TREE_DRAW_INTERVAL = 100;
 					i++;
 				}
 			}
-		}
+		},
+
+		to_sgf: function() {
+			var res = "";
+			if (this.remove.length > 0) {
+				res += "AE";
+				for (var e = 0, le = this.remove.length; e < le; ++e) {
+					res += "[" + GoSpeed.prototype.pos_to_sgf_coord(this.remove[e].row, this.remove[e].col) + "]";
+				}
+			}
+			if (this.put.length > 0) {
+				var s_tmp = [];
+				s_tmp["B"] = "AB";
+				s_tmp["W"] = "AW";
+				for (var e = 0, le = this.put.length; e < le; ++e) {
+					s_tmp[this.put[e].color] += "[" + GoSpeed.prototype.pos_to_sgf_coord(this.put[e].row, this.put[e].col) + "]";
+				}
+				if (s_tmp["B"].length > 2) {
+					res += s_tmp["B"];
+				}
+				if (s_tmp["W"].length > 2) {
+					res += s_tmp["W"];
+				}
+			}
+			return res;
+		},
 	}
 
 // Pass
@@ -121,11 +150,17 @@ var TREE_DRAW_INTERVAL = 100;
 		}
 	}
 
-	Pass.prototype.softEqual = function(play) {
-		return (
-			play instanceof Pass &&
-			play.put.color == this.put.color
-		);
+	Pass.prototype = {
+		softEqual: function(play) {
+			return (
+				play instanceof Pass &&
+				play.put.color == this.put.color
+			);
+		},
+
+		to_sgf: function() {
+			return this.put.color + "[]";
+		},
 	};
 
 // Game tree
@@ -580,6 +615,13 @@ var TREE_DRAW_INTERVAL = 100;
 		// Encode and return
 		return res.join("|");
 	}
+
+	GameNode.prototype.toString = function() {
+		var s = ";";
+		if (this.play != undefined) {
+			s += this.play.to_sgf();
+		}
+	};
 
 // Track
 	function Track(grid, head) {

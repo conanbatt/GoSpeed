@@ -1015,32 +1015,7 @@ GoSpeed.prototype = {
 		var res = ";";
 
 		// Move property
-		if (play instanceof Play) {
-			res += play.put.color + "[" + this.pos_to_sgf_coord(play.put.row, play.put.col) + "]";
-		} else if (play instanceof Pass) {
-			res += play.put.color + "[]";
-		} else if (play instanceof FreePlay) {
-			if (play.remove.length > 0) {
-				res += "AE";
-				for (var e = 0, le = play.remove.length; e < le; ++e) {
-					res += "[" + this.pos_to_sgf_coord(play.remove[e].row, play.remove[e].col) + "]";
-				}
-			}
-			if (play.put.length > 0) {
-				var s_tmp = [];
-				s_tmp["B"] = "AB";
-				s_tmp["W"] = "AW";
-				for (var e = 0, le = play.put.length; e < le; ++e) {
-					s_tmp[play.put[e].color] += "[" + this.pos_to_sgf_coord(play.put[e].row, play.put[e].col) + "]";
-				}
-				if (s_tmp["B"].length > 2) {
-					res += s_tmp["B"];
-				}
-				if (s_tmp["W"].length > 2) {
-					res += s_tmp["W"];
-				}
-			}
-		}
+		res += play.to_sgf();
 
 		// Time left property
 		if (remain != undefined && remain !== false) {

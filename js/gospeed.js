@@ -1003,15 +1003,6 @@ GoSpeed.prototype = {
 		this.status = ST_READY;
 	},
 
-	string_to_play: function(data) {
-		var row_patt = /^[A-Z]/;
-		var row = row_patt.exec(data)[0];
-		row = row.charCodeAt(0) - 65;
-		var col_patt = /[0-9]*$/;
-		var col = parseInt(col_patt.exec(data)[0], 10);
-		return {row: row, col: col};
-	},
-
 	pos_to_sgf_coord: function(row, col) {
 		return String.fromCharCode(97 + col) + String.fromCharCode(97 + row);
 	},

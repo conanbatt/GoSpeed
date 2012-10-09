@@ -498,7 +498,15 @@ SGFParser.prototype = {
 						reconstruct = true;
 					} else {
 						if (!this.same_move(sgf_node.next[i], tree_node.next[i])) {
-							throw new Error("Different moves loaded in the same place...<br /><br /><b>Loaded:</b> " + this.moves_loaded + "<br /><b>New:</b> " + moves + "<br /><b>Conflict:</b> " + tree_node.next[i].play.to_sgf() + " <b>(loaded)</b> vs. " + sgf_node.next[i] + " <b>(new)</b>");
+							var s = "";
+							s += "Different moves loaded in the same place...<br /><br />";
+							s += "<b>Loaded:</b> " + this.moves_loaded + "<br />";
+							s += "<b>New:</b> " + moves + "<br />";
+							s += "<b>Conflict:</b><br />";
+							s += "&nbsp;&nbsp;&nbsp;&nbsp;<b>loaded:</b> " + tree_node.next[i].play.to_sgf();
+							s += " (" + node_source_verbose(tree_node.next[i].source) + ")<br />";
+							s += "<b>new:</b> " + sgf_node.next[i];
+							throw new Error(s);
 						}
 						tmp_sgf_stash.unshift(sgf_node.next[i]);
 						tmp_tree_stash.unshift(tree_node.next[i]);
@@ -673,3 +681,22 @@ SGFParser.prototype = {
 	},
 }
 
+function node_source_verbose(src) {
+	switch(src) {
+		case NODE_SGF:
+			return "NODE_SGF";
+		break;
+		case NODE_ONLINE:
+			return "NODE_ONLINE";
+		break;
+		case NODE_OFFLINE:
+			return "NODE_OFFLINE";
+		break;
+		case NODE_VARIATION:
+			return "NODE_VARIATION";
+		break;
+		default:
+			return "NO_SOURCE";
+		break;
+	}
+}

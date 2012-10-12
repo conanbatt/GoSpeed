@@ -270,7 +270,7 @@ GoGraphic.prototype = {
 					if (remain > 0 && remain < 11) {
 						var start = 10 - rc;
 						var delay = (remain - rc) * 1000;
-						return KAYAGLOBAL.delayed_play_sound("countdown_sound", start, delay);
+						return KAYAGLOBAL.delayed_play_sound("countdown", start, delay);
 					}
 					if (remain > 60 && remain < 61) {
 						var delay = (remain - rc) * 1000;

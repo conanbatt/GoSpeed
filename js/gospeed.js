@@ -627,6 +627,17 @@ GoSpeed.prototype = {
 				bRes = true;
 
 			break;
+			case "variation":
+				// Play
+				var tmp_play = new Pass(this.get_next_move());
+				this.update_play_captures(tmp_play);
+				this.commit_play(tmp_play, NODE_VARIATION);
+				bRes = true;
+			break;
+		}
+
+		if (bRes) {
+			this.render_tree();
 		}
 
 		return bRes;
@@ -702,7 +713,7 @@ GoSpeed.prototype = {
 			return false;
 		}
 		// Validate variation format
-		var rex = /^([a-s]{2})*$/;
+		var rex = /^([a-s\-]{2})*$/;
 		if (!rex.test(variation)) {
 			return false;
 		}
@@ -721,7 +732,7 @@ GoSpeed.prototype = {
 			if (variation != "") {
 				variation = this.ungovar(variation, this.get_next_move());
 				// Validate new variation format
-				var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
+				var rex = /^(\;(B|W)\[([a-s]{2})?\])*$/;
 				if (!rex.test(variation)) {
 					return false;
 				}
@@ -771,11 +782,19 @@ GoSpeed.prototype = {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
 		while((tmp_node.source == NODE_VARIATION || !tail) && !tmp_node.root) {
-			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			if (tmp_node.play instanceof Play) {
+				s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			} else if (tmp_node.play instanceof Pass) {
+				s_res = "--" + s_res;
+			}
 			tmp_node = tmp_node.prev;
 		}
 		if (!tail && tmp_node.root && tmp_node.play) {
-			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			if (tmp_node.play instanceof Play) {
+				s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			} else if (tmp_node.play instanceof Pass) {
+				s_res = "--" + s_res;
+			}
 		} else {
 			s_res = tmp_node.get_path() + " " + s_res;
 		}
@@ -790,11 +809,12 @@ GoSpeed.prototype = {
 		var color = [];
 		color[0] = first_color;
 		color[1] = (first_color == "W" ? "B" : "W");
-		var var_arr = variation.match(/([a-s][a-s])/g);
+		var var_arr = variation.match(/([a-s\-][a-s\-])/g);
 		var s = "";
 		for (var i = 0, li = var_arr.length; i < li; ++i) {
 			s += ";" + color[i % 2] + "[" + var_arr[i] + "]";
 		}
+		s = s.replace(/--/g, "");
 		return s;
 	},
 

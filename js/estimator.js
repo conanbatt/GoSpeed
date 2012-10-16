@@ -156,13 +156,13 @@ ScoreBoard.getToggleColor  = function(color) {
 	case ScoreBoard.BLACK:
 		return ScoreBoard.BLACK_DEAD;
 	case ScoreBoard.BLACK_DEAD:
-		return ScoreBoard.BLACK_ALIVE;
+		return ScoreBoard.BLACK;
 	case ScoreBoard.BLACK_ALIVE:
 		return ScoreBoard.BLACK_DEAD;
 	case ScoreBoard.WHITE:
 		return ScoreBoard.WHITE_DEAD;
 	case ScoreBoard.WHITE_DEAD:
-		return ScoreBoard.WHITE_ALIVE;
+		return ScoreBoard.WHITE;
 	case ScoreBoard.WHITE_ALIVE:
 		return ScoreBoard.WHITE_DEAD;
 	default:

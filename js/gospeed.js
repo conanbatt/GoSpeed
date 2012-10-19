@@ -84,6 +84,7 @@ GoSpeed.prototype = {
 		if (node) {
 			this.board.undo_play(node.play);
 			if (!no_redraw) {
+				this.quit_count_mode();
 				if (this.shower) {
 					this.shower.clear_ko();
 					this.shower.undraw_play(node.play);
@@ -111,6 +112,7 @@ GoSpeed.prototype = {
 					this.shower.update_move_number(new_node);
 				}
 				this.render_tree();
+				this.handle_score_agreement();
 				this.handle_focus_change();
 			}
 		}
@@ -123,6 +125,7 @@ GoSpeed.prototype = {
 		if (node) {
 			this.board.make_play(node.play);
 			if (!no_redraw) {
+				this.quit_count_mode();
 				if (this.shower) {
 					this.shower.draw_play(node.play);
 					this.shower.update_captures(node.play);
@@ -136,6 +139,7 @@ GoSpeed.prototype = {
 					this.shower.update_move_number(node);
 				}
 				this.render_tree();
+				this.handle_score_agreement();
 				this.handle_focus_change();
 			}
 		}
@@ -156,6 +160,10 @@ GoSpeed.prototype = {
 	},
 
 	fast_forward: function(count) {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
 		var changed = false;
 		while(count > 0 && this.next(undefined, true)) {
 			count--;
@@ -168,10 +176,18 @@ GoSpeed.prototype = {
 			this.render_tree();
 			this.handle_focus_change();
 		}
+
+		// Restore scoring
+		this.handle_score_agreement();
+
 		return changed;
 	},
 
 	fast_backward: function(count) {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
 		var changed = false;
 		while(count > 0 && this.prev(true)) {
 			count--;
@@ -184,10 +200,20 @@ GoSpeed.prototype = {
 			this.render_tree();
 			this.handle_focus_change();
 		}
+
+		// Restore scoring
+		this.handle_score_agreement();
+
 		return changed;
 	},
 
 	goto_start: function(no_redraw) {
+		// Quit scoring before moving
+		if (!no_redraw) {
+			this.quit_count_mode();
+		}
+
+		// Batch move
 		var changed = false;
 		while (this.prev(true)) {
 			changed = true;
@@ -200,10 +226,20 @@ GoSpeed.prototype = {
 			this.render_tree();
 			this.handle_focus_change();
 		}
+
+		// Restore scoring
+		if (!no_redraw) {
+			this.handle_score_agreement();
+		}
+
 		return changed;
 	},
 
 	goto_end: function() {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
 		var changed = false;
 		while (this.next(undefined, true)) {
 			changed = true;
@@ -216,6 +252,10 @@ GoSpeed.prototype = {
 			this.render_tree();
 			this.handle_focus_change();
 		}
+
+		// Restore scoring
+		this.handle_score_agreement();
+
 		return changed;
 	},
 
@@ -232,12 +272,7 @@ GoSpeed.prototype = {
 		// Test array path
 		if (this.game_tree.test_path(arr_path)) {
 			// Mode adjustments
-			if (this.mode == "count_online") {
-				this.change_mode("play_online");
-			}
-			if (this.mode == "count") {
-				this.change_mode("play");
-			}
+			this.quit_count_mode();
 
 			var pos; // Decition to make
 			var count; // Number of times
@@ -916,6 +951,15 @@ GoSpeed.prototype = {
 		}
 	},
 
+	quit_count_mode: function() {
+		if (this.mode == "count_online") {
+			this.change_mode("play_online");
+		}
+		if (this.mode == "count") {
+			this.change_mode("play");
+		}
+	},
+
 	change_ruleset: function(ruleset) {
 		var rules = ["Japanese", "Chinese",];
 		if (typeof ruleset == "string") {
@@ -1104,7 +1148,7 @@ GoSpeed.prototype = {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus) {
+					if (data.focus && data.controller != this.my_nick) {
 						this.goto_path(data.focus, true);
 					}
 					this.update_raw_score_state(data.raw_score_state);
@@ -1115,7 +1159,7 @@ GoSpeed.prototype = {
 					this.detach_head(true);
 				} else {
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus) {
+					if (data.focus && data.controller != this.my_nick) {
 						this.goto_path(data.focus);
 					}
 					if (move_added) {
@@ -1134,7 +1178,7 @@ GoSpeed.prototype = {
 			}
 
 			if (this.is_attached()) {
-				// Fast forward
+				// Fast forward XXX TODO FIXME, i thik all this goto_end thing is wrong...
 				if (!data.focus) {
 					if (!this.goto_end()) {
 						// TODO: ugly hack, this code was running inside goto_end
@@ -1144,6 +1188,8 @@ GoSpeed.prototype = {
 						this.render_tree();
 					}
 				}
+
+				// This is OK
 				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
 			}
@@ -1170,9 +1216,10 @@ GoSpeed.prototype = {
 		if (this.sgf.status == SGFPARSER_ST_ERROR) {
 			throw new Error("Could not load SGF.\n" + this.sgf.error + "\n" + sSgf);
 		}
-		if (data.focus) {
+		if (data.focus && data.controller != this.my_nick) {
 			this.goto_path(data.focus);
 		} else {
+			// TODO FIXME XXX: i think this whole goto_end thing is wrong... focus should be there always
 			if (!this.goto_end()) {
 				// TODO: ugly hack, this code was running inside goto_end
 				if (this.shower != undefined) {
@@ -1372,6 +1419,11 @@ GoSpeed.prototype = {
 	},
 
 	handle_focus_change: function(path, source, tree_click) {
+		if (tree_click) {
+			if (path != undefined) {
+				this.goto_path(path);
+			}
+		}
 		if (this.callbacks.send_focus != undefined) {
 			if (path == undefined) {
 				path = this.get_path();
@@ -1380,10 +1432,6 @@ GoSpeed.prototype = {
 				}
 			}
 			this.callbacks.send_focus(path, source <= NODE_ONLINE, tree_click);
-		} else {
-			if (path != undefined) {
-				this.goto_path(path);
-			}
 		}
 	},
 }

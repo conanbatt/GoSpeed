@@ -4,6 +4,7 @@ let s:cpo_save=&cpo
 set cpo&vim
 inoremap <Nul> 
 map! <S-Insert> <MiddleMouse>
+map  :NERDTreeToggle
 nmap gx <Plug>NetrwBrowseX
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
 map <S-Insert> <MiddleMouse>
@@ -30,11 +31,11 @@ set softtabstop=4
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
 set tabstop=4
 set termencoding=utf-8
-set window=50
+set window=53
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
-cd ~/git-root/gospeed/js/graphic_engines
+cd ~/git-root/gospeed/js
 if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
@@ -47,7 +48,7 @@ badd +1 ~/git-root/gospeed/test/board-init.html
 badd +1 ~/git-root/gospeed/test/index.html
 badd +1 ~/git-root/gospeed/test/board-play.html
 badd +12 ~/git-root/gospeed/index.html
-badd +272 ~/git-root/gospeed/js/gographic.js
+badd +359 ~/git-root/gospeed/js/gographic.js
 badd +169 ~/git-root/gospeed/js/utils.js
 badd +1 ~/git-root/gospeed/js/stone.js
 badd +1 ~/git-root/gospeed/js/sgf.js
@@ -69,8 +70,8 @@ badd +1 ~/git-root/gospeed/js/timers/hourglass.js
 badd +1 ~/git-root/gospeed/js/timers/fischer.js
 badd +270 ~/git-root/gospeed/js/graphic_engines/canvas.js
 badd +1 ~/git-root/gospeed/js/graphic_engines/html.js
-args ~/git-root/gospeed/js/gospeed.js
-edit ~/git-root/gospeed/js/gographic.js
+args gospeed.js
+edit ~/git-root/gospeed/js/gospeed.js
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -186,15 +187,15 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 423 - ((21 * winheight(0) + 26) / 53)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-423
+1
 normal! 0
 wincmd w
 argglobal
-edit ~/git-root/gospeed/js/graphic_engines/canvas.js
+edit ~/git-root/gospeed/js/gographic.js
 setlocal keymap=
 setlocal noarabic
 setlocal noautoindent
@@ -298,14 +299,13 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 270 - ((26 * winheight(0) + 26) / 53)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-270
+1
 normal! 0
 wincmd w
-2wincmd w
 exe 'vert 1resize ' . ((&columns * 111 + 111) / 223)
 exe 'vert 2resize ' . ((&columns * 111 + 111) / 223)
 tabnext 1

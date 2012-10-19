@@ -1419,11 +1419,6 @@ GoSpeed.prototype = {
 	},
 
 	handle_focus_change: function(path, source, tree_click) {
-		if (tree_click) {
-			if (path != undefined) {
-				this.goto_path(path);
-			}
-		}
 		if (this.callbacks.send_focus != undefined) {
 			if (path == undefined) {
 				path = this.get_path();
@@ -1432,6 +1427,12 @@ GoSpeed.prototype = {
 				}
 			}
 			this.callbacks.send_focus(path, source <= NODE_ONLINE, tree_click);
+		} else {
+			if (tree_click) {
+				if (path != undefined) {
+					this.goto_path(path);
+				}
+			}
 		}
 	},
 }

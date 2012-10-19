@@ -80,14 +80,6 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function(no_redraw) {
-		// XXX: commented this, don't know what is doing here, certainly related with Kaya.
-		// XXX: this doesn't look like the right place for it.
-		/*
-		if (this.is_attached()) {
-			// TODO: what if we're playing offline?
-			this.detach_head();
-		}
-		*/
 		var node = this.game_tree.prev();
 		if (node) {
 			this.board.undo_play(node.play);
@@ -102,25 +94,27 @@ GoSpeed.prototype = {
 				}
 			}
 
-			node = this.game_tree.actual_move;
-			if (node.play) {
+			var new_node = this.game_tree.actual_move;
+			if (new_node.play) {
 				if (!no_redraw) {
 					if (this.shower != undefined) {
-						this.shower.refresh_ko(node.play);
-						this.shower.update_captures(node.play);
+						this.shower.refresh_ko(new_node.play);
+						this.shower.update_captures(new_node.play);
 					}
 				}
 			}
+
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.clean_t_stones();
+					this.shower.update_comments();
+					this.shower.update_move_number(new_node);
+				}
+				this.render_tree();
+				this.handle_focus_change();
+			}
 		}
 
-		if (!no_redraw) {
-			if (this.shower) {
-				this.shower.clean_t_stones();
-				this.shower.update_comments();
-				this.shower.update_move_number(node);
-			}
-			this.render_tree();
-		}
 		return !!node;
 	},
 
@@ -134,15 +128,16 @@ GoSpeed.prototype = {
 					this.shower.update_captures(node.play);
 				}
 			}
-		}
 
-		if (!no_redraw) {
-			if (this.shower) {
-				this.shower.clean_t_stones();
-				this.shower.update_comments();
-				this.shower.update_move_number(node);
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.clean_t_stones();
+					this.shower.update_comments();
+					this.shower.update_move_number(node);
+				}
+				this.render_tree();
+				this.handle_focus_change();
 			}
-			this.render_tree();
 		}
 
 		return !!node;
@@ -161,49 +156,67 @@ GoSpeed.prototype = {
 	},
 
 	fast_forward: function(count) {
+		var changed = false;
 		while(count > 0 && this.next(undefined, true)) {
 			count--;
+			changed = true;
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
-		}
-		this.render_tree();
-
-		return (count == 0);
-	},
-
-	fast_backward: function(count) {
-		while(count > 0 && this.prev(true)) {
-			count--;
-		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
-		}
-		this.render_tree();
-
-		return (count == 0);
-	},
-
-	goto_start: function(no_redraw) {
-		while (this.prev(true)) {
-			continue;
-		}
-		if (!no_redraw) {
+		if (changed) {
 			if (this.shower != undefined) {
 				this.shower.redraw();
 			}
 			this.render_tree();
+			this.handle_focus_change();
 		}
+		return changed;
+	},
+
+	fast_backward: function(count) {
+		var changed = false;
+		while(count > 0 && this.prev(true)) {
+			count--;
+			changed = true;
+		}
+		if (changed) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
+		}
+		return changed;
+	},
+
+	goto_start: function(no_redraw) {
+		var changed = false;
+		while (this.prev(true)) {
+			changed = true;
+			continue;
+		}
+		if (changed && !no_redraw) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
+		}
+		return changed;
 	},
 
 	goto_end: function() {
+		var changed = false;
 		while (this.next(undefined, true)) {
+			changed = true;
 			continue;
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
+		if (changed) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
 		}
-		this.render_tree();
+		return changed;
 	},
 
 	goto_path: function(path, no_redraw) {
@@ -654,7 +667,7 @@ GoSpeed.prototype = {
 
 // Auxiliar functions
 	init_game_tree: function(div) {
-		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_game_tree_click, this));
+		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_focus_change, this));
 	},
 
 	render_tree: function() {
@@ -1123,7 +1136,13 @@ GoSpeed.prototype = {
 			if (this.is_attached()) {
 				// Fast forward
 				if (!data.focus) {
-					this.goto_end();
+					if (!this.goto_end()) {
+						// TODO: ugly hack, this code was running inside goto_end
+						if (this.shower != undefined) {
+							this.shower.redraw();
+						}
+						this.render_tree();
+					}
 				}
 				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
@@ -1151,7 +1170,17 @@ GoSpeed.prototype = {
 		if (this.sgf.status == SGFPARSER_ST_ERROR) {
 			throw new Error("Could not load SGF.\n" + this.sgf.error + "\n" + sSgf);
 		}
-		this.goto_end();
+		if (data.focus) {
+			this.goto_path(data.focus);
+		} else {
+			if (!this.goto_end()) {
+				// TODO: ugly hack, this code was running inside goto_end
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+				this.render_tree();
+			}
+		}
 		this.handle_score_agreement(data.raw_score_state);
 		this.time.update(data.time_adjustment);
 		this.last_play_announcement();
@@ -1342,11 +1371,19 @@ GoSpeed.prototype = {
 		}
 	},
 
-	handle_game_tree_click: function(path, source) {
+	handle_focus_change: function(path, source, tree_click) {
 		if (this.callbacks.send_focus != undefined) {
-			this.callbacks.send_focus(path, source <= NODE_ONLINE);
+			if (path == undefined) {
+				path = this.get_path();
+				if (source == undefined) {
+					source = this.game_tree.actual_move.source;
+				}
+			}
+			this.callbacks.send_focus(path, source <= NODE_ONLINE, tree_click);
 		} else {
-			this.goto_path(path);
+			if (path != undefined) {
+				this.goto_path(path);
+			}
 		}
 	},
 }

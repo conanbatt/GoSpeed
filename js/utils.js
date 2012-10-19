@@ -428,7 +428,7 @@ var TREE_DRAW_INTERVAL = 100;
 				if (that.goto_method != undefined) {
 					div.onclick = that.binder(function(event) {
 						event.preventDefault();
-						that.goto_method(node.get_path(), node.source);
+						that.goto_method(node.get_path(), node.source, true);
 					});
 				}
 				that.div_tree.appendChild(div);

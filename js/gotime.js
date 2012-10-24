@@ -170,7 +170,6 @@ GoTime.prototype = {
 			break;
 			case "Absolute":
 			case "Fischer":
-			case "Hourglass":
 				for (var color in color_arr) {
 					color = color_arr[color];
 
@@ -179,6 +178,19 @@ GoTime.prototype = {
 						this.game.shower.format_clock_div(remain[color].main_time, color);
 						this.game.shower.write_clock_value(this.format(remain[color].main_time + 0.99, true), color);
 						this.game.shower.draw_t_stone_number(remain[color].main_time, color);
+					}
+				}
+			break;
+			case "Hourglass":
+				for (var color in color_arr) {
+					color = color_arr[color];
+
+					if (remain[color] != undefined) {
+						var tmp_remain = Math.min(remain[color].main_time, this.clock.system.main_time * 2);
+						this.game.shower.handle_clock_sound(tmp_remain, color);
+						this.game.shower.format_clock_div(tmp_remain, color);
+						this.game.shower.write_clock_value(this.format(tmp_remain + 0.99, true), color);
+						this.game.shower.draw_t_stone_number(tmp_remain, color);
 					}
 				}
 			break;

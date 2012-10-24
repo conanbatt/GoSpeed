@@ -80,18 +80,11 @@ GoSpeed.prototype = {
 
 //	Game Seek
 	prev: function(no_redraw) {
-		// XXX: commented this, don't know what is doing here, certainly related with Kaya.
-		// XXX: this doesn't look like the right place for it.
-		/*
-		if (this.is_attached()) {
-			// TODO: what if we're playing offline?
-			this.detach_head();
-		}
-		*/
 		var node = this.game_tree.prev();
 		if (node) {
 			this.board.undo_play(node.play);
 			if (!no_redraw) {
+				this.quit_count_mode();
 				if (this.shower) {
 					this.shower.clear_ko();
 					this.shower.undraw_play(node.play);
@@ -102,25 +95,28 @@ GoSpeed.prototype = {
 				}
 			}
 
-			node = this.game_tree.actual_move;
-			if (node.play) {
+			var new_node = this.game_tree.actual_move;
+			if (new_node.play) {
 				if (!no_redraw) {
 					if (this.shower != undefined) {
-						this.shower.refresh_ko(node.play);
-						this.shower.update_captures(node.play);
+						this.shower.refresh_ko(new_node.play);
+						this.shower.update_captures(new_node.play);
 					}
 				}
 			}
+
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.clean_t_stones();
+					this.shower.update_comments();
+					this.shower.update_move_number(new_node);
+				}
+				this.render_tree();
+				this.handle_score_agreement();
+				this.handle_focus_change();
+			}
 		}
 
-		if (!no_redraw) {
-			if (this.shower) {
-				this.shower.clean_t_stones();
-				this.shower.update_comments();
-				this.shower.update_move_number(node);
-			}
-			this.render_tree();
-		}
 		return !!node;
 	},
 
@@ -129,20 +125,23 @@ GoSpeed.prototype = {
 		if (node) {
 			this.board.make_play(node.play);
 			if (!no_redraw) {
+				this.quit_count_mode();
 				if (this.shower) {
 					this.shower.draw_play(node.play);
 					this.shower.update_captures(node.play);
 				}
 			}
-		}
 
-		if (!no_redraw) {
-			if (this.shower) {
-				this.shower.clean_t_stones();
-				this.shower.update_comments();
-				this.shower.update_move_number(node);
+			if (!no_redraw) {
+				if (this.shower) {
+					this.shower.clean_t_stones();
+					this.shower.update_comments();
+					this.shower.update_move_number(node);
+				}
+				this.render_tree();
+				this.handle_score_agreement();
+				this.handle_focus_change();
 			}
-			this.render_tree();
 		}
 
 		return !!node;
@@ -161,49 +160,103 @@ GoSpeed.prototype = {
 	},
 
 	fast_forward: function(count) {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
+		var changed = false;
 		while(count > 0 && this.next(undefined, true)) {
 			count--;
+			changed = true;
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
-		}
-		this.render_tree();
-
-		return (count == 0);
-	},
-
-	fast_backward: function(count) {
-		while(count > 0 && this.prev(true)) {
-			count--;
-		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
-		}
-		this.render_tree();
-
-		return (count == 0);
-	},
-
-	goto_start: function(no_redraw) {
-		while (this.prev(true)) {
-			continue;
-		}
-		if (!no_redraw) {
+		if (changed) {
 			if (this.shower != undefined) {
 				this.shower.redraw();
 			}
 			this.render_tree();
+			this.handle_focus_change();
 		}
+
+		// Restore scoring
+		this.handle_score_agreement();
+
+		return changed;
+	},
+
+	fast_backward: function(count) {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
+		var changed = false;
+		while(count > 0 && this.prev(true)) {
+			count--;
+			changed = true;
+		}
+		if (changed) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
+		}
+
+		// Restore scoring
+		this.handle_score_agreement();
+
+		return changed;
+	},
+
+	goto_start: function(no_redraw) {
+		// Quit scoring before moving
+		if (!no_redraw) {
+			this.quit_count_mode();
+		}
+
+		// Batch move
+		var changed = false;
+		while (this.prev(true)) {
+			changed = true;
+			continue;
+		}
+		if (changed && !no_redraw) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
+		}
+
+		// Restore scoring
+		if (!no_redraw) {
+			this.handle_score_agreement();
+		}
+
+		return changed;
 	},
 
 	goto_end: function() {
+		// Quit scoring before moving
+		this.quit_count_mode();
+
+		// Batch move
+		var changed = false;
 		while (this.next(undefined, true)) {
+			changed = true;
 			continue;
 		}
-		if (this.shower != undefined) {
-			this.shower.redraw();
+		if (changed) {
+			if (this.shower != undefined) {
+				this.shower.redraw();
+			}
+			this.render_tree();
+			this.handle_focus_change();
 		}
-		this.render_tree();
+
+		// Restore scoring
+		this.handle_score_agreement();
+
+		return changed;
 	},
 
 	goto_path: function(path, no_redraw) {
@@ -219,12 +272,7 @@ GoSpeed.prototype = {
 		// Test array path
 		if (this.game_tree.test_path(arr_path)) {
 			// Mode adjustments
-			if (this.mode == "count_online") {
-				this.change_mode("play_online");
-			}
-			if (this.mode == "count") {
-				this.change_mode("play");
-			}
+			this.quit_count_mode();
 
 			var pos; // Decition to make
 			var count; // Number of times
@@ -589,7 +637,7 @@ GoSpeed.prototype = {
 				this.update_play_captures(tmp_play);
 
 				// Commit
-				this.commit_play(tmp_play);
+				this.commit_play(tmp_play, NODE_OFFLINE);
 
 				this.time.resume(this.get_next_move());
 
@@ -616,7 +664,7 @@ GoSpeed.prototype = {
 				this.update_play_captures(tmp_play);
 
 				// Commit
-				this.commit_play(tmp_play);
+				this.commit_play(tmp_play, NODE_ONLINE);
 
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");
@@ -631,6 +679,17 @@ GoSpeed.prototype = {
 				bRes = true;
 
 			break;
+			case "variation":
+				// Play
+				var tmp_play = new Pass(this.get_next_move());
+				this.update_play_captures(tmp_play);
+				this.commit_play(tmp_play, NODE_VARIATION);
+				bRes = true;
+			break;
+		}
+
+		if (bRes) {
+			this.render_tree();
 		}
 
 		return bRes;
@@ -647,7 +706,7 @@ GoSpeed.prototype = {
 
 // Auxiliar functions
 	init_game_tree: function(div) {
-		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_game_tree_click, this));
+		this.game_tree = new GameTree(this.args.div_id_tree, binder(this.handle_focus_change, this));
 	},
 
 	render_tree: function() {
@@ -706,7 +765,7 @@ GoSpeed.prototype = {
 			return false;
 		}
 		// Validate variation format
-		var rex = /^([a-s]{2})*$/;
+		var rex = /^([a-s\-]{2})*$/;
 		if (!rex.test(variation)) {
 			return false;
 		}
@@ -725,7 +784,7 @@ GoSpeed.prototype = {
 			if (variation != "") {
 				variation = this.ungovar(variation, this.get_next_move());
 				// Validate new variation format
-				var rex = /^(\;(B|W)\[[a-s]{2}\])*$/;
+				var rex = /^(\;(B|W)\[([a-s]{2})?\])*$/;
 				if (!rex.test(variation)) {
 					return false;
 				}
@@ -775,11 +834,19 @@ GoSpeed.prototype = {
 		var s_res = "";
 		var tmp_node = this.game_tree.actual_move;
 		while((tmp_node.source == NODE_VARIATION || !tail) && !tmp_node.root) {
-			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			if (tmp_node.play instanceof Play) {
+				s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			} else if (tmp_node.play instanceof Pass) {
+				s_res = "--" + s_res;
+			}
 			tmp_node = tmp_node.prev;
 		}
 		if (!tail && tmp_node.root && tmp_node.play) {
-			s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			if (tmp_node.play instanceof Play) {
+				s_res = this.pos_to_sgf_coord(tmp_node.play.put.row, tmp_node.play.put.col) + s_res;
+			} else if (tmp_node.play instanceof Pass) {
+				s_res = "--" + s_res;
+			}
 		} else {
 			s_res = tmp_node.get_path() + " " + s_res;
 		}
@@ -794,11 +861,12 @@ GoSpeed.prototype = {
 		var color = [];
 		color[0] = first_color;
 		color[1] = (first_color == "W" ? "B" : "W");
-		var var_arr = variation.match(/([a-s][a-s])/g);
+		var var_arr = variation.match(/([a-s\-][a-s\-])/g);
 		var s = "";
 		for (var i = 0, li = var_arr.length; i < li; ++i) {
 			s += ";" + color[i % 2] + "[" + var_arr[i] + "]";
 		}
+		s = s.replace(/--/g, "");
 		return s;
 	},
 
@@ -923,6 +991,15 @@ GoSpeed.prototype = {
 			this.shower.clear_ko();
 		}
 		this.draw_estimation();
+	},
+
+	quit_count_mode: function() {
+		if (this.mode == "count_online") {
+			this.change_mode("play_online");
+		}
+		if (this.mode == "count") {
+			this.change_mode("play");
+		}
 	},
 
 	change_ruleset: function(ruleset) {
@@ -1113,7 +1190,7 @@ GoSpeed.prototype = {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus) {
+					if (data.focus && data.controller != this.my_nick) {
 						this.goto_path(data.focus, true);
 					}
 					this.update_raw_score_state(data.raw_score_state);
@@ -1124,7 +1201,7 @@ GoSpeed.prototype = {
 					this.detach_head(true);
 				} else {
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus) {
+					if (data.focus && data.controller != this.my_nick) {
 						this.goto_path(data.focus);
 					}
 					if (move_added) {
@@ -1143,10 +1220,18 @@ GoSpeed.prototype = {
 			}
 
 			if (this.is_attached()) {
-				// Fast forward
+				// Fast forward XXX TODO FIXME, i thik all this goto_end thing is wrong...
 				if (!data.focus) {
-					this.goto_end();
+					if (!this.goto_end()) {
+						// TODO: ugly hack, this code was running inside goto_end
+						if (this.shower != undefined) {
+							this.shower.redraw();
+						}
+						this.render_tree();
+					}
 				}
+
+				// This is OK
 				this.handle_score_agreement(data.raw_score_state);
 				this.time.update(data.time_adjustment);
 			}
@@ -1173,7 +1258,18 @@ GoSpeed.prototype = {
 		if (this.sgf.status == SGFPARSER_ST_ERROR) {
 			throw new Error("Could not load SGF.\n" + this.sgf.error + "\n" + sSgf);
 		}
-		this.goto_end();
+		if (data.focus && data.controller != this.my_nick) {
+			this.goto_path(data.focus);
+		} else {
+			// TODO FIXME XXX: i think this whole goto_end thing is wrong... focus should be there always
+			if (!this.goto_end()) {
+				// TODO: ugly hack, this code was running inside goto_end
+				if (this.shower != undefined) {
+					this.shower.redraw();
+				}
+				this.render_tree();
+			}
+		}
 		this.handle_score_agreement(data.raw_score_state);
 		this.time.update(data.time_adjustment);
 		this.last_play_announcement();
@@ -1387,11 +1483,21 @@ GoSpeed.prototype = {
 		}
 	},
 
-	handle_game_tree_click: function(path, source) {
+	handle_focus_change: function(path, source, tree_click) {
 		if (this.callbacks.send_focus != undefined) {
-			this.callbacks.send_focus(path, source <= NODE_ONLINE);
+			if (path == undefined) {
+				path = this.get_path();
+				if (source == undefined) {
+					source = this.game_tree.actual_move.source;
+				}
+			}
+			this.callbacks.send_focus(path, source <= NODE_ONLINE, tree_click);
 		} else {
-			this.goto_path(path);
+			if (tree_click) {
+				if (path != undefined) {
+					this.goto_path(path);
+				}
+			}
 		}
 	},
 }

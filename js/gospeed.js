@@ -633,7 +633,7 @@ GoSpeed.prototype = {
 				this.update_play_captures(tmp_play);
 
 				// Commit
-				this.commit_play(tmp_play);
+				this.commit_play(tmp_play, NODE_OFFLINE);
 
 				this.time.resume(this.get_next_move());
 
@@ -660,7 +660,7 @@ GoSpeed.prototype = {
 				this.update_play_captures(tmp_play);
 
 				// Commit
-				this.commit_play(tmp_play);
+				this.commit_play(tmp_play, NODE_ONLINE);
 
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");

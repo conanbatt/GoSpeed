@@ -950,6 +950,9 @@ GoSpeed.prototype = {
 		if (this.shower != undefined) {
 			this.shower.clear_estimated_dead_stones(this.estimator.clon.getBoardArray());
 			this.shower.clear_score();
+			if (this.callbacks.estimate_result_updated != undefined) {
+				this.callbacks.estimate_result_updated();
+			}
 		}
 		this.estimator = undefined;
 		if (this.shower != undefined) {
@@ -1438,8 +1441,8 @@ GoSpeed.prototype = {
 				"W": this.estimator.clon.getWhiteScore(),
 			});
 			this.shower.update_result(this.estimator.clon.getGameResult());
-			if (this.callbacks.score_result_updated != undefined) {
-				this.callbacks.score_result_updated(this.estimator.clon.getGameResult());
+			if (this.callbacks.estimate_result_updated != undefined) {
+				this.callbacks.estimate_result_updated(this.estimator.clon.getGameResult());
 			}
 		}
 	},

@@ -1167,7 +1167,7 @@ GoSpeed.prototype = {
 							this.goto_path(data.focus);
 						}
 					} else {
-						if (data.controller != this.my_nick) {
+						if (data.controller == undefined || data.controller != this.my_nick) {
 							if (data.focus) {
 								this.goto_path(data.focus);
 							}

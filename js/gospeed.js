@@ -897,7 +897,9 @@ GoSpeed.prototype = {
 		}
 
 		if (this.mode == "estimate" && mode != "estimate") {
-			this.quit_estimating();
+			if (!no_redraw) {
+				this.quit_estimating();
+			}
 		}
 
 		if (mode == "free") {
@@ -922,7 +924,9 @@ GoSpeed.prototype = {
 			this.time.pause();
 		} else if (this.mode != "estimate" && mode == "estimate") {
 			this.mode = mode;
-			this.start_estimating();
+			if (!no_redraw) {
+				this.start_estimating();
+			}
 		} else {
 			this.mode = mode;
 		}
@@ -963,6 +967,7 @@ GoSpeed.prototype = {
 			this.shower.update_score();
 			this.shower.update_result();
 		}
+		this.estimating = false;
 	},
 
 	// Do the first calculation and draw territory.
@@ -984,6 +989,7 @@ GoSpeed.prototype = {
 
 	// Do the first calculation and draw territory.
 	start_estimating: function() {
+		this.estimating = true;
 		var captures = this.get_captured_count();
 		ScoreBoard.TERRITORY_BLACK = "+";
 		ScoreBoard.TERRITORY_WHITE = "-";
@@ -1222,14 +1228,12 @@ GoSpeed.prototype = {
 								this.goto_path(data.focus);
 							}
 						} else {
-						/*
 							if (data.focus && data.focus == this.game_tree.actual_move.get_path()) {
 								// FIXME: I think this is useless, the goto_path does the same work and
 								// confirms the stones. But we cannot goto_path when the controller has
 								// pending focus to send...
 								this.confirm_play();
 							}
-						*/
 						}
 					}
 					if (move_added) {
@@ -1502,7 +1506,11 @@ GoSpeed.prototype = {
 				this.duplicate_actual_track(TRACK_OFFLINE);
 			}
 			// Switch track and mode
-			this.change_mode("variation", no_redraw);
+			if (this.estimating) {
+				this.change_mode("estimate", no_redraw);
+			} else {
+				this.change_mode("variation", no_redraw);
+			}
 			this.switch_to_track(TRACK_OFFLINE, no_redraw);
 		}
 	},
@@ -1540,6 +1548,7 @@ GoSpeed.prototype = {
 			this.callbacks.send_focus(path, source <= NODE_ONLINE, tree_click);
 		} else {
 			if (tree_click) {
+				// TODO: if i'm estimating, this explodes! (Offline client issue!)
 				if (path != undefined) {
 					this.goto_path(path);
 				}

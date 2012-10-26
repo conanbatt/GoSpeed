@@ -948,7 +948,7 @@ GoSpeed.prototype = {
 	// Clean score and set up everything to keep on playing.
 	quit_estimating: function() {
 		if (this.shower != undefined) {
-			this.shower.clear_estimated_dead_stones(this.estimator.clon.getBoardArray());
+			this.shower.clear_estimated_dead_stones(this.estimator.clon.fixed_array);
 			this.shower.clear_score();
 			if (this.callbacks.estimate_result_updated != undefined) {
 				this.callbacks.estimate_result_updated();
@@ -989,6 +989,7 @@ GoSpeed.prototype = {
 		ScoreBoard.TERRITORY_WHITE = "-";
 		this.estimator = new BoardApproximatedAnalysis(this.board.grid, this.komi, captures[BLACK], captures[WHITE]);
 		this.estimator.clon = this.estimator.clone();
+		this.estimator.clon.fixed_array = this.estimator.clon.getBoardArray();
 		if (this.shower != undefined) {
 			this.shower.clear_last_stone_markers();
 			this.shower.clear_ko();
@@ -1426,12 +1427,30 @@ GoSpeed.prototype = {
 
 	draw_estimation: function() {
 		if (this.shower != undefined) {
-			this.shower.clear_estimated_dead_stones(this.estimator.clon.getBoardArray());
+			this.shower.clear_estimated_dead_stones(this.estimator.clon.fixed_array);
 		}
 		this.estimator.clon = this.estimator.clone();
 		this.estimator.clon.computeAnalysis();
 		this.estimator.clon.countJapaneseResult();
 		var tmp_board_array = this.estimator.clon.getBoardArray();
+		for (var i = 0; i < tmp_board_array.length; ++i) {
+			for (var j = 0; j < tmp_board_array.length; ++j) {
+				var st = this.estimator.clon.getGroupStatusAt(i, j);
+				var kind = this.estimator.clon.getBoardKindAt(i, j);
+				if (kind == ScoreBoard.BLACK_DEAD || kind == ScoreBoard.WHITE_DEAD) {
+					tmp_board_array[i][j] = kind;
+				} else if (kind == ScoreBoard.BLACK_ALIVE || kind == ScoreBoard.WHITE_ALIVE) {
+					tmp_board_array[i][j] = kind;
+				} else if (st == ScoreBoard.STATUS_GROUP_DEAD) {
+					if (tmp_board_array[i][j] == ScoreBoard.BLACK) {
+						tmp_board_array[i][j] = ScoreBoard.BLACK_DEAD;
+					} else {
+						tmp_board_array[i][j] = ScoreBoard.WHITE_DEAD;
+					}
+				}
+			}
+		}
+		this.estimator.clon.fixed_array = tmp_board_array;
 		if (this.shower != undefined) {
 			this.shower.clear_score();
 			this.shower.draw_estimated_dead_stones(tmp_board_array);

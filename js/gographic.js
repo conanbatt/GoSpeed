@@ -334,7 +334,7 @@ GoGraphic.prototype = {
 *   Helpers   *
              */
 	confirm_play: function(put) {
-		this.clear_last_stone_marker();
+		this.clear_last_stone_markers();
 		if (this.args.draw_markers) {
 			this.place_last_stone_marker(put);
 		}

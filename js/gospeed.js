@@ -1194,9 +1194,10 @@ GoSpeed.prototype = {
 				if (!this.is_attached()) {
 					this.attach_head(true);
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus && data.controller != this.my_nick) {
+					// This is commented because regardless of controller, black and white could be playing
+					//if (data.focus && data.controller != this.my_nick) {
 						this.goto_path(data.focus, true);
-					}
+					//}
 					this.update_raw_score_state(data.raw_score_state);
 					this.time.update(data.time_adjustment);
 					if (move_added) {
@@ -1205,8 +1206,31 @@ GoSpeed.prototype = {
 					this.detach_head(true);
 				} else {
 					move_added = this.sgf.new_add_moves(this, data.moves);
-					if (data.focus && data.controller != this.my_nick) {
-						this.goto_path(data.focus);
+					if (move_added) {
+						if (data.focus) {
+							if (data.controller_sending == undefined) {
+								// FIXME: This fixes the stone not being drawn for the controller, but
+								// will change focus to controller not caring if he sent the last focus change
+								this.goto_path(data.focus);
+							} else {
+								this.goto_path(data.controller_sending);
+							}
+						}
+					} else {
+						if (data.controller == undefined || data.controller != this.my_nick) {
+							if (data.focus) {
+								this.goto_path(data.focus);
+							}
+						} else {
+						/*
+							if (data.focus && data.focus == this.game_tree.actual_move.get_path()) {
+								// FIXME: I think this is useless, the goto_path does the same work and
+								// confirms the stones. But we cannot goto_path when the controller has
+								// pending focus to send...
+								this.confirm_play();
+							}
+						*/
+						}
 					}
 					if (move_added) {
 						move_added = this.game_tree.actual_move;

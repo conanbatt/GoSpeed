@@ -1162,9 +1162,13 @@ GoSpeed.prototype = {
 					move_added = this.sgf.new_add_moves(this, data.moves);
 					if (move_added) {
 						if (data.focus) {
-							// FIXME: This fixes the stone not being drawn for the controller, but
-							// will change focus to controller not caring if he sent the last focus change
-							this.goto_path(data.focus);
+							if (data.controller_sending == undefined) {
+								// FIXME: This fixes the stone not being drawn for the controller, but
+								// will change focus to controller not caring if he sent the last focus change
+								this.goto_path(data.focus);
+							} else {
+								this.goto_path(data.controller_sending);
+							}
 						}
 					} else {
 						if (data.controller == undefined || data.controller != this.my_nick) {
@@ -1172,12 +1176,14 @@ GoSpeed.prototype = {
 								this.goto_path(data.focus);
 							}
 						} else {
+						/*
 							if (data.focus && data.focus == this.game_tree.actual_move.get_path()) {
 								// FIXME: I think this is useless, the goto_path does the same work and
 								// confirms the stones. But we cannot goto_path when the controller has
 								// pending focus to send...
 								this.confirm_play();
 							}
+						*/
 						}
 					}
 					if (move_added) {

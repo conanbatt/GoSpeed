@@ -990,10 +990,10 @@ GoSpeed.prototype = {
 	// Do the first calculation and draw territory.
 	start_estimating: function() {
 		this.estimating = true;
-		var captures = this.get_captured_count();
+		var captured = this.get_captured_count();
 		ScoreBoard.TERRITORY_BLACK = "+";
 		ScoreBoard.TERRITORY_WHITE = "-";
-		this.estimator = new BoardApproximatedAnalysis(this.board.grid, this.komi, captures[BLACK], captures[WHITE]);
+		this.estimator = new BoardApproximatedAnalysis(this.board.grid, this.komi, captured[WHITE], captured[BLACK]);
 		this.estimator.clon = this.estimator.clone();
 		this.estimator.clon.fixed_array = this.estimator.clon.getBoardArray();
 		if (this.shower != undefined) {

@@ -973,6 +973,22 @@ Canvas2DEngine.prototype = {
 	is_supported: function() {
 		var elem = document.createElement('canvas');
 		return !!(elem.getContext && elem.getContext('2d'));
-	}
+	},
 
+
+/*
+*   Export Image   *
+                  */
+
+	get_base64_png: function() {
+		var tc = document.createElement("canvas");
+		tc.width = this.last_width;
+		tc.height = this.last_height;
+		var ct = tc.getContext("2d");
+		ct.drawImage(this.board_canvas, 0, 0);
+		ct.drawImage(this.shadow_canvas, 0, 0);
+		ct.drawImage(this.stone_canvas, 0, 0);
+		ct.drawImage(this.marker_canvas, 0, 0);
+		return tc.toDataURL();
+	},
 }

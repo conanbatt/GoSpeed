@@ -508,7 +508,9 @@ GoSpeed.prototype = {
 				}
 			break;
 			case "estimate":
-				this.estimator.toggleAt(row, col);
+
+				var isDead = (this.estimator.clon.getGroupStatusAt(row, col) == ScoreBoard.STATUS_GROUP_DEAD);
+				this.estimator.toggleAt(row, col, isDead);
 				this.draw_estimation();
 			break;
 		}
@@ -1464,10 +1466,12 @@ GoSpeed.prototype = {
 		for (var i = 0; i < tmp_board_array.length; ++i) {
 			for (var j = 0; j < tmp_board_array.length; ++j) {
 				var st = this.estimator.clon.getGroupStatusAt(i, j);
-				var kind = this.estimator.clon.getBoardKindAt(i, j);
+				var kind = this.estimator.clon.getBoardFinalKindAt(i, j);
 				if (kind == ScoreBoard.BLACK_DEAD || kind == ScoreBoard.WHITE_DEAD) {
 					tmp_board_array[i][j] = kind;
 				} else if (kind == ScoreBoard.BLACK_ALIVE || kind == ScoreBoard.WHITE_ALIVE) {
+					tmp_board_array[i][j] = kind;
+				} else if (kind == ScoreBoard.TERRITORY_BLACK || kind == ScoreBoard.TERRITORY_WHITE) {
 					tmp_board_array[i][j] = kind;
 				} else if (st == ScoreBoard.STATUS_GROUP_DEAD) {
 					if (tmp_board_array[i][j] == ScoreBoard.BLACK) {
@@ -1475,6 +1479,8 @@ GoSpeed.prototype = {
 					} else {
 						tmp_board_array[i][j] = ScoreBoard.WHITE_DEAD;
 					}
+				} else if (st == ScoreBoard.STATUS_GROUP_SEKI || kind == ScoreBoard.TERRITORY_SEKI) {
+					tmp_board_array[i][j] = ScoreBoard.TERRITORY_SEKI;
 				}
 			}
 		}

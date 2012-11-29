@@ -129,6 +129,13 @@ SGFParser.prototype = {
 
 		this.append_node(new SGFNode());
 
+		buf_end += this.sgf_eat_blank(buffer, buf_end);
+
+		// Handle empty node...
+		if (buffer[buf_end] == ";") {
+			prop_end = true;
+		}
+
 		while (!prop_end) {
 			while (!prop_end) {
 				cur_char = buffer[buf_end];
@@ -137,9 +144,11 @@ SGFParser.prototype = {
 				} else if (cur_char == '[') {
 					prop_end = true;
 				} else {
-					this.status = SGFPARSER_ST_ERROR;
-					this.error = "Error parsing node property name.\nWrong SGF syntax.";
-					return false;
+					if (!/\s/.test(cur_char)) {
+						this.status = SGFPARSER_ST_ERROR;
+						this.error = "Error parsing node property name.\nWrong SGF syntax.";
+						return false;
+					}
 				}
 				buf_end++;
 			}
@@ -156,6 +165,7 @@ SGFParser.prototype = {
 				} else if (!esc_next && cur_char == ']') {
 					prop_arr.push(prop_val);
 					prop_val = "";
+					buf_end += this.sgf_eat_blank(buffer, buf_end + 1);
 					if (buffer[buf_end + 1] != '[') {
 						prop_end = true;
 					} else {

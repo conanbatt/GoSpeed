@@ -119,35 +119,46 @@ GoTime.prototype = {
 	},
 
 	// Formats given time
-	format: function(seconds, show_mins) {
-		var tmp_min;
-		var tmp_sec;
-		if (show_mins) {
+	format: function(seconds, complete) {
+		if (complete) {
 			if (seconds > 0) {
-				tmp_min = Math.floor(seconds / 60);
-				tmp_sec = Math.floor(seconds - tmp_min * 60);
-				if (tmp_min < 10) {
-					tmp_min = "0" + tmp_min;
+				var tmp_day, tmp_hrs, tmp_min, tmp_sec, time = "";
+				tmp_day = Math.floor(seconds / 86400);
+				tmp_hrs = Math.floor((seconds - tmp_day * 86400) / 3600);
+				tmp_min = Math.floor((seconds - tmp_day * 86400 - tmp_hrs * 3600) / 60);
+				tmp_sec = Math.floor(seconds - tmp_day * 86400 - tmp_hrs * 3600 - tmp_min * 60);
+				if (tmp_day > 0) {
+					time += tmp_day + "d " + tmp_hrs + "h";
+				} else {
+					if (tmp_hrs > 0) {
+						time += tmp_hrs + "h " + tmp_min + "m";
+					} else {
+						if (tmp_min > 0) {
+							time += this.str_complete_zero(tmp_min) + ":" + this.str_complete_zero(tmp_sec);
+						} else {
+							time += "00:" + this.str_complete_zero(tmp_sec);
+						}
+					}
 				}
-				if (tmp_sec < 10) {
-					tmp_sec = "0" + tmp_sec;
-				}
+				return time;
 			} else {
-				tmp_min = "00";
-				tmp_sec = "00";
+				return "00:00";
 			}
-			return tmp_min + ":" + tmp_sec;
 		} else {
-			if (seconds > 0) {
-				tmp_sec = Math.floor(seconds);
-				if (tmp_sec < 10) {
-					tmp_sec = "0" + tmp_sec;
-				}
-			} else {
-				tmp_sec = "00";
+			var tmp_sec;
+			if (seconds < 0) {
+				seconds = 0;
 			}
-			return tmp_sec;
+			tmp_sec = Math.floor(seconds);
+			return this.str_complete_zero(tmp_sec);
 		}
+	},
+
+	str_complete_zero: function(time) {
+		if (time < 10) {
+			time = "0" + time;
+		}
+		return time;
 	},
 
 	// Takes clock value, and depending on calculus, draws the graphic interface

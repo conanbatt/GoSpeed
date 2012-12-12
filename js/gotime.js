@@ -345,7 +345,7 @@ GoTime.prototype = {
 
 			// XXX TODO FIXME: Check if this is working well... (timer resume with tick and stuff...)
 			this.clock.resume(this.game.get_next_move());
-			if (time_adjustment != undefined) {
+			if (time_adjustment != undefined && !isNaN(time_adjustment)) {
 				this.clock.adjust(time_adjustment);
 			}
 		}

@@ -980,15 +980,31 @@ Canvas2DEngine.prototype = {
 *   Export Image   *
                   */
 
-	get_base64_png: function() {
+	get_base64_png: function(size) {
+		// Store original values
+		var tmp_size = this.div_board.style.width;
+
+		// Setup small sized board config
+		this.div_board.style.width = size + "px";
+		this.div_board.style.height = size + "px";
+		this.manager.redraw(true);
+
+		// Merge canvases
 		var tc = document.createElement("canvas");
-		tc.width = this.last_width;
-		tc.height = this.last_height;
+		tc.width = size;
+		tc.height = size;
 		var ct = tc.getContext("2d");
-		ct.drawImage(this.board_canvas, 0, 0);
-		ct.drawImage(this.shadow_canvas, 0, 0);
-		ct.drawImage(this.stone_canvas, 0, 0);
-		ct.drawImage(this.marker_canvas, 0, 0);
+		ct.drawImage(this.board_canvas, 0, 0, size, size);
+		ct.drawImage(this.shadow_canvas, 0, 0, size, size);
+		ct.drawImage(this.stone_canvas, 0, 0, size, size);
+		ct.drawImage(this.marker_canvas, 0, 0, size, size);
+
+		// Restore original board
+		this.div_board.style.width = tmp_size;
+		this.div_board.style.height = tmp_size;
+		this.manager.redraw(true);
+
+		// Retur data
 		return tc.toDataURL();
 	},
 }

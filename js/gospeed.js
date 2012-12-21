@@ -366,14 +366,14 @@ GoSpeed.prototype = {
 						tmp_play.time_left = tmp_remain[this.get_next_move()];
 					}
 
-					this.commit_play(tmp_play, NODE_ONLINE, true);
+					var committed = this.commit_play(tmp_play, NODE_ONLINE, true);
 
 					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
 
 					// Send Play Callback
-					if (this.callbacks.send_play != undefined) {
+					if (this.callbacks.send_play != undefined && committed) {
 						this.status = ST_WAITING;
 						this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
 					}
@@ -572,6 +572,7 @@ GoSpeed.prototype = {
 				}
 			}
 		}
+		return (index === false);
 	},
 
 	update_play_captures: function(play) {
@@ -664,14 +665,14 @@ GoSpeed.prototype = {
 				this.update_play_captures(tmp_play);
 
 				// Commit
-				this.commit_play(tmp_play, NODE_ONLINE);
+				var committed = this.commit_play(tmp_play, NODE_ONLINE);
 
 				if (typeof KAYAGLOBAL != "undefined") {
 					KAYAGLOBAL.play_sound("pass");
 				}
 
 				// Send Play Callback
-				if (this.callbacks.send_play != undefined) {
+				if (this.callbacks.send_play != undefined && committed) {
 					this.status = ST_WAITING;
 					this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
 				}

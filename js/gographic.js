@@ -60,9 +60,18 @@ GoGraphic.prototype = {
 		this.grid[row][col].little_stone = stone;
 	},
 
-	place_last_stone_marker: function(put) {
+	place_last_stone_marker: function(play) {
 		if (this.args.draw_markers) {
-			this.engine.draw_last_stone_marker(put);
+			/*
+			if (play == undefined) {
+				play = this.game.game_tree.actual_move.play;
+			}
+			*/
+			if (play && play.wait) {
+				this.engine.draw_last_stone_wait_marker(play.put);
+			} else {
+				this.engine.draw_last_stone_marker(play.put);
+			}
 		}
 	},
 
@@ -333,10 +342,10 @@ GoGraphic.prototype = {
 /*
 *   Helpers   *
              */
-	confirm_play: function(put) {
+	confirm_play: function(play) {
 		this.clear_last_stone_markers();
 		if (this.args.draw_markers) {
-			this.place_last_stone_marker(put);
+			this.place_last_stone_marker(play);
 		}
 	},
 
@@ -354,7 +363,7 @@ GoGraphic.prototype = {
 		this.engine.clear_ko();
 	},
 
-	draw_play: function(play, wait) {
+	draw_play: function(play) {
 		this.clear_last_stone_markers();
 		if (play instanceof FreePlay) {
 			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
@@ -366,11 +375,7 @@ GoGraphic.prototype = {
 		} else if (play instanceof Play) {
 			this.put_stone(play.put.color, play.put.row, play.put.col);
 			if (this.args.draw_markers) {
-				if (wait) {
-					this.engine.draw_last_stone_wait_marker(play.put);
-				} else {
-					this.engine.draw_last_stone_marker(play.put);
-				}
+				this.place_last_stone_marker(play);
 			}
 			for (var s = 0, ls = play.remove.length; s < ls; ++s) {
 				this.remove_stone(play.remove[s].row, play.remove[s].col);
@@ -473,7 +478,7 @@ GoGraphic.prototype = {
 				if (node.play instanceof Play) {
 					this.refresh_ko(node.play);
 					if (this.args.draw_markers) {
-						this.engine.draw_last_stone_marker(node.play.put);
+						this.place_last_stone_marker(node.play);
 					}
 				}
 			}

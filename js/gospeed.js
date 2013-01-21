@@ -90,7 +90,7 @@ GoSpeed.prototype = {
 					this.shower.undraw_play(node.play);
 					// Place last stone marker
 					if (this.game_tree.actual_move.play instanceof Play) {
-						this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+						this.shower.place_last_stone_marker(this.game_tree.actual_move.play);
 					}
 				}
 			}
@@ -366,7 +366,8 @@ GoSpeed.prototype = {
 						tmp_play.time_left = tmp_remain[this.get_next_move()];
 					}
 
-					var committed = this.commit_play(tmp_play, NODE_ONLINE, true);
+					tmp_play.wait = true; // Show waiting animation
+					var committed = this.commit_play(tmp_play, NODE_ONLINE);
 
 					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
@@ -432,7 +433,7 @@ GoSpeed.prototype = {
 							actual_play.put.push(new Stone("B", row, col));
 						}
 						// Grid
-						this.remove_stone(row, col);
+						this.board.remove_stone(row, col);
 						this.board.put_stone("B", row, col);
 						// Draw
 						if (this.shower) {
@@ -448,7 +449,7 @@ GoSpeed.prototype = {
 							actual_play.put.splice(put[0], 1);
 						}
 						// Grid
-						this.remove_stone(row, col);
+						this.board.remove_stone(row, col);
 						// Draw
 						if (this.shower) {
 							this.shower.remove_stone(row, col);
@@ -553,25 +554,17 @@ GoSpeed.prototype = {
 	},
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
-	commit_play: function(play, node_source, wait) {
+	commit_play: function(play, node_source) {
 		var index = this.game_tree.actual_move.search_next_play(play);
 		if (index !== false) {
 			this.next(index);
 		} else {
-			if (play instanceof Play) {
-				this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
-				this.board.make_play(play);
-				if (this.shower) {
-					this.shower.draw_play(play, wait);
-					this.shower.update_captures(play);
-					this.shower.update_move_number(this.game_tree.actual_move);
-				}
-			} else if (play instanceof Pass) {
-				this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
-				if (this.shower != undefined) {
-					this.shower.clear_ko();
-					this.shower.clear_last_stone_markers();
-				}
+			this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+			this.board.make_play(play);
+			if (this.shower != undefined) {
+				this.shower.draw_play(play);
+				this.shower.update_captures(play);
+				this.shower.update_move_number(this.game_tree.actual_move);
 			}
 		}
 		return (index === false);
@@ -914,7 +907,7 @@ GoSpeed.prototype = {
 			if (mode == "play" || mode == "play_online") {
 				if (this.shower != undefined) {
 					if (this.game_tree.actual_move.play instanceof Play) {
-						this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+						this.shower.place_last_stone_marker(this.game_tree.actual_move.play);
 					}
 				}
 			}
@@ -944,7 +937,7 @@ GoSpeed.prototype = {
 		this.score = undefined;
 		if (this.shower != undefined) {
 			if (this.game_tree.actual_move.play instanceof Play) {
-				this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				this.shower.place_last_stone_marker(this.game_tree.actual_move.play);
 				this.shower.refresh_ko(this.game_tree.actual_move.play);
 			}
 			this.shower.update_score();
@@ -964,7 +957,7 @@ GoSpeed.prototype = {
 		this.estimator = undefined;
 		if (this.shower != undefined) {
 			if (this.game_tree.actual_move.play instanceof Play) {
-				this.shower.place_last_stone_marker(this.game_tree.actual_move.play.put);
+				this.shower.place_last_stone_marker(this.game_tree.actual_move.play);
 				this.shower.refresh_ko(this.game_tree.actual_move.play);
 			}
 			this.shower.update_score();
@@ -1171,10 +1164,11 @@ GoSpeed.prototype = {
 	},
 
 	confirm_play: function() {
+		var play = this.game_tree.actual_move.play;
+		delete play.wait;
 		if (this.shower != undefined) {
-			var play = this.game_tree.actual_move.play;
 			if (play instanceof Play) {
-				this.shower.confirm_play(play.put);
+				this.shower.confirm_play(play);
 			}
 		}
 	},
@@ -1235,7 +1229,7 @@ GoSpeed.prototype = {
 								// FIXME: I think this is useless, the goto_path does the same work and
 								// confirms the stones. But we cannot goto_path when the controller has
 								// pending focus to send...
-								this.confirm_play();
+								//this.confirm_play(); // commented because new_add_moves in sgf.js is doing this...
 							}
 						}
 					}

@@ -497,7 +497,9 @@ SGFParser.prototype = {
 			for (var i = 0, li = sgf_node.next.length; i < li; ++i) {
 				reconstruct = false;
 				if (tree_node.next[i] != undefined) {
+					// TODO: add replacement for offline nodes when online node with the same move arrives
 					if (tree_node.next[i].source > NODE_ONLINE) {
+						// -- No corresponding online node in game tree
 						// Temporarily remove offline nodes
 						offline_nodes = tree_node.next.splice(i, tree_node.next.length - i);
 						// Increment their node position
@@ -507,7 +509,9 @@ SGFParser.prototype = {
 						// Cast reconstruct
 						reconstruct = true;
 					} else {
+						// -- Corresponding node in game tree found
 						if (!this.same_move(sgf_node.next[i], tree_node.next[i])) {
+							// -- But it's not the same move...
 							var s = "";
 							s += "Different moves loaded in the same place...<br /><br />";
 							s += "<b>Loaded:</b> " + this.moves_loaded + "<br />";
@@ -518,6 +522,11 @@ SGFParser.prototype = {
 							s += "<b>new:</b> " + sgf_node.next[i];
 							throw new Error(s);
 						}
+
+						// Confirm play
+						delete tree_node.next[i].play.wait; // Ok, it has arrived, no more wait.
+
+						// Add node to the valid list
 						tmp_sgf_stash.unshift(sgf_node.next[i]);
 						tmp_tree_stash.unshift(tree_node.next[i]);
 					}
@@ -549,7 +558,7 @@ SGFParser.prototype = {
 		// Check if the moves we have already loaded are the same that have arrived.
 		if (only_moves.length == this.moves_loaded.length) {
 			if (only_moves[only_moves.length - 1] == this.moves_loaded[this.moves_loaded.length - 1]) {
-				game.confirm_play();
+				//game.confirm_play(); // Commented to avoid confusion, should not be commented but this method is not used anyway...
 				return true;
 			} else {
 				//throw new Error("Same move count but different plays...");

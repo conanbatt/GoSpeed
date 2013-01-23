@@ -555,19 +555,19 @@ GoSpeed.prototype = {
 
 	// Takes a play, appends it to the game_tree, updates the grid, the shower and changes next_move
 	commit_play: function(play, node_source) {
-		var index = this.game_tree.actual_move.search_next_play(play);
-		if (index !== false) {
-			this.next(index);
-		} else {
-			this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+		var appended = this.game_tree.append(new GameNode(play, node_source), (node_source != NODE_VARIATION));
+		if (appended) {
 			this.board.make_play(play);
 			if (this.shower != undefined) {
 				this.shower.draw_play(play);
 				this.shower.update_captures(play);
 				this.shower.update_move_number(this.game_tree.actual_move);
 			}
+		} else {
+			var index = this.game_tree.actual_move.search_next_play(play);
+			this.next(index);
 		}
-		return (index === false);
+		return appended;
 	},
 
 	update_play_captures: function(play) {
@@ -1165,7 +1165,6 @@ GoSpeed.prototype = {
 
 	confirm_play: function() {
 		var play = this.game_tree.actual_move.play;
-		delete play.wait;
 		if (this.shower != undefined) {
 			if (play instanceof Play) {
 				this.shower.confirm_play(play);
@@ -1229,7 +1228,9 @@ GoSpeed.prototype = {
 								// FIXME: I think this is useless, the goto_path does the same work and
 								// confirms the stones. But we cannot goto_path when the controller has
 								// pending focus to send...
-								//this.confirm_play(); // commented because new_add_moves in sgf.js is doing this...
+								// Conclusion: we use this because we can't use goto_path, otherwise
+								// controller role would have issues.
+								this.confirm_play();
 							}
 						}
 					}

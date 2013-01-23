@@ -178,7 +178,7 @@ var TREE_DRAW_INTERVAL = 100;
 
 	GameTree.prototype = {
 		append: function(node, follow) {
-			var appended = false; // Result
+			var old_node;
 
 			// Node setup
 			node.prev = this.actual_move;
@@ -186,67 +186,66 @@ var TREE_DRAW_INTERVAL = 100;
 
 			// Check position
 			var index = this.actual_move.search_next_play(node.play);
-			if (index === false) {
-				// Play not found, standard append
-				for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
-					if (node.source < this.actual_move.next[i].source) {
-						index = i;
-						break;
-					}
-				}
-				if (index === false) {
-					// Append to the end
-					this.actual_move.next.push(node);
-					node.pos = this.actual_move.next.length - 1;
-				} else {
-					// Insert and update positions
-					node.pos = index; // pos is index
-					for (var i = index, li = this.actual_move.next.length; i < li; ++i) {
-						// Update all subsequent positions
-						this.actual_move.next[i].pos++;
-					}
-					// Insert node in correct place
-					this.actual_move.next.splice(index, 0, node);
-				}
+			if (index !== false) {
+				old_node = this.actual_move.next[index];
 
-				// TODO XXX FIXME: here might be the origin of the govar bug.
-				if (follow) {
-					this.actual_move.last_next = node;
-				} else {
-					var l_next = null;
-					if (this.actual_move.source == NODE_VARIATION) {
-						l_next = node;
-					} else {
-						for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
-							if (this.actual_move.next[i].source != NODE_VARIATION) {
-								l_next = this.actual_move.next[i];
-								break;
-							}
-						}
-					}
-					this.actual_move.last_next = l_next;
-				}
-				this.actual_move = node;
-				appended = true;
-			} else {
-				var old_node = this.actual_move.next[index];
-				// Play found, check source and append
 				if (node.source <= old_node.source) {
 					// Source is lower or equal, replace
-					node.pos = old_node.pos;
-					node.next = old_node.next;
-					node.last_next = old_node.last_next;
-					this.actual_move.next[index] = node;
-					this.actual_move.last_next = node;
-					this.actual_move = node;
-					appended = true;
+					this.actual_move.next.splice(index, 1);
+					for (var i = index, li = this.actual_move.next.length; i < li; ++i) {
+						this.actual_move.next[i].pos--;
+					}
+					old_node.source = node.source;
+					node = old_node;
 				} else {
 					// Source is greater, do nothing
+					return false;
 				}
 			}
 
+			// Play not found, standard append
+			for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
+				if (node.source < this.actual_move.next[i].source) {
+					index = i;
+					break;
+				}
+			}
+			if (index === false) {
+				// Append to the end
+				this.actual_move.next.push(node);
+				node.pos = this.actual_move.next.length - 1;
+			} else {
+				// Insert and update positions
+				node.pos = index; // pos is index
+				for (var i = index, li = this.actual_move.next.length; i < li; ++i) {
+					// Update all subsequent positions
+					this.actual_move.next[i].pos++;
+				}
+				// Insert node in correct place
+				this.actual_move.next.splice(index, 0, node);
+			}
+
+			// TODO XXX FIXME: here might be the origin of the govar bug.
+			if (follow) {
+				this.actual_move.last_next = node;
+			} else {
+				var l_next = null;
+				if (this.actual_move.source == NODE_VARIATION) {
+					l_next = node;
+				} else {
+					for (var i = 0, li = this.actual_move.next.length; i < li; ++i) {
+						if (this.actual_move.next[i].source != NODE_VARIATION) {
+							l_next = this.actual_move.next[i];
+							break;
+						}
+					}
+				}
+				this.actual_move.last_next = l_next;
+			}
+			this.actual_move = node;
+
 			// End
-			return appended;
+			return true;
 		},
 
 		next: function(index) {

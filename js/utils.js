@@ -189,7 +189,7 @@ var TREE_DRAW_INTERVAL = 100;
 			if (index !== false) {
 				old_node = this.actual_move.next[index];
 
-				if (node.source <= old_node.source) {
+				if (node.source < NODE_OFFLINE) {
 					// Source is lower or equal, replace
 					this.actual_move.next.splice(index, 1);
 					for (var i = index, li = this.actual_move.next.length; i < li; ++i) {

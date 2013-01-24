@@ -367,14 +367,14 @@ GoSpeed.prototype = {
 					}
 
 					tmp_play.wait = true; // Show waiting animation
-					var committed = this.commit_play(tmp_play, NODE_ONLINE);
+					this.commit_play(tmp_play, NODE_ONLINE);
 
 					if (typeof KAYAGLOBAL != "undefined") {
 						KAYAGLOBAL.play_sound((this.get_next_move() == "W" ? "B" : "W"));
 					}
 
 					// Send Play Callback
-					if (this.callbacks.send_play != undefined && committed) {
+					if (this.callbacks.send_play != undefined) {
 						this.status = ST_WAITING;
 						this.callbacks.send_play(this.data_to_sgf_node(tmp_play, tmp_remain));
 					}
